@@ -7,7 +7,8 @@ class Grid:
         self.rows = rows
         self.columns = columns
         self.grid = [[None for _ in range(columns)] for _ in range(rows)]
-    def setup_grid(self, manifest_data):
+        
+    def setup_grid(self, manifest):
         return 0
     
     def add_container(self, container, row, column):
@@ -16,3 +17,5 @@ class Grid:
     def remove_container(self, row, column):
         self.grid[row][column] = None
         
+    def isBalanced(self):
+        return 0
