@@ -1,5 +1,5 @@
 import os
-from models.grid import Grid
+from models.grid_balance import Grid
 
 def upload_manifest(file_name):
     path = f'../manifests/{file_name}'
