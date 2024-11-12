@@ -77,6 +77,7 @@ class GridState:
     
     def calculate_weights(self):
         # Note: hasn't considered empty container.
+        # When setting up a grid with manifess, calculate left, right, total and goal weight range.
         self.left_weight = 0
         self.right_weight = 0
         for i in range(self.rows):
@@ -88,55 +89,64 @@ class GridState:
                     else:
                         self.right_weight += EMPTY_CONTAINER_WEIGHT + slot.container.get_weight()
         self.total_weight = self.left_weight + self.right_weight
-        return self.left_weight, self.right_weight, self.total_weight
-    
-    def isBalanced(self):
         lower_bound = round(self.total_weight / 2.1)
         upper_bound = round((1.1 / 2.1) * self.total_weight)
         print(f"Balance range: {lower_bound} kg - {upper_bound} kg")
         self.goal_weight = (lower_bound, upper_bound)
-        return lower_bound <= self.left_weight <= upper_bound 
-        
-    def add_container(self, container, row, column):
-        self.grid[row][column].container= container
-        self.grid[row][column].state= 2 # Mark CONTAINER
-        
-    def remove_container(self, row, column):
-        self.grid[row][column].container = None
-        self.grid[row][column].state = 1 # Mark UNUSED
+        return self.left_weight, self.right_weight, self.total_weight, self.goal_weight
     
+    def isBalanced(self):
+        return self.goal_weight[0] <= self.left_weight <= self.goal_weight[1] 
+         
+    """
+    We can add a container from a car, remove a container from the ship,
+    or move a container within the ship's bay. The weights will be updated accordingly.
+    """
+    def update_weight(self, pos, add=True):
+        # add: add or subtract the container's weight.
+        slot = self.grid[pos[0]][pos[1]]
+        if slot.state == 2 and slot.container is not None: 
+            container_weight = slot.container.get_weight() + EMPTY_CONTAINER_WEIGHT
+            if pos[1] < self.columns//2:  
+                if add:
+                    self.left_weight += container_weight
+                    self.total_weight += container_weight
+                else:
+                    self.left_weight -= container_weight
+                    self.total_weight -= container_weight 
+            else:  
+                if add:
+                    self.right_weight += container_weight
+                    self.total_weight += container_weight
+                else:
+                    self.right_weight -= container_weight
+                    self.total_weight -= container_weight 
+           
+    def add_container(self, container, pos):
+        slot = self.grid[pos[0]][pos[1]]
+        container.update_position(pos)
+        slot.container= container
+        slot.state= 2 # Mark CONTAINER
+        self.update_weight(pos, add=True)
+        
+    def remove_container(self, pos):
+        self.update_weight(pos, add=False)
+        slot = self.grid[pos[0]][pos[1]]
+        slot.container = None
+        slot.state = 1 # Mark UNUSED
+        
     def move_container(self, pos1, pos2):
         container = self.grid[pos1[0]][pos1[1]].container
-        self.remove_container(pos1[0], pos1[1])
-        self.add_container(container, pos2[0], pos2[1])
-        container.update_position(pos2)
+        self.remove_container(pos1)
+        self.add_container(container, pos2)
         
+    def manhattan_distance(self, pos1, pos2):
+        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])  
+      
     def calculate_cost(self, pos1, pos2):
         heuristic_cost = 0
         # Placeholder
         return heuristic_cost + self.manhattan_distance(pos1, pos2)
-    
-    def manhattan_distance(self, pos1, pos2):
-        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
-
-    def expand(self): 
-        # Return a list of children girds
-        children = []
-        # 1. Gets movable containers
-        movable_containers_position = self.get_movable_containers_position()
-        for pos1 in movable_containers_position:
-            # 2. For each movable get valid slots to move to
-            valid_slots = self.get_valid_slots_position(pos1)
-            for pos2 in valid_slots:
-                # 3. Generate such grid (move from pos1 to pos2) and update the cost
-                new_grid = copy.deepcopy(self) # Note: Fix later for better efficiency. 
-                new_grid.move_container(pos1, pos2)
-                move_cost = self.calculate_cost(pos1, pos2)
-                new_grid.cost = self.cost + move_cost
-                # 4. Apped the grid to the children list
-                children.append(new_grid)
-            
-        return children
     
     def get_movable_containers_position(self):
         # Returns the positions of all containers that can be moved (topmost in each column)
@@ -147,6 +157,7 @@ class GridState:
                 if slot.state == 2:  
                     movable_positions.append((i, j))  
                     break 
+    
         return movable_positions
     
     def get_valid_slots_position(self, pos1):
@@ -165,12 +176,34 @@ class GridState:
                     continue
                 if i>0 and self.grid[i - 1][j].state != 1: # Valid if it's not directly above an UNUSED slot
                     valid_slot_position.append((i, j))
-                    continue                 
+                    continue  
+                               
         return valid_slot_position
     
+    def expand(self): 
+        # Note: the buffer area is not considered yet
+        # Return a list of children girds generated by moving containers
+        children = []
+        # 1. Gets movable containers
+        movable_containers_position = self.get_movable_containers_position()
+        for pos1 in movable_containers_position:
+            # 2. For each movable get valid slots to move to
+            valid_slots = self.get_valid_slots_position(pos1)
+            for pos2 in valid_slots:
+                # 3. Generate such grid (move from pos1 to pos2) and update the cost
+                new_grid = copy.deepcopy(self) # Note: Fix later for better efficiency. 
+                new_grid.move_container(pos1, pos2)
+                move_cost = self.calculate_cost(pos1, pos2)
+                new_grid.cost = self.cost + move_cost
+                # 4. Apped the grid to the children list
+                children.append(new_grid)
+             
+        return children
+
     def print_path(self, goal_state):
         # Placeholder"
         return 0
+    
     def __repr__(self):
         result = ""
         for row in self.grid:
@@ -182,13 +215,13 @@ class GridState:
         return self.cost < other.cost # This allows GridState to be sotred in heapq according to the cost
 
 
-grid = GridState(rows=6, columns=8)
+grid = GridState(rows=4, columns=6)
 #grid.setup_grid("../../manifests/sample_manifest_notbalanced.txt")
-grid.setup_grid("../../manifests/sample_manifest_balanced.txt")
-#grid.setup_grid("../../manifests/sample_manifest_children_test.txt")
+#grid.setup_grid("../../manifests/sample_manifest_balanced.txt")
+grid.setup_grid("../../manifests/sample_manifest_children_test.txt")
 print(grid)
-x, y, z = grid.calculate_weights()
-print(f"Weight: {x, y, z}")
+x, y, z, w = grid.calculate_weights()
+print(f"Weight: {x, y, z}, Goal weight: {w}")
 print(f"Is_balanced: {grid.isBalanced()}")
 #check get_movable_containers_position
 position = grid.get_movable_containers_position()
@@ -200,5 +233,11 @@ slots = grid.get_valid_slots_position((3,1))
 slots_display = [(i + 1, j + 1) for i, j in slots]
 print(f"Available slots to move container (3, 1): {slots_display}")
 
+#check expanded states and weights
 children = grid.expand()
 print(f"Numbers of children: {len(children)}")
+for i in range(3):
+    grid = children[i]
+    x, y, z, w = grid.calculate_weights()
+    print(f"Weight: {x, y, z}, Goal weight: {w}")
+    print(f"Is_balanced: {grid.isBalanced()}")
