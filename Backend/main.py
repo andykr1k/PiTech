@@ -1,22 +1,5 @@
-import os
-from models.grid_balance import Grid
-
-def upload_manifest(file_name):
-    path = f'../manifests/{file_name}'
-    if not os.path.exists(path):
-        print(f"Manifest '{file_name}' not found.")
-        return None
-    with open(path, 'r') as manifest_file:
-        return manifest_file.readlines()
-    
-def upload_transfer_list(file_name):
-    path = f'../transferlist/{file_name}'
-    if not os.path.exists(path):
-        print(f"Transfer List '{file_name}' not found.")
-        return None
-    with open(path, 'r') as transfer_list:
-        return transfer_list.readlines()
-    
+from Utilities.Utils import upload_manifest, upload_transfer_list
+from Classes.GridState import GridState
 
 def main():
     
@@ -34,10 +17,10 @@ def main():
         
         manifest_name = "sample_manifest.txt"
         manifest_data = upload_manifest(manifest_name)
-        
-        new_grid = Grid()
+        new_grid = GridState(rows=6, columns=8)
         new_grid.setup_grid(manifest_data)
-        
+        print("made it here")
+
         if job_choice == '1':
             print("Balancing job selected.")
        
