@@ -1,22 +1,6 @@
 import os
-from models.grid_balance import Grid
-
-def upload_manifest(file_name):
-    path = f'../manifests/{file_name}'
-    if not os.path.exists(path):
-        print(f"Manifest '{file_name}' not found.")
-        return None
-    with open(path, 'r') as manifest_file:
-        return manifest_file.readlines()
-    
-def upload_transfer_list(file_name):
-    path = f'../transferlist/{file_name}'
-    if not os.path.exists(path):
-        print(f"Transfer List '{file_name}' not found.")
-        return None
-    with open(path, 'r') as transfer_list:
-        return transfer_list.readlines()
-    
+from models.grid_balance import GridState
+from pathfinder.balance import Balance_Problem
 
 def main():
     
@@ -33,21 +17,21 @@ def main():
             break
         
         manifest_name = "sample_manifest.txt"
-        manifest_data = upload_manifest(manifest_name)
-        
-        new_grid = Grid()
-        new_grid.setup_grid(manifest_data)
         
         if job_choice == '1':
             print("Balancing job selected.")
-       
+            grid = GridState(rows=6, columns=8)
+            
+            #grid.setup_grid("../manifests/sample_manifest_notbalanced.txt") #size 6x8 can't be balanced
+            grid.setup_grid("../manifests/sample_manifest_balanced.txt") #size 6x8 already balanced
+            #grid.setup_grid("../manifests/sample_manifest_children_test_1.txt") #size 4x6 can be balanced
+            print(grid.goal_weight)
+            problem = Balance_Problem(grid)
+            problem.solve()
         
         elif job_choice == '2':
             print("Transferring job selected.")
-            transfer_list_name = "sample_transfer_list.txt"
-            transfer_list = upload_transfer_list(transfer_list_name)
-            
-
+        
         else:
             print("Invalid input. Please try again.")
         

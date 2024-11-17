@@ -8,9 +8,6 @@ class Container:
         self.weight = weight
         self.name = name
         
-    def __repr__(self):
-        return f"{self.name}, {self.weight}"
-    
     def update_position(self, new_position):
         self.position = new_position
         
@@ -26,17 +23,28 @@ class Container:
     
     def __hash__(self):
         return hash((self.position, self.weight, self.name))
-        
     
+    def __repr__(self):
+        return f"{self.name}, {self.weight}"
+    
+        
 class Slot:
     def __init__(self, state= 0, container=None, position=(-1,-1)):
         # "NAN: 0", "UNUSED: 1", or "CONTAINER: 2"
         self.state = state 
         self.container = container
         self.position = position
+        
     def __repr__(self):
-        return f"{self.position}, {self.state}, {self.container}\n-------------------------------\n"
-    
+        if self.state == 0:
+            state_str = "NAN"
+        elif self.state == 1:
+            state_str = "UNUSED"
+        elif self.state == 2 and self.container is not None:
+            state_str = "CONTAINER"
+            
+        return f"{self.position}, {state_str}, Container: {self.container}\n-------------------------------\n"
+
     def __eq__(self, other):
         if isinstance(other, Slot):
             return (self.state == other.state and
@@ -93,7 +101,8 @@ class GridState:
                     
                     count += 1
                     self.grid[i][j] = slot
-        return self.grid
+                    
+        self.calculate_weights()
     
     def calculate_weights(self):
         # Note: hasn't considered empty container.
@@ -210,9 +219,11 @@ class GridState:
             # 2. For each movable get valid slots to move to
             valid_slots = self.get_valid_slots_position(pos1)
             for pos2 in valid_slots:
+
                 # 3. Generate such grid (move from pos1 to pos2) and update the cost
                 new_grid = copy.deepcopy(self) # Note: Fix later for better efficiency. 
                 new_grid.move_container(pos1, pos2)
+                
                 move_cost = self.calculate_cost(pos1, pos2)
                 new_grid.cost = self.cost + move_cost
                 # 4. Apped the grid to the children list
@@ -224,6 +235,9 @@ class GridState:
         # Placeholder"
         return 0
     
+    def get_weight(self):
+        return self.left_weight, self.right_weight, self.total_weight, self.goal_weight
+    
     def __repr__(self):
         result = ""
         for row in self.grid:
@@ -233,6 +247,7 @@ class GridState:
     
     def __lt__(self, other):
         return self.cost < other.cost # This allows GridState to be sotred in heapq according to the cost
+    
     def __eq__(self, other):
         if isinstance(other, GridState):
             # Two GridState objects are equal if their grid, cost, and weights are the same
@@ -243,13 +258,14 @@ class GridState:
                     self.total_weight == other.total_weight and
                     self.goal_weight == other.goal_weight)
         return False
+    
     def __hash__(self):
         # Hashing grid, slots and containers, 3 of them together is a hash key.
         # This enables O(1) checks to determine if a grid configuration already existed
         grid_hash = hash(tuple(hash(tuple(slot for slot in row)) for row in self.grid))
-        return hash((self.rows, self.columns, self.cost, self.left_weight,
+        return hash((self.cost, self.left_weight,
                      self.right_weight, self.total_weight, self.goal_weight, grid_hash))
-        
+"""       
 #Testing 
 grid = GridState(rows=4, columns=6)
 #grid.setup_grid("../../manifests/sample_manifest_notbalanced.txt")
@@ -277,3 +293,4 @@ for i in range(3):
     x, y, z, w = grid.calculate_weights()
     print(f"Weight: {x, y, z}, Goal weight: {w}")
     print(f"Is_balanced: {grid.isBalanced()}")
+"""
