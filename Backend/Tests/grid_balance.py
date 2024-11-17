@@ -2,10 +2,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from Classes.GridState import GridState
+from pitech.Backend.Classes.Grid import Grid
 from Utilities.Utils import upload_manifest
 
-grid = GridState(rows=6, columns=8)
+grid = Grid(rows=6, columns=8)
 
 manifest_name = "sample_manifest.txt"
 manifest_data = upload_manifest(manifest_name)
