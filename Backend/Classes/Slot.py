@@ -1,5 +1,6 @@
-from Classes.Container import Container
+from Backend.Classes.Container import Container
 import uuid
+
 class Slot:
     def __init__(self, grid_id: uuid.UUID, state=0, container: Container = None, position=(-1, -1)):
         # "NAN: 0", "UNUSED: 1", or "CONTAINER: 2"

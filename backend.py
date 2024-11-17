@@ -1,6 +1,6 @@
-from Utilities.Utils import upload_manifest, upload_transfer_list
-from Classes.Grid import Grid
-from Classes.Pathfinder import Pathfinder
+from Backend.Classes.Grid import Grid
+from Backend.Utilities.Utils import upload_manifest
+from Backend.Classes.Pathfinder import Pathfinder
 
 def main():
     while True:

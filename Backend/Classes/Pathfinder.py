@@ -1,7 +1,7 @@
-from Classes.Slot import Slot
-from Classes.Container import Container
-from Classes.Grid import Grid
-from Classes.Movement import Movement
+from Backend.Classes.Slot import Slot
+from Backend.Classes.Container import Container
+from Backend.Classes.Grid import Grid
+from Backend.Classes.Movement import Movement
 import heapq
 
 class Pathfinder():

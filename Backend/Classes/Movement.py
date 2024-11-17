@@ -1,5 +1,5 @@
-from Classes.Slot import Slot
-from Classes.Container import Container
+from Backend.Classes.Slot import Slot
+from Backend.Classes.Container import Container
 
 class Movement:
     def __init__(self, from_slot: Slot, to_slot: Slot):

@@ -1,7 +1,7 @@
 
-from Classes.Slot import Slot
-from Classes.Container import Container
-from Classes.Movement import Movement
+from Backend.Classes.Slot import Slot
+from Backend.Classes.Container import Container
+from Backend.Classes.Movement import Movement
 import copy
 import uuid
 

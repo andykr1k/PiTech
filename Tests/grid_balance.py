@@ -2,10 +2,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from pitech.Backend.Classes.Grid import Grid
-from Utilities.Utils import upload_manifest
+from Backend.Classes.Grid import Grid
+from Backend.Utilities.Utils import upload_manifest
 
-grid = Grid(rows=6, columns=8)
+grid = Grid(rows=8, columns=12)
 
 manifest_name = "sample_manifest.txt"
 manifest_data = upload_manifest(manifest_name)
@@ -26,6 +26,3 @@ print(f"Available container to move: {position_display}")
 slots = grid.get_valid_slots_position((3,1))
 slots_display = [(i + 1, j + 1) for i, j in slots]
 print(f"Available slots to move container (3, 1): {slots_display}")
-
-children = grid.expand()
-print(f"Numbers of children: {len(children)}")
