@@ -62,8 +62,6 @@ class Grid:
         return self.left_weight, self.right_weight, self.total_weight
 
     def isBalanced(self):
-
-        #self.left_weight, self.right_weight, self.total_weight = self.calculate_weights()
         lower_bound = round(self.total_weight / 2.1)
         upper_bound = round((1.1 / 2.1) * self.total_weight)
         # print(f"Balance range: {lower_bound} kg - {upper_bound} kg")
@@ -101,15 +99,15 @@ class Grid:
     # Returns a list of valid slot positions where a container can be moved
         valid_slot_position = []
         curr_col = pos1[1]
-        for j in range(self.columns):
-            if j == curr_col:  # Skip the column of the container's current position
+        for j in range(self.columns):  # Iterate over each column
+            if j == curr_col:  # Skip the current column of the container
                 continue
-            for i in range(self.rows - 1, -1, -1):
+            for i in range(self.rows):  # Iterate from bottom (row 0) to top
                 slot = self.grid[i][j]
-                if slot.state == 1:  # Check if the slot is UNUSED
-                    if i == self.rows - 1 or self.grid[i + 1][j].state != 1:  # Valid if it's the bottom slot or the slot below is not UNUSED
-                        valid_slot_position.append((i, j))
-                        break
+                if slot.state == 1:  # If the slot is UNUSED
+                    valid_slot_position.append((i, j))  # Add the first UNUSED slot
+                    break 
+    
         return valid_slot_position
     
     
