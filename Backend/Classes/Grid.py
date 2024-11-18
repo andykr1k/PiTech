@@ -40,6 +40,7 @@ class Grid:
                 case 2:
                     containerName = manifestData[i]
                     self.get_slot(row, col).set_container(Container(containerWeight, containerName))
+        self.calculate_weights()
         return self.grid
     
     def get_grid(self):
@@ -62,7 +63,7 @@ class Grid:
 
     def isBalanced(self):
 
-        self.left_weight, self.right_weight, self.total_weight = self.calculate_weights()
+        #self.left_weight, self.right_weight, self.total_weight = self.calculate_weights()
         lower_bound = round(self.total_weight / 2.1)
         upper_bound = round((1.1 / 2.1) * self.total_weight)
         # print(f"Balance range: {lower_bound} kg - {upper_bound} kg")
