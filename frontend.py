@@ -1,8 +1,8 @@
 import sys
+from Frontend.Screens.HomePage import HomePage
+from Frontend.Screens.TestPage import TestPage
+from Frontend.Screens.OperationPage import OperationPage
 from PyQt5.QtWidgets import QApplication, QStackedWidget
-from Screens.HomePage import HomePage
-from Screens.TestPage import TestPage
-from Screens.OperationPage import OperationPage
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
