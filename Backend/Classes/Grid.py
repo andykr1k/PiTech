@@ -68,6 +68,15 @@ class Grid:
         self.goal_weight = (lower_bound, upper_bound)
         return lower_bound <= self.left_weight <= upper_bound
 
+    def get_weightlist(self):
+        weight = []
+        for i in range(self.rows):
+            for j in range(self.columns):
+                slot = self.grid[i][j]
+                if slot.state == 2:
+                    weight.append(slot.container.get_weight())
+        return weight
+    
     def add_container(self, container, row, column):
         self.grid[row][column].container = container
         self.grid[row][column].state = 2  # Mark CONTAINER
@@ -82,7 +91,7 @@ class Grid:
         container = from_slot.get_container()
         from_slot.remove_container()
         to_slot.set_container(container)
-        print(f'Container: {container} moved from {from_slot} to {to_slot}')
+        #print(f'Container: {container} moved from {from_slot} to {to_slot}')
 
     def get_movable_containers_position(self):
         # Returns the positions of all containers that can be moved (topmost in each column)
@@ -150,6 +159,7 @@ class Grid:
             new_grid = copy.deepcopy(self)
             new_grid.move_container(move.from_slot, move.to_slot)
             neighbor_states_moves.append((new_grid, move))
+            
         return neighbor_states_moves
    
     def print_path(self, goal_state):
@@ -165,5 +175,3 @@ class Grid:
 
     def get_slot(self, row, col):
         return self.grid[row][col]
-
-

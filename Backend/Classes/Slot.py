@@ -23,7 +23,7 @@ class Slot:
 
     def remove_container(self):
         self.container = None
-        self.state = 0
+        self.state = 1
 
     def parseState(self):
         match self.container.get_name():
