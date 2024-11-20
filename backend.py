@@ -1,8 +1,8 @@
-from Utilities.Utils import upload_manifest, upload_transfer_list
-from Classes.GridState import GridState
+from Backend.Classes.Grid import Grid
+from Backend.Utilities.Utils import upload_manifest
+from Backend.Classes.Pathfinder import Pathfinder
 
 def main():
-    
     while True:
         print("Please select a job:")
         print("1. Balancing")
@@ -15,22 +15,26 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "sample_manifest.txt"
+        manifest_name = "ShipCase5.txt"
         manifest_data = upload_manifest(manifest_name)
-        new_grid = GridState(rows=6, columns=8)
-        new_grid.setup_grid(manifest_data)
-        print("made it here")
 
+        new_grid = Grid()
+        new_grid.setup_grid(manifest_data)
+        #print(new_grid)
+
+        pathfinder = Pathfinder(new_grid)
+        
         if job_choice == '1':
             print("Balancing job selected.")
-       
-        
-        elif job_choice == '2':
-            print("Transferring job selected.")
-            transfer_list_name = "sample_transfer_list.txt"
-            transfer_list = upload_transfer_list(transfer_list_name)
+            balance_moves = pathfinder.balance()
+            print('Balance Moves:', balance_moves)
             
-
+        
+        # elif job_choice == '2':
+        #     print("Transferring job selected.")
+        #     transfer_list_name = "sample_transfer_list.txt"
+        #     transfer_list = upload_transfer_list(transfer_list_name)
+            
         else:
             print("Invalid input. Please try again.")
         
