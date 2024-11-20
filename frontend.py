@@ -1,17 +1,25 @@
 import sys
-from Frontend.Screens.HomePage import HomePage
-from Frontend.Screens.TestPage import TestPage
-from Frontend.Screens.OperationPage import OperationPage
+from Frontend import SignInPage, HomePage, OperationPage, TestPage
 from PyQt5.QtWidgets import QApplication, QStackedWidget
+
+class MainWidget(QStackedWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.sign_in_page = SignInPage(self)  
+        self.home_page = HomePage(self)  
+        self.operation_page = OperationPage() 
+        self.test_page = TestPage(self)  
+         
+        
+        self.addWidget(self.sign_in_page)
+        self.addWidget(self.home_page)
+        self.addWidget(self.operation_page)
+        self.addWidget(self.test_page) 
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    stacked_widget = QStackedWidget()
-    homePage = HomePage(stacked_widget)
-    testpage = TestPage(stacked_widget)
-    operationpage = OperationPage()
-    stacked_widget.addWidget(homePage)
-    stacked_widget.addWidget(testpage)
-    stacked_widget.addWidget(operationpage)
-    stacked_widget.show()
-    sys.exit(app.exec_())
+    main_widget = MainWidget()  
+    main_widget.show()  
+    sys.exit(app.exec_())  
