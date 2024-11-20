@@ -45,7 +45,8 @@ class Grid:
     
     def get_grid(self):
         return self.grid
-
+    def get_weights(self):
+        return self.left_weight, self.right_weight, self.total_weight 
     def calculate_weights(self):
         # Note: hasn't considered empty container.
         self.left_weight = 0
@@ -89,9 +90,11 @@ class Grid:
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
         container = from_slot.get_container()
+        self.update_weight(pos1, add=False)
         from_slot.remove_container()
         to_slot.set_container(container)
-        #print(f'Container: {container} moved from {from_slot} to {to_slot}')
+        self.update_weight(pos2,add=True)
+
 
     def get_movable_containers_position(self):
         # Returns the positions of all containers that can be moved (topmost in each column)
@@ -175,3 +178,48 @@ class Grid:
 
     def get_slot(self, row, col):
         return self.grid[row][col]
+
+    def update_weight(self, pos, add=True):
+        """
+        We can add a container from a car, remove a container from the ship,
+        or move a container within the ship's bay. The weights will be updated accordingly.
+        """
+        # add: add or subtract the container's weight.
+        slot = self.grid[pos[0]][pos[1]]
+        if slot.state == 2 and slot.container is not None: 
+            container_weight = slot.container.get_weight() 
+            if pos[1] < self.columns//2:  
+                if add:
+                    self.left_weight += container_weight
+                    self.total_weight += container_weight
+                else:
+                    self.left_weight -= container_weight
+                    self.total_weight -= container_weight 
+            else:  
+                if add:
+                    self.right_weight += container_weight
+                    self.total_weight += container_weight
+                else:
+                    self.right_weight -= container_weight
+                    self.total_weight -= container_weight 
+                    
+    def __eq__(self, other):
+        if isinstance(other, Grid):
+            return (
+                self.right_weight == other.right_weight and
+                self.left_weight == other.left_weight and
+                self.grid_as_tuple() == other.grid_as_tuple()
+            )
+        return False
+
+    def __hash__(self):
+        return hash((
+            self.right_weight,
+            self.left_weight,
+            self.grid_as_tuple()
+        ))
+
+    def grid_as_tuple(self):
+        return tuple(
+            tuple(slot for slot in row) for row in self.grid
+        )
