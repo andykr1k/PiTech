@@ -221,5 +221,7 @@ class Grid:
 
     def grid_as_tuple(self):
         return tuple(
-            tuple(slot for slot in row) for row in self.grid
+            tuple(
+                (slot.state, slot.container) for slot in row
+            ) for row in self.grid
         )
