@@ -22,7 +22,7 @@ class Movement:
         pass
 
     def __repr__(self):
-        return f"Move container from position ({self.from_slot[0] + 1}, {self.from_slot[1] + 1}) to position ({self.to_slot[0] + 1}, {self.to_slot[1] + 1})"
+        return f"Move container from position ({self.from_slot[0] }, {self.from_slot[1] }) to position ({self.to_slot[0] }, {self.to_slot[1] })"
     
     def get_from_slot(self):
         return self.from_slot

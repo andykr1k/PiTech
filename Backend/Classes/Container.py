@@ -13,3 +13,11 @@ class Container:
     
     def get_name(self):
         return self.name
+    
+    def __eq__(self, other):
+        if isinstance(other, Container):
+            return self.weight == other.weight and self.name == other.name
+        return False
+
+    def __hash__(self):
+        return hash((self.weight, self.name))

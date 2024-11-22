@@ -32,3 +32,11 @@ class Slot:
             case "UNUSED":
                 return 1
         return 2
+
+    def __eq__(self, other):
+        return (self.grid_id == other.grid_id and 
+                self.position == other.position and 
+                self.container == other.container)
+        return False
+    def __hash__(self):
+        return hash((self.grid_id, self.position, self.container))

@@ -20,6 +20,7 @@ class Pathfinder():
 
     def balanceHelper(self):
         initial_crane_position = (8, 0) 
+
         while self.open_set:
             f_cost, g_cost, path, state = heapq.heappop(self.open_set)
      
@@ -38,14 +39,14 @@ class Pathfinder():
                         new_path = path + [move]
 
                         heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, child_state))
-
+                        
         print("No balanced path found")
         return None
 
     
     def balance_heuristic(self, state):
-        left_w, right_w, total_w = state.calculate_weights()
-        return abs(left_w - right_w)
+        left_w, right_w, total_w = state.get_weights()
+        return 0
     
     def can_balance(self, state):
         
