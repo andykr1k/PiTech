@@ -39,7 +39,8 @@ class Grid:
                     containerWeight = int(manifestData[i][1:-1])
                 case 2:
                     containerName = manifestData[i]
-                    self.get_slot(row, col).set_container(Container(containerWeight, containerName))
+                    
+                    self.get_slot(row, col).set_container(Container(containerName, containerWeight))
         self.calculate_weights()
         return self.slot
     
@@ -93,11 +94,13 @@ class Grid:
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
         container = from_slot.get_container()
-        self.update_weight(pos1, add=False)
-        from_slot.remove_container()
-        to_slot.set_container(container)
+        name = container.get_name()
+        weight = container.get_weight()
+        self.update_weight(pos1,add=False)
+        to_slot.set_container(Container(name,weight))
         self.update_weight(pos2,add=True)
-
+        from_slot.remove_container()
+        
 
     def get_movable_containers_position(self):
         # Returns the positions of all containers that can be moved (topmost in each column)

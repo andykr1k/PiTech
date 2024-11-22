@@ -1,9 +1,9 @@
 
 class Container:
     # represent each container, include weight, name
-    def __init__(self, weight: int, name: str):
-        self.weight = weight
+    def __init__(self, name: str, weight: int):
         self.name = name
+        self.weight = weight
 
     def __repr__(self):
         return f"{self.name}, {self.weight}"

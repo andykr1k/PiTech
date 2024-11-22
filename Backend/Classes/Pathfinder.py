@@ -46,6 +46,7 @@ class Pathfinder():
     
     def balance_heuristic(self, state):
         left_w, right_w, total_w = state.get_weights()
+        #return abs(left_w - right_w)
         return 0
     
     def can_balance(self, state):
@@ -86,4 +87,5 @@ class Pathfinder():
     
     def sift(self):
         print("Sifting...")
-        pass
+        return []
+        
