@@ -11,8 +11,15 @@ class Container:
     def get_weight(self):
         return self.weight
     
+    def set_weight(self, weight):
+        self.weight = weight
+    
     def get_name(self):
-        return self.name
+        return self.name     
+
+    def set_name(self, name):
+        self.name = name
+        return   
     
     def __eq__(self, other):
         if isinstance(other, Container):

@@ -15,11 +15,11 @@ class Grid:
         self.left_weight = 0
         self.total_weight = total_weight
         self.goal_weight = 0
-        self.grid = [[Slot(grid_id=self.id, position=(i,j)) for j in range(columns)] for i in range(rows)]
+        self.slot = [[Slot(grid_id=self.id, position=(i,j)) for j in range(columns)] for i in range(rows)]
 
     def get_slot(self, row, col):
         if 0 <= row < self.rows and 0 <= col < self.columns:
-            return self.grid[row][col]
+            return self.slot[row][col]
         else:
             raise IndexError("Slot position out of grid bounds")
 
@@ -33,27 +33,29 @@ class Grid:
             match condition:
                 case 0:
                     manifestPosition = str(manifestData[i])[1:-1].strip().split(",")
-                    row = int(manifestPosition[0]) - 1
-                    col = int(manifestPosition[1]) - 1
+                    row = int(manifestPosition[0]) -1
+                    col = int(manifestPosition[1]) -1
                 case 1:
                     containerWeight = int(manifestData[i][1:-1])
                 case 2:
                     containerName = manifestData[i]
                     self.get_slot(row, col).set_container(Container(containerWeight, containerName))
         self.calculate_weights()
-        return self.grid
+        return self.slot
     
     def get_grid(self):
-        return self.grid
+        return self.slot
+    
     def get_weights(self):
         return self.left_weight, self.right_weight, self.total_weight 
+    
     def calculate_weights(self):
         # Note: hasn't considered empty container.
         self.left_weight = 0
         self.right_weight = 0
         for i in range(self.rows):
             for j in range(self.columns):
-                slot = self.grid[i][j]
+                slot = self.slot[i][j]
                 if slot.state == 2:
                     if j < self.columns // 2:
                         self.left_weight += slot.container.get_weight()
@@ -73,18 +75,19 @@ class Grid:
         weight = []
         for i in range(self.rows):
             for j in range(self.columns):
-                slot = self.grid[i][j]
+                slot = self.slot[i][j]
                 if slot.state == 2:
                     weight.append(slot.container.get_weight())
         return weight
     
     def add_container(self, container, row, column):
-        self.grid[row][column].container = container
-        self.grid[row][column].state = 2  # Mark CONTAINER
+        self.slot[row][column].container = container
+        self.slot[row][column].state = 2  # Mark CONTAINER
 
     def remove_container(self, row, column):
-        self.grid[row][column].container = None
-        self.grid[row][column].state = 1  # Mark UNUSED
+        self.slot[row][column].container.set_name("UNUSED")
+        self.slot[row][column].container.set_weight(0)
+        self.slot[row][column].state = 1  # Mark UNUSED
 
     def move_container(self, pos1, pos2):
         from_slot = self.get_slot(pos1[0], pos1[1])
@@ -101,7 +104,7 @@ class Grid:
         movable_positions = []
         for j in range(self.columns):
             for i in range(self.rows - 1, -1, -1):
-                slot = self.grid[i][j]
+                slot = self.slot[i][j]
                 if slot.state == 2:
                     movable_positions.append((i, j))
                     break
@@ -115,7 +118,7 @@ class Grid:
             if j == curr_col:  # Skip the current column of the container
                 continue
             for i in range(self.rows):  # Iterate from bottom (row 0) to top
-                slot = self.grid[i][j]
+                slot = self.slot[i][j]
                 if slot.state == 1:  # If the slot is UNUSED
                     valid_slot_position.append((i, j))  # Add the first UNUSED slot
                     break 
@@ -168,16 +171,18 @@ class Grid:
     def print_path(self, goal_state):
         # Placeholder"
         return 0
-
     def __repr__(self):
         res = ""
-        for row in self.grid:
+        for row in self.slot:
             for slot in row:
-                res += str(slot)
+                container_name = slot.container.get_name() 
+                container_weight = slot.container.get_weight()
+                res += f"Position: {slot.position}, State: {slot.state}, Container Name: {container_name}, Container Weight: {container_weight}\n"
+                res += '-'*40 + '\n'
         return res
 
     def get_slot(self, row, col):
-        return self.grid[row][col]
+        return self.slot[row][col]
 
     def update_weight(self, pos, add=True):
         """
@@ -185,7 +190,7 @@ class Grid:
         or move a container within the ship's bay. The weights will be updated accordingly.
         """
         # add: add or subtract the container's weight.
-        slot = self.grid[pos[0]][pos[1]]
+        slot = self.slot[pos[0]][pos[1]]
         if slot.state == 2 and slot.container is not None: 
             container_weight = slot.container.get_weight() 
             if pos[1] < self.columns//2:  
@@ -223,5 +228,5 @@ class Grid:
         return tuple(
             tuple(
                 (slot.state, slot.container) for slot in row
-            ) for row in self.grid
+            ) for row in self.slot
         )

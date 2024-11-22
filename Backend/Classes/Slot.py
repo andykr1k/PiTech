@@ -40,3 +40,6 @@ class Slot:
         return False
     def __hash__(self):
         return hash((self.grid_id, self.position, self.container))
+    
+    def __repr__(self):
+        return f"Slot(grid_id={self.grid_id}, position={self.position}, state={self.state}, container={self.container})"

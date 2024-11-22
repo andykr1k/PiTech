@@ -25,7 +25,7 @@ class Pathfinder():
             f_cost, g_cost, path, state = heapq.heappop(self.open_set)
      
             if state.isBalanced():
-                print('Balanced path found: ', path)
+                print('Balanced path found')
                 return path
 
             if state not in self.closed_set:
