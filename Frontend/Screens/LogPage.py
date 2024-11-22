@@ -1,91 +1,6 @@
-import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-
-
-class HomePage(QWidget):
-    def __init__(self, stacked_widget):
-        super().__init__()
-        self.stacked_widget = stacked_widget
-        self.initUI()
-
-    def initUI(self):
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
-        layout.setSpacing(20)
-
-        self.titleLabel = QLabel("PiTech")
-        self.titleLabel.setFont(QFont("Arial", 28, QFont.Bold))
-        self.titleLabel.setAlignment(Qt.AlignCenter)
-        self.titleLabel.setStyleSheet("color: #2F27CE;")
-        layout.addWidget(self.titleLabel)
-
-        self.continueButton = QPushButton("Continue")
-        self.continueButton.setFont(QFont("Arial", 14))
-        self.continueButton.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2F27CE;
-                color: white;
-                border-radius: 10px;
-                padding: 10px;
-            }
-            QPushButton:hover {
-                background-color: #2F27CE;
-            }
-            """
-        )
-        self.continueButton.clicked.connect(self.goToNextPage)
-        layout.addWidget(self.continueButton, alignment=Qt.AlignCenter)
-
-        self.continueButton = QPushButton("Go to Log Page")
-        self.continueButton.setFont(QFont("Arial", 14))
-        self.continueButton.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2F27CE;
-                color: white;
-                border-radius: 10px;
-                padding: 10px;
-            }
-            QPushButton:hover {
-                background-color: #2F27CE;
-            }
-            """
-        )
-        self.continueButton.clicked.connect(self.goToLogPage)
-        layout.addWidget(self.continueButton, alignment=Qt.AlignCenter)
-
-        self.setLayout(layout)
-
-    def goToNextPage(self):
-        self.stacked_widget.setCurrentIndex(1)
-
-    def goToLogPage(self):
-        self.stacked_widget.setCurrentIndex(2)
-
-
-class TestPage(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        main_layout = QHBoxLayout()
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
-        layout.setSpacing(15)
-
-        self.titleLabel = QLabel("PiTech Test Page")
-        self.titleLabel.setFont(QFont("Arial", 28, QFont.Bold))
-        self.titleLabel.setAlignment(Qt.AlignCenter)
-        self.titleLabel.setStyleSheet("color: #2F27CE;")
-        layout.addWidget(self.titleLabel)
-
-        main_layout.addLayout(layout)
-
-        self.setLayout(main_layout)
 
 class LogPage(QWidget): 
     def __init__(self, stacked_widget):
@@ -178,16 +93,3 @@ class LogPage(QWidget):
         if ok and text:
             timestamp = "2024-10-30 11:45"
             self.logDisplay.append(f"{timestamp} {text}")
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    stacked_widget = QStackedWidget()
-    homePage = HomePage(stacked_widget)
-    testpage = TestPage()
-    logPage = LogPage(stacked_widget)
-    stacked_widget.addWidget(homePage)
-    stacked_widget.addWidget(testpage)
-    stacked_widget.addWidget(logPage)
-    stacked_widget.show()
-    sys.exit(app.exec_())
