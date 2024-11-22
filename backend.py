@@ -15,7 +15,7 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase4.txt"
+        manifest_name = "ShipCase1.txt"
         manifest_data = upload_manifest(manifest_name)
 
         new_grid = Grid()
@@ -27,7 +27,9 @@ def main():
         if job_choice == '1':
             print("Balancing job selected.")
             balance_moves = pathfinder.balance()
-            print('Balance Moves:', balance_moves)
+            print('Balance Moves:')
+            for move in balance_moves:
+                print(move)
             
         
         # elif job_choice == '2':
