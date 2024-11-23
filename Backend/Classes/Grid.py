@@ -17,6 +17,11 @@ class Grid:
         self.goal_weight = 0
         self.slot = [[Slot(grid_id=self.id, position=(i,j)) for j in range(columns)] for i in range(rows)]
         
+        # for heuristic
+        self.left_containers = set()
+        self.right_containers = set()
+        
+        
 
     def get_slot(self, row, col):
         if 0 <= row < self.rows and 0 <= col < self.columns:
@@ -40,8 +45,14 @@ class Grid:
                     containerWeight = int(manifestData[i][1:-1])
                 case 2:
                     containerName = manifestData[i]
+                    container = Container(containerName, containerWeight, row, col)
+                    self.get_slot(row, col).set_container(container)
                     
-                    self.get_slot(row, col).set_container(Container(containerName, containerWeight, row, col))
+                    if (self.slot[row][col].state==2):
+                        if col < self.columns // 2:
+                            self.left_containers.add(container)
+                        else:
+                            self.right_containers.add(container)
                     
         self.calculate_weights()
         return self.slot
@@ -93,15 +104,21 @@ class Grid:
         self.slot[row][column].state = 1  # Mark UNUSED
 
     def move_container(self, pos1, pos2):
+        # now only consider moving within the grid
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
+        
         container = from_slot.get_container()
         name = container.get_name()
         weight = container.get_weight()
+        
+        self.update_container_lists(container, pos2)
+        
         self.update_weight(pos1,add=False)
+        from_slot.remove_container()
         to_slot.set_container(Container(name,weight,pos2[0],pos2[1]))
         self.update_weight(pos2,add=True)
-        from_slot.remove_container()
+  
         
 
     def get_movable_containers_position(self):
@@ -212,7 +229,22 @@ class Grid:
                 else:
                     self.right_weight -= container_weight
                     self.total_weight -= container_weight 
-                    
+    
+    def update_container_lists(self, container, pos2):
+        # Handle balance within the grid, no sifting or to buffer
+        container_copy = copy.deepcopy(container)
+        container_copy.row=pos2[0]
+        container_copy.col=pos2[1]
+        if container in self.left_containers:
+            self.left_containers.remove(container)
+        else:
+            self.right_containers.remove(container)
+        if pos2[1] < self.columns // 2:
+            self.left_containers.add(container_copy)
+        else:  
+            self.right_containers.add(container_copy)
+
+                        
     def __eq__(self, other):
         if isinstance(other, Grid):
             return (

@@ -15,7 +15,7 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase4.txt"
+        manifest_name = "ShipCase3.txt"
         manifest_data = upload_manifest(manifest_name)
 
         new_grid = Grid()
@@ -30,6 +30,7 @@ def main():
             print('Balance Moves:')
             for move in balance_moves:
                 print(move)
+            
             
         
         # elif job_choice == '2':

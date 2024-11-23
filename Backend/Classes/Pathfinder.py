@@ -48,14 +48,24 @@ class Pathfinder():
         #left_w, right_w, total_w = state.get_weights()
         #return abs(left_w - right_w)
         """
+        Method 1 Misplaced contianers distance
         1. Find all the containers one the left side, for example, we have (100, 300) on the left side
         2. In the combinations right side we need (200,100,70)
         3. Calculate the cost needed to move container with weight (100) to the nearest available right side
         4. Same with the right side
         5. Sum up the distances cost
         If we have multiple goal combinations, we repeat step 1 to 5 and pick the one with minimum distance costs
+        Method 2 Misplaced contianers 
+        
         """
-        return 0
+        best_heuristic_value = float('inf')
+        for target_combination in self.valid_combinations:
+            heuristic_value = self.calculate_misplaced_heuristic(state, target_combination)
+            min_misplaced = min(min_misplaced, heuristic_value)
+        
+        return min_misplaced
+            
+       
     
     def can_balance(self, state):
         
@@ -66,6 +76,7 @@ class Pathfinder():
         can_balance = 0
         achievable = 1 
         sum_combinations = {0: []} 
+        unique_combinations = set() 
         
         for weight in weights:
            
@@ -81,16 +92,26 @@ class Pathfinder():
 
         for target in range(lower_bound, upper_bound + 1):
             if (achievable >> target) & 1:
-                left_combination = sum_combinations[target]
-                # Create a copy of weights and remove the left_combination to compute the right_combination
-                remaining_weights = weights.copy()
-                for w in left_combination:
-                    remaining_weights.remove(w)
-                right_combination = remaining_weights
-                self.valid_combinations.append((left_combination, right_combination))
+                side_a = sum_combinations[target]
+                sorted_side_a = tuple(sorted(side_a))
+                unique_combinations.add(sorted_side_a)
                 can_balance = 1
 
         if can_balance:
+            self.valid_combinations = []
+            used_combinations = set()
+
+            for combination in unique_combinations:
+                remaining_weights = weights.copy()
+                for weight in combination:
+                    remaining_weights.remove(weight)
+
+                side_b = tuple(sorted(remaining_weights))
+                pair = tuple(sorted([combination, side_b]))
+
+                if pair not in used_combinations:
+                    self.valid_combinations.append((list(combination), list(side_b)))
+                    used_combinations.add(pair)
             print(f"Balanceable! Combinations: {self.valid_combinations}")
             return can_balance
         

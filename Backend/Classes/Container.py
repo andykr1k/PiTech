@@ -28,8 +28,8 @@ class Container:
     
     def __eq__(self, other):
         if isinstance(other, Container):
-            return self.weight == other.weight and self.name == other.name
+            return (self.weight, self.name, self.row, self.col) == (other.weight, other.name, other.row, other.col)
         return False
 
     def __hash__(self):
-        return hash((self.weight, self.name))
+         return hash((self.weight, self.name, self.row, self.col))
