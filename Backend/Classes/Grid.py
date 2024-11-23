@@ -16,6 +16,7 @@ class Grid:
         self.total_weight = total_weight
         self.goal_weight = 0
         self.slot = [[Slot(grid_id=self.id, position=(i,j)) for j in range(columns)] for i in range(rows)]
+        
 
     def get_slot(self, row, col):
         if 0 <= row < self.rows and 0 <= col < self.columns:
@@ -40,7 +41,8 @@ class Grid:
                 case 2:
                     containerName = manifestData[i]
                     
-                    self.get_slot(row, col).set_container(Container(containerName, containerWeight))
+                    self.get_slot(row, col).set_container(Container(containerName, containerWeight, row, col))
+                    
         self.calculate_weights()
         return self.slot
     
@@ -97,7 +99,7 @@ class Grid:
         name = container.get_name()
         weight = container.get_weight()
         self.update_weight(pos1,add=False)
-        to_slot.set_container(Container(name,weight))
+        to_slot.set_container(Container(name,weight,pos2[0],pos2[1]))
         self.update_weight(pos2,add=True)
         from_slot.remove_container()
         

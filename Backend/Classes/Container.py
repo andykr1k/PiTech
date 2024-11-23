@@ -1,9 +1,11 @@
 
 class Container:
     # represent each container, include weight, name
-    def __init__(self, name: str, weight: int):
+    def __init__(self, name: str, weight: int, row: int, col: int):
         self.name = name
         self.weight = weight
+        self.row = row
+        self.col = col
 
     def __repr__(self):
         return f"{self.name}, {self.weight}"
@@ -20,6 +22,9 @@ class Container:
     def set_name(self, name):
         self.name = name
         return   
+    
+    def get_position(self):
+        return self.row, self.col
     
     def __eq__(self, other):
         if isinstance(other, Container):
