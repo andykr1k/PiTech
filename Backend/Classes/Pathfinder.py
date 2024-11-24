@@ -33,9 +33,10 @@ class Pathfinder():
 
                 for child_state, move in state.getPossibleStatesMoves():
                     if child_state not in self.closed_set:
+                        new_f_cost = f_cost
                         new_g_cost = g_cost + move.get_cost()
                         h_cost = self.balance_heuristic(child_state)
-                        new_f_cost = new_g_cost + h_cost
+                        new_f_cost += new_g_cost + h_cost
                         new_path = path + [move]
 
                         heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, child_state))
@@ -61,30 +62,33 @@ class Pathfinder():
 
         distance_1 = 0   
         distance_2 = 0
+        
         for container in state.left_containers:
             if container.weight not in side_a_weights:
                 row, col = container.get_position()
                 target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'right')
                 if target_position:
                     distance_1 += min_distance
-            if container.weight not in side_b_weights:
-                row, col = container.get_position()
-                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
-                if target_position:
-                    distance_2 += min_distance
-
         for container in state.right_containers:
             if container.weight not in side_b_weights:
                 row, col = container.get_position()
                 target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
                 if target_position:
                     distance_1 += min_distance
-            if container.weight not in side_a_weights:
+        
+        for container in state.left_containers:
+            if container.weight not in side_b_weights:
                 row, col = container.get_position()
                 target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'right')
                 if target_position:
                     distance_2 += min_distance
-
+        for container in state.right_containers:
+            if container.weight not in side_a_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
+                if target_position:
+                    distance_2 += min_distance
+           
 
         return min(distance_1, distance_2)
 
