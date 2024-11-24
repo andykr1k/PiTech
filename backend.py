@@ -15,7 +15,7 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase4.txt"
+        manifest_name = "SilverQueen.txt"
         manifest_data = upload_manifest(manifest_name)
 
         new_grid = Grid()

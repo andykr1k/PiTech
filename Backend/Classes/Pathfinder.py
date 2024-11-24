@@ -47,40 +47,48 @@ class Pathfinder():
     def balance_heuristic(self, state):
         #left_w, right_w, total_w = state.get_weights()
         #return abs(left_w - right_w)
-        """
-        Method 1 Misplaced contianers distance
-        Method 2 Misplaced contianers (now)
-        """
+
         best_heuristic_value = float('inf')
         for goal_combination in self.valid_combinations:
-            heuristic_value = self.calculate_misplaced_heuristic(state, goal_combination)
+            heuristic_value = self.calculate_distance_heuristic(state, goal_combination)
             best_heuristic_value = min(best_heuristic_value, heuristic_value)
         
         return best_heuristic_value
-        
-    def calculate_misplaced_heuristic(self, state, goal_combination):
-        
-        side_a_weights, side_b_weights = set(goal_combination[0]), set(goal_combination[1])
-        
-        misplaced_1 = 0 
-        misplaced_2 = 0
-        for container in state.left_containers:
-            weight = container.weight
-            if weight not in side_a_weights:
-                misplaced_1 += 1
-            if weight not in side_b_weights:
-                misplaced_2 += 1
-                
-        for container in state.right_containers:
-            weight = container.weight
-            if weight not in side_b_weights:
-                misplaced_1 += 1
-            if weight not in side_a_weights:
-                misplaced_2 += 1
-
-
-        return min(misplaced_1, misplaced_2)
     
+    def calculate_distance_heuristic(self, state, goal_combination):
+       
+        side_a_weights, side_b_weights = set(goal_combination[0]), set(goal_combination[1])
+
+        distance_1 = 0   
+        distance_2 = 0
+        for container in state.left_containers:
+            if container.weight not in side_a_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'right')
+                if target_position:
+                    distance_1 += min_distance
+            if container.weight not in side_b_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
+                if target_position:
+                    distance_2 += min_distance
+
+        for container in state.right_containers:
+            if container.weight not in side_b_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
+                if target_position:
+                    distance_1 += min_distance
+            if container.weight not in side_a_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'right')
+                if target_position:
+                    distance_2 += min_distance
+
+
+        return min(distance_1, distance_2)
+
+        
     def can_balance(self, state):
         
         total_weight = state.total_weight
@@ -142,4 +150,3 @@ class Pathfinder():
     def sift(self):
         print("Sifting...")
         return []
-        

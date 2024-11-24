@@ -147,6 +147,29 @@ class Grid:
     
         return valid_slot_position
     
+    def get_nearest_slot_on_other_side(self, row, col, target_side):
+
+        min_distance = float('inf')
+        nearest_slot = None
+
+        if target_side == 'left':
+            target_columns = range(0, self.columns // 2) 
+        elif target_side == 'right':
+            target_columns = range(self.columns // 2, self.columns) 
+        else:
+            raise ValueError("target_side must be either 'left' or 'right'")
+
+        for target_col in target_columns:
+            for target_row in range(self.rows):  
+                slot = self.slot[target_row][target_col]
+                if slot.state == 1:  
+                    distance = abs(row - target_row) + abs(col - target_col)
+                    if distance < min_distance:
+                        min_distance = distance
+                        nearest_slot = (target_row, target_col)
+                    break
+
+        return nearest_slot, min_distance
     
     def getPossibleMoves(self):
         """
