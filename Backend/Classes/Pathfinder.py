@@ -59,13 +59,34 @@ class Pathfinder():
         
         """
         best_heuristic_value = float('inf')
-        for target_combination in self.valid_combinations:
-            heuristic_value = self.calculate_misplaced_heuristic(state, target_combination)
-            min_misplaced = min(min_misplaced, heuristic_value)
+        for goal_combination in self.valid_combinations:
+            heuristic_value = self.calculate_misplaced_heuristic(state, goal_combination)
+            best_heuristic_value = min(best_heuristic_value, heuristic_value)
         
-        return min_misplaced
-            
-       
+        return best_heuristic_value
+        
+    def calculate_misplaced_heuristic(self, state, goal_combination):
+        
+        side_a_weights, side_b_weights = set(goal_combination[0]), set(goal_combination[1])
+        
+        misplaced_1 = 0 
+        misplaced_2 = 0
+        for container in state.left_containers:
+            weight = container.weight
+            if weight not in side_a_weights:
+                misplaced_1 += 1
+            if weight not in side_b_weights:
+                misplaced_2 += 1
+                
+        for container in state.right_containers:
+            weight = container.weight
+            if weight not in side_b_weights:
+                misplaced_1 += 1
+            if weight not in side_a_weights:
+                misplaced_2 += 1
+
+
+        return min(misplaced_1, misplaced_2)
     
     def can_balance(self, state):
         
