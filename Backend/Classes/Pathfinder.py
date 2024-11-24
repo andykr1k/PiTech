@@ -10,6 +10,7 @@ class Pathfinder():
         self.closed_set = set()
         self.start_state = current_grid
         self.path = []
+        self.valid_combinations = []
         pass    
     
     def balance(self):
@@ -19,7 +20,6 @@ class Pathfinder():
         return self.sift()
 
     def balanceHelper(self):
-        initial_crane_position = (8, 0) 
 
         while self.open_set:
             f_cost, g_cost, path, state = heapq.heappop(self.open_set)
@@ -33,9 +33,10 @@ class Pathfinder():
 
                 for child_state, move in state.getPossibleStatesMoves():
                     if child_state not in self.closed_set:
+                        new_f_cost = f_cost
                         new_g_cost = g_cost + move.get_cost()
                         h_cost = self.balance_heuristic(child_state)
-                        new_f_cost = new_g_cost + h_cost
+                        new_f_cost += new_g_cost + h_cost
                         new_path = path + [move]
 
                         heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, child_state))
@@ -45,18 +46,63 @@ class Pathfinder():
 
     
     def balance_heuristic(self, state):
-        left_w, right_w, total_w = state.get_weights()
-        return 0
+        #left_w, right_w, total_w = state.get_weights()
+        #return abs(left_w - right_w)
+
+        best_heuristic_value = float('inf')
+        for goal_combination in self.valid_combinations:
+            heuristic_value = self.calculate_distance_heuristic(state, goal_combination)
+            best_heuristic_value = min(best_heuristic_value, heuristic_value)
+        
+        return best_heuristic_value
     
+    def calculate_distance_heuristic(self, state, goal_combination):
+       
+        side_a_weights, side_b_weights = set(goal_combination[0]), set(goal_combination[1])
+
+        distance_1 = 0   
+        distance_2 = 0
+        
+        for container in state.left_containers:
+            if container.weight not in side_a_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'right')
+                if target_position:
+                    distance_1 += min_distance
+        for container in state.right_containers:
+            if container.weight not in side_b_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
+                if target_position:
+                    distance_1 += min_distance
+        
+        for container in state.left_containers:
+            if container.weight not in side_b_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'right')
+                if target_position:
+                    distance_2 += min_distance
+        for container in state.right_containers:
+            if container.weight not in side_a_weights:
+                row, col = container.get_position()
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
+                if target_position:
+                    distance_2 += min_distance
+           
+
+        return min(distance_1, distance_2)
+
+        
     def can_balance(self, state):
         
         total_weight = state.total_weight
         weights = state.get_weightlist()
         lower_bound = round(total_weight / 2.1)
         upper_bound = round((1.1 / 2.1) * total_weight)
-        
+        can_balance = 0
         achievable = 1 
         sum_combinations = {0: []} 
+        unique_combinations = set() 
         
         for weight in weights:
            
@@ -72,11 +118,32 @@ class Pathfinder():
 
         for target in range(lower_bound, upper_bound + 1):
             if (achievable >> target) & 1:
-                print(f"Balanceable! Combination for {target}: {sum_combinations[target]}")
-                return True
+                side_a = sum_combinations[target]
+                sorted_side_a = tuple(sorted(side_a))
+                unique_combinations.add(sorted_side_a)
+                can_balance = 1
 
-        print("Not balanceable.")
-        return False
+        if can_balance:
+            self.valid_combinations = []
+            used_combinations = set()
+
+            for combination in unique_combinations:
+                remaining_weights = weights.copy()
+                for weight in combination:
+                    remaining_weights.remove(weight)
+
+                side_b = tuple(sorted(remaining_weights))
+                pair = tuple(sorted([combination, side_b]))
+
+                if pair not in used_combinations:
+                    self.valid_combinations.append((list(combination), list(side_b)))
+                    used_combinations.add(pair)
+            print(f"Balanceable! Combinations: {self.valid_combinations}")
+            return can_balance
+        
+        else:
+            print("Not balanceable.")
+            return False
     
     def load():
         pass
@@ -86,4 +153,4 @@ class Pathfinder():
     
     def sift(self):
         print("Sifting...")
-        pass
+        return []

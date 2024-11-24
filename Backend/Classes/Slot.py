@@ -22,7 +22,8 @@ class Slot:
         self.state = self.parseState()
 
     def remove_container(self):
-        self.container = None
+        self.container.name = 'UNUSED'
+        self.container.weight = 0
         self.state = 1
 
     def parseState(self):
