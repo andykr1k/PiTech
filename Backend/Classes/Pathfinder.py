@@ -49,14 +49,7 @@ class Pathfinder():
         #return abs(left_w - right_w)
         """
         Method 1 Misplaced contianers distance
-        1. Find all the containers one the left side, for example, we have (100, 300) on the left side
-        2. In the combinations right side we need (200,100,70)
-        3. Calculate the cost needed to move container with weight (100) to the nearest available right side
-        4. Same with the right side
-        5. Sum up the distances cost
-        If we have multiple goal combinations, we repeat step 1 to 5 and pick the one with minimum distance costs
-        Method 2 Misplaced contianers 
-        
+        Method 2 Misplaced contianers (now)
         """
         best_heuristic_value = float('inf')
         for goal_combination in self.valid_combinations:
