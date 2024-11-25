@@ -8,7 +8,7 @@ class MainWidget(QStackedWidget):
 
         self.sign_in_page = SignInPage(self)  
         self.home_page = HomePage(self)  
-        self.operation_page = OperationPage() 
+        self.operation_page = OperationPage(self) 
         self.test_page = TestPage(self)
         self.log_page = LogPage(self)
          
