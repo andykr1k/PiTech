@@ -16,7 +16,7 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase4.txt"
+        manifest_name = "SilverQueen.txt"
         manifest_data = upload_manifest(manifest_name)
         
 
@@ -43,6 +43,7 @@ def main():
             print("Transferring job selected.")
             transfer_moves = pathfinder.transfer()
             print('Transfer Moves:')
+            
             for move in transfer_moves:
                 print(move)
             

@@ -19,6 +19,7 @@ class Grid:
         self.right_containers = set()
         self.unload_list = [] # [Container]
         self.load_list = []   # [(name, weight)]
+        self.crane_position = (8,0) # "truck" or (row,col)
         
     def get_slot(self, row, col):
         if 0 <= row < self.rows and 0 <= col < self.columns:
@@ -282,6 +283,16 @@ class Grid:
         target_row = pos2[0]
         target_col = pos2[1]
         distance = 0
+        
+        # If pos1 is "truck", move from the truck to (8, 0)
+        if pos1 == "truck":
+            distance += 2  # Add 2 minutes to move from the truck to (8, 0)
+            pos1 = (8, 0)  # Update pos1 to the crane's entry point on the grid
+
+         # If pos2 is "truck", move from (8, 0) to the truck after reaching (8, 0)
+        if pos2 == "truck":
+            distance_to_truck = self.calculate_path_cost(pos1, (8, 0))
+            return distance_to_truck + 2
 
         # Move to the target column
         while current_col != target_col:
@@ -337,5 +348,7 @@ class Grid:
                 return container
      
     def getPossibleTransferMoves(self):
+        
+        
         
         pass
