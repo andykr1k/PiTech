@@ -10,16 +10,16 @@ class Grid:
         self.rows = rows
         self.columns = columns
         self.id = id
-        # self.cost = 0  # each time we move_container, the cost will be calculated and updated
         self.right_weight = 0
         self.left_weight = 0
         self.total_weight = total_weight
         self.goal_weight = 0
         self.slot = [[Slot(grid_id=self.id, position=(i,j)) for j in range(columns)] for i in range(rows)]
-        
-        # for heuristic
         self.left_containers = set()
         self.right_containers = set()
+        self.unload_list = []
+        self.load_list = []
+        
         
         
 
@@ -278,6 +278,37 @@ class Grid:
             self.left_weight,
             self.grid_as_tuple()
         ))
+        
+    def calulate_path_cost(self, pos1, pos2):
+        current_row = pos1[0]
+        current_col =pos1[1]
+        target_row = pos2[0]
+        target_col = pos2[1]
+        distance = 0
+
+        # Move to the target column
+        while current_col != target_col:
+            next_col = current_col + (1 if target_col > current_col else -1)
+
+            # Check for obstacles in the next column
+            if self.get_slot(current_row, next_col).state != 1:  # Obstacle
+                # Move up until no obstacles
+                while current_row < self.rows - 1 and self.get_slot(current_row + 1, next_col).state == 0:
+                    current_row += 1
+                    distance += 1
+
+            current_col = next_col
+            distance += 1
+
+        # Move to the target row 
+        while current_row < target_row:
+            current_row += 1
+            distance += 1
+        while current_row > target_row:
+            current_row -= 1
+            distance += 1
+
+        return distance
 
     def grid_as_tuple(self):
         return tuple(
@@ -285,3 +316,8 @@ class Grid:
                 (slot.state, slot.container) for slot in row
             ) for row in self.slot
         )
+        
+    def setup_transferlist(self, tranfserList):
+        
+        
+        pass

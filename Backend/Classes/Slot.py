@@ -7,8 +7,8 @@ class Slot:
         self.state = 0
         self.container = container
         self.position = position
-        self.x = self.position[0]
-        self.y = self.position[1]
+        self.x = self.position[0] #x is row
+        self.y = self.position[1] #y is column
         self.grid_id = grid_id
 
     def __repr__(self):

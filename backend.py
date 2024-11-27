@@ -15,28 +15,30 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase2.txt"
+        manifest_name = "ShipCase4.txt"
         manifest_data = upload_manifest(manifest_name)
 
-        new_grid = Grid()
-        new_grid.setup_grid(manifest_data)
-        #print(new_grid)
-
-        pathfinder = Pathfinder(new_grid)
         
         if job_choice == '1':
+            new_grid = Grid()
+            new_grid.setup_grid(manifest_data)
+            pathfinder = Pathfinder(new_grid)
+        
             print("Balancing job selected.")
             balance_moves = pathfinder.balance()
             print('Balance Moves:')
             for move in balance_moves:
                 print(move)
-            
-            
         
-        # elif job_choice == '2':
-        #     print("Transferring job selected.")
-        #     transfer_list_name = "sample_transfer_list.txt"
-        #     transfer_list = upload_transfer_list(transfer_list_name)
+        elif job_choice == '2':
+            new_grid = Grid()
+            new_grid.setup_grid(manifest_data)
+            
+            print("Transferring job selected.")
+            transfer_moves = pathfinder.transfer()
+            print('Transfer Moves:')
+            for move in transfer_moves:
+                print(move)
             
         else:
             print("Invalid input. Please try again.")
