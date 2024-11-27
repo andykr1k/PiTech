@@ -44,8 +44,7 @@ class Pathfinder():
                         
         print("No balanced path found")
         return None
-
-    
+ 
     def balance_heuristic(self, state):
         #left_w, right_w, total_w = state.get_weights()
         #return abs(left_w - right_w)
@@ -92,8 +91,7 @@ class Pathfinder():
            
 
         return min(distance_1, distance_2)
-
-        
+     
     def can_balance(self, state):
         
         total_weight = state.total_weight
@@ -157,4 +155,10 @@ class Pathfinder():
         return []
 
     def transfer(self):
+        heapq.heappush(self.open_set, (0, 0, self.path, self.start_state))
+        return self.transfer_helper()
+    
+    def transfer_helper(self):
+        
+        
         pass

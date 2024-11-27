@@ -17,12 +17,9 @@ class Grid:
         self.slot = [[Slot(grid_id=self.id, position=(i,j)) for j in range(columns)] for i in range(rows)]
         self.left_containers = set()
         self.right_containers = set()
-        self.unload_list = []
-        self.load_list = []
+        self.unload_list = [] # [Container]
+        self.load_list = []   # [(name, weight)]
         
-        
-        
-
     def get_slot(self, row, col):
         if 0 <= row < self.rows and 0 <= col < self.columns:
             return self.slot[row][col]
@@ -317,7 +314,28 @@ class Grid:
             ) for row in self.slot
         )
         
-    def setup_transferlist(self, tranfserList):
-        
+    def setup_transferlist(self, tranfser_list):
+        for command in tranfser_list:
+            parts = command.strip().split(',')
+            operation = parts[0]
+            
+            if operation == 'load':
+                name = parts[1]
+                weight = int(parts[2])
+                self.load_list.append((name, weight))
+            elif operation == 'unload':
+                name = parts[1]
+                container = self.find_container_by_name(name)
+                self.unload_list.append(container)
+    
+    def find_container_by_name(self, name):
+        for container in self.left_containers:
+            if container.name == name:
+                return container
+        for container in self.right_containers:
+            if container.name == name:
+                return container
+     
+    def getPossibleTransferMoves(self):
         
         pass

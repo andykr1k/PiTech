@@ -1,5 +1,6 @@
 from Backend.Classes.Grid import Grid
 from Backend.Utilities.Utils import upload_manifest
+from Backend.Utilities.Utils import upload_transfer_list
 from Backend.Classes.Pathfinder import Pathfinder
 
 def main():
@@ -17,6 +18,7 @@ def main():
         
         manifest_name = "ShipCase4.txt"
         manifest_data = upload_manifest(manifest_name)
+        
 
         
         if job_choice == '1':
@@ -31,8 +33,12 @@ def main():
                 print(move)
         
         elif job_choice == '2':
+            transfer_name = "case3.txt"
+            transfer_data = upload_transfer_list(transfer_name)
+        
             new_grid = Grid()
             new_grid.setup_grid(manifest_data)
+            new_grid.setup_transferlist(transfer_data)
             
             print("Transferring job selected.")
             transfer_moves = pathfinder.transfer()
