@@ -34,7 +34,6 @@ class Pathfinder():
                 for child_state, move in state.getPossibleStatesMoves():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        slot1 = move.get_from_slot
                         new_g_cost = g_cost + child_state.calulate_path_cost(move.from_slot, move.to_slot)
                         #new_g_cost = g_cost + move.get_cost(child_state)
                         h_cost = self.balance_heuristic(child_state)
