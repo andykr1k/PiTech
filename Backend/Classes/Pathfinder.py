@@ -34,10 +34,14 @@ class Pathfinder():
                 for child_state, move in state.getPossibleStatesMoves():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        new_g_cost = g_cost + child_state.calulate_path_cost(move.from_slot, move.to_slot)
+                        crane_to_start_cost = state.calulate_path_cost(state.crane_position, move.from_slot)
+                        move_cost = state.calulate_path_cost(move.from_slot, move.to_slot)
+                        new_g_cost = g_cost + crane_to_start_cost + move_cost
                         #new_g_cost = g_cost + move.get_cost(child_state)
+                        
                         h_cost = self.balance_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
+                        move.cost = crane_to_start_cost + move_cost
                         new_path = path + [move]
 
                         heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, child_state))

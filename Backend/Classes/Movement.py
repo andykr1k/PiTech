@@ -3,11 +3,13 @@ from Backend.Classes.Container import Container
 
 
 class Movement:
-    def __init__(self, from_slot: Slot, to_slot: Slot):
+    def __init__(self, from_slot: Slot, to_slot: Slot, crane_position):
 
         self.from_slot = from_slot 
         self.to_slot = to_slot
         self.manh_cost = self.manhattan_distance()
+        self.crane_position = crane_position # ending position after the move
+        self.cost = 0
 
     def get_cost(self):
         self.manh_cost = self.manhattan_distance()
@@ -23,7 +25,7 @@ class Movement:
         pass
 
     def __repr__(self):
-        return f"Move container from position ({self.from_slot[0] }, {self.from_slot[1] }) to position ({self.to_slot[0] }, {self.to_slot[1] })"
+        return f"Move container from position ({self.from_slot[0] }, {self.from_slot[1] }) to position ({self.to_slot[0]}, {self.to_slot[1] }), cost: {self.cost}"
     
     def get_from_slot(self):
         return self.from_slot
