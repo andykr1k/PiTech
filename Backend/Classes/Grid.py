@@ -140,6 +140,7 @@ class Grid:
                     break 
     
         return valid_slot_position
+    
     def get_valid_slots_for_loading(self):
     # Returns a list of valid slot positions for loading a container from the truck
         valid_slot_positions = []

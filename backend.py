@@ -16,7 +16,7 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase1.txt"
+        manifest_name = "ShipCase4.txt"
         manifest_data = upload_manifest(manifest_name)
         
 
