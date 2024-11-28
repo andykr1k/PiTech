@@ -130,17 +130,27 @@ class Grid:
     # Returns a list of valid slot positions where a container can be moved
         valid_slot_position = []
         curr_col = pos1[1]
-        for j in range(self.columns):  # Iterate over each column
-            if j == curr_col:  # Skip the current column of the container
+        for j in range(self.columns): 
+            if j == curr_col:  
                 continue
-            for i in range(self.rows):  # Iterate from bottom (row 0) to top
+            for i in range(self.rows):  
                 slot = self.slot[i][j]
-                if slot.state == 1:  # If the slot is UNUSED
-                    valid_slot_position.append((i, j))  # Add the first UNUSED slot
+                if slot.state == 1:  
+                    valid_slot_position.append((i, j))  
                     break 
     
         return valid_slot_position
-    
+    def get_valid_slots_for_loading(self):
+    # Returns a list of valid slot positions for loading a container from the truck
+        valid_slot_positions = []
+        for j in range(self.columns):  
+            for i in range(self.rows):  
+                slot = self.slot[i][j]
+                if slot.state == 1:  
+                    valid_slot_positions.append((i, j))  
+                    break 
+        return valid_slot_positions
+        
     def get_nearest_slot_on_other_side(self, row, col, target_side):
 
         min_distance = float('inf')
@@ -210,15 +220,6 @@ class Grid:
     def print_path(self, goal_state):
         # Placeholder"
         return 0
-    def __repr__(self):
-        res = ""
-        for row in self.slot:
-            for slot in row:
-                container_name = slot.container.get_name() 
-                container_weight = slot.container.get_weight()
-                res += f"Position: {slot.position}, State: {slot.state}, Container Name: {container_name}, Container Weight: {container_weight}\n"
-                res += '-'*40 + '\n'
-        return res
 
     def get_slot(self, row, col):
         return self.slot[row][col]
@@ -260,24 +261,7 @@ class Grid:
             self.left_containers.add(container_copy)
         else:  
             self.right_containers.add(container_copy)
-
-                        
-    def __eq__(self, other):
-        if isinstance(other, Grid):
-            return (
-                self.right_weight == other.right_weight and
-                self.left_weight == other.left_weight and
-                self.grid_as_tuple() == other.grid_as_tuple()
-            )
-        return False
-
-    def __hash__(self):
-        return hash((
-            self.right_weight,
-            self.left_weight,
-            self.grid_as_tuple()
-        ))
-        
+                       
     def calulate_path_cost(self, pos1, pos2):
         
         # If pos1 is "truck", move from the truck to (8, 0)
@@ -305,8 +289,8 @@ class Grid:
             next_col = current_col + (1 if target_col > current_col else -1)
 
             if next_col == target_col and current_row == target_row:
-                distance += 1
-                break
+                    distance += 1
+                    break
             
             # Check for obstacles in the next column
             while self.get_slot(current_row, next_col).state != 1:  # Obstacle
@@ -329,15 +313,9 @@ class Grid:
             distance += 1
 
         return distance
-
-    def grid_as_tuple(self):
-        return tuple(
-            tuple(
-                (slot.state, slot.container) for slot in row
-            ) for row in self.slot
-        )
         
     def setup_transferlist(self, tranfser_list):
+        # Assume valid transfer list
         for command in tranfser_list:
             parts = command.strip().split(',')
             operation = parts[0]
@@ -402,4 +380,36 @@ class Grid:
             neighbor_states_moves.append((new_grid, move))
             
         return neighbor_states_moves
-   
+    
+    def grid_as_tuple(self):
+        return tuple(
+            tuple(
+                (slot.state, slot.container) for slot in row
+            ) for row in self.slot
+        )   
+    
+    def __eq__(self, other):
+        if isinstance(other, Grid):
+            return (
+                self.right_weight == other.right_weight and
+                self.left_weight == other.left_weight and
+                self.grid_as_tuple() == other.grid_as_tuple()
+            )
+        return False
+
+    def __hash__(self):
+        return hash((
+            self.right_weight,
+            self.left_weight,
+            self.grid_as_tuple()
+        ))
+        
+    def __repr__(self):
+        res = ""
+        for row in self.slot:
+            for slot in row:
+                container_name = slot.container.get_name() 
+                container_weight = slot.container.get_weight()
+                res += f"Position: {slot.position}, State: {slot.state}, Container Name: {container_name}, Container Weight: {container_weight}\n"
+                res += '-'*40 + '\n'
+        return res
