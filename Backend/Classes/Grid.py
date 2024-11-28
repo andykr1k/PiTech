@@ -295,7 +295,7 @@ class Grid:
         target_row = pos2[0]
         target_col = pos2[1]
         distance = 0
-        
+  
         # Special case: Starting from (8, 0)
         if current_row == 8:
             return distance + abs(current_col - target_col) + abs(current_row - target_row)
@@ -304,12 +304,19 @@ class Grid:
         while current_col != target_col:
             next_col = current_col + (1 if target_col > current_col else -1)
 
+            if next_col == target_col and current_row == target_row:
+                distance += 1
+                break
+            
             # Check for obstacles in the next column
-            if self.get_slot(current_row, next_col).state != 1:  # Obstacle
-                # Move up until no obstacles
-                while current_row < self.rows - 1 and self.get_slot(current_row + 1, next_col).state == 0:
+            while self.get_slot(current_row, next_col).state != 1:  # Obstacle
+                if current_row < self.rows - 1:
                     current_row += 1
                     distance += 1
+                else:
+                    # Imaginary row, move across
+                    distance += 1
+                    break 
 
             current_col = next_col
             distance += 1
