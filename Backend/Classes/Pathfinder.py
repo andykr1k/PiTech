@@ -2,7 +2,9 @@ from Backend.Classes.Slot import Slot
 from Backend.Classes.Container import Container
 from Backend.Classes.Grid import Grid
 from Backend.Classes.Movement import Movement
+import copy
 import heapq
+
 
 class Pathfinder():
     def __init__(self, current_grid):
@@ -141,7 +143,7 @@ class Pathfinder():
                 if pair not in used_combinations:
                     self.valid_combinations.append((list(combination), list(side_b)))
                     used_combinations.add(pair)
-            print(f"Balanceable! Combinations: {self.valid_combinations}")
+            #print(f"Balanceable! Combinations: {self.valid_combinations}")
             return can_balance
         
         else:
@@ -159,10 +161,39 @@ class Pathfinder():
         return []
 
     def transfer(self):
-        heapq.heappush(self.open_set, (0, 0, self.path, self.start_state))
+        start_state_grid = self.start_state  # Initial state with crane at (8, 0)
+        truck_start_state = copy.deepcopy(self.start_state) # Deep copy of the initial state
+        truck_start_state.crane_position = (-1,-1)  # Set crane position to "truck"
+        heapq.heappush(self.open_set, (0, 0, self.path, id(start_state_grid),start_state_grid))
+        heapq.heappush(self.open_set, (0, 0, self.path, id(truck_start_state),truck_start_state))
         return self.transfer_helper()
     
     def transfer_helper(self):
         
+        while self.open_set:
+            f_cost, g_cost, path,_, state = heapq.heappop(self.open_set)
+     
+            if not state.unload_list and not state.load_list:
+                print('Transfer path found')
+                return path
+            
+            if state not in self.closed_set:
+                self.closed_set.add(state)
+
+                for child_state, move in state.getPossibleTransferStatesMoves():
+                    if child_state not in self.closed_set:
+                        new_f_cost = f_cost
+                        crane_to_start_cost = state.calulate_transfer_path_cost(state.crane_position, move.from_slot)
+                        move_cost = state.calulate_transfer_path_cost(move.from_slot, move.to_slot)
+                        new_g_cost = g_cost + crane_to_start_cost + move_cost
+                        
+                        h_cost = self.balance_heuristic(child_state)
+                        new_f_cost += new_g_cost + h_cost
+                        move.cost = crane_to_start_cost + move_cost
+                        new_path = path + [move]
+
+                        heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, id(child_state),child_state))
+                        
+        print("No balanced path found")
+        return None
         
-        pass

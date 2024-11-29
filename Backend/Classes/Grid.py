@@ -19,7 +19,7 @@ class Grid:
         self.right_containers = set()
         self.unload_list = [] # [Container]
         self.load_list = []   # [(name, weight)]
-        self.crane_position = (8,0) # "truck" or (row,col)
+        self.crane_position = (8,0) # (-1,-1) for "truck"
         
     def get_slot(self, row, col):
         if 0 <= row < self.rows and 0 <= col < self.columns:
@@ -114,7 +114,13 @@ class Grid:
         to_slot.set_container(Container(name,weight,pos2[0],pos2[1]))
         self.update_weight(pos2,add=True)
         self.crane_position = pos2
-
+    
+    def load_container(self, pos2):
+        name, weight = self.load_list.pop(0)
+        new_container = Container(name, weight, pos2[0],pos2[1])
+        self.get_slot(pos2[0],pos2[1]).set_container(new_container)
+        self.crane_position = pos2
+        
     def get_movable_containers_position(self):
         # Returns the positions of all containers that can be moved (topmost in each column)
         movable_positions = []
@@ -141,7 +147,7 @@ class Grid:
     
         return valid_slot_position
     
-    def get_valid_slots_for_loading(self):
+    def get_valid_slots_position_for_loading(self):
     # Returns a list of valid slot positions for loading a container from the truck
         valid_slot_positions = []
         for j in range(self.columns):  
@@ -262,18 +268,8 @@ class Grid:
             self.left_containers.add(container_copy)
         else:  
             self.right_containers.add(container_copy)
-                       
+    
     def calulate_path_cost(self, pos1, pos2):
-        
-        # If pos1 is "truck", move from the truck to (8, 0)
-        if pos1 == "truck":
-            distance += 2  # Add 2 minutes to move from the truck to (8, 0)
-            pos1 = (8, 0)  # Update pos1 to the crane's entry point on the grid
-
-         # If pos2 is "truck", move from (8, 0) to the truck after reaching (8, 0)
-        if pos2 == "truck":
-            distance_to_truck = self.calculate_path_cost(pos1, (8, 0))
-            return distance_to_truck + 2
         
         current_row = pos1[0]
         current_col = pos1[1]
@@ -313,7 +309,20 @@ class Grid:
             current_row -= 1
             distance += 1
 
-        return distance
+        return distance                       
+    
+    def calulate_transfer_path_cost(self, pos1, pos2):
+        
+        if pos1 == (-1,-1):
+            if pos2 == (-1,-1):
+                return 0
+            else:
+                return 2 + self.calulate_path_cost((8, 0), pos2)
+        
+        if pos2 == (-1,-1):
+            return self.calulate_path_cost(pos1, (8, 0)) + 2
+
+        return self.calulate_path_cost(pos1, pos2)
         
     def setup_transferlist(self, tranfser_list):
         # Assume valid transfer list
@@ -341,30 +350,31 @@ class Grid:
         possible_moves = []
         # Handle load
         if self.load_list:  # Check if there are items to load
-            name, weight = self.load_list[0]  # Pick the first item to load
-            valid_slots = self.get_valid_slots_position(None)  # Find all valid slots
+            #name, weight = self.load_list[0]  # Pick the first item to load
+            valid_slots = self.get_valid_slots_position_for_loading()  # Find all valid slots
             for target_position in valid_slots:
-                move = Movement(from_slot="truck", to_slot=self.get_slot(*target_position), crane_position=self.target_position)
+                move = Movement(from_slot=(-1,-1), to_slot=target_position, crane_position=target_position)
                 possible_moves.append(move)
-                break
+                
             
          # Handle unload 
-        for container in self.unload_list:
-            if self.can_unload(container):
-                move = Movement(from_slot=self.get_slot(container.row, container.col), to_slot="truck", crane_position="truck")
-                possible_moves.append(move)
-            else:
-                block_container = self.get_topmost_blocking_container(container)
-                valid_slots = self.get_valid_slots_position((block_container.row, block_container.col))
-                for destination in valid_slots:
-                    # Generate a single move to remove the topmost blocker
-                    move = Movement(
-                        from_slot=self.get_slot(block_container.row, block_container.col),
-                        to_slot=self.get_slot(*destination),
-                        crane_position=self.destination
-                    )
+        if self.unload_list:
+            for container in self.unload_list:
+                if self.can_unload(container):
+                    move = Movement(from_slot=self.get_slot(container.row, container.col), to_slot=(-1,-1), crane_position=(-1,-1))
                     possible_moves.append(move)
-                    break 
+                else:
+                    block_container = self.get_topmost_blocking_container(container)
+                    valid_slots = self.get_valid_slots_position((block_container.row, block_container.col))
+                    for destination in valid_slots:
+                        # Generate a single move to remove the topmost blocker
+                        move = Movement(
+                            from_slot=self.get_slot(block_container.row, block_container.col),
+                            to_slot=self.get_slot(*destination),
+                            crane_position=self.destination
+                        )
+                        possible_moves.append(move)
+                        break 
          
          
 
@@ -375,9 +385,20 @@ class Grid:
         
         neighbor_states_moves = []
         possible_moves = self.getPossibleTransferMoves()
+        
         for move in possible_moves:
+            
             new_grid = copy.deepcopy(self)
-            new_grid.move_container(move.from_slot, move.to_slot)
+            from_slot = move.from_slot
+            to_slot = move.to_slot 
+            
+            if from_slot == (-1,-1):  # Load 
+                new_grid.load_container(to_slot)
+            elif to_slot == (-1,-1):  # Unload
+                new_grid.unload_container(from_slot)
+            else:  # Internal move
+                new_grid.move_container(from_slot, to_slot)
+            
             neighbor_states_moves.append((new_grid, move))
             
         return neighbor_states_moves
@@ -394,15 +415,17 @@ class Grid:
             return (
                 self.right_weight == other.right_weight and
                 self.left_weight == other.left_weight and
-                self.grid_as_tuple() == other.grid_as_tuple()
-            )
+                self.grid_as_tuple() == other.grid_as_tuple() and
+                self.crane_position == other.crane_position
+                )
         return False
 
     def __hash__(self):
         return hash((
             self.right_weight,
             self.left_weight,
-            self.grid_as_tuple()
+            self.grid_as_tuple(),
+            self.crane_position
         ))
         
     def __repr__(self):

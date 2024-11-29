@@ -16,7 +16,7 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase4.txt"
+        manifest_name = "ShipCase2.txt"
         manifest_data = upload_manifest(manifest_name)
         
 
@@ -33,13 +33,14 @@ def main():
                 print(move)
         
         elif job_choice == '2':
-            transfer_name = "case1.txt"
+            transfer_name = "case2.txt"
             transfer_data = upload_transfer_list(transfer_name)
         
             new_grid = Grid()
             new_grid.setup_grid(manifest_data)
             new_grid.setup_transferlist(transfer_data)
-            print(new_grid.unload_list)
+            pathfinder = Pathfinder(new_grid)
+         
             print("Transferring job selected.")
             transfer_moves = pathfinder.transfer()
             print('Transfer Moves:')
