@@ -1,5 +1,5 @@
 from Backend.Classes.Grid import Grid
-from Backend.Utilities.Utils import upload_manifest
+from Backend.Utilities.Utils import upload_manifest, upload_transfer_list
 from Backend.Classes.Pathfinder import Pathfinder
 
 def main():
@@ -15,33 +15,44 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase2.txt"
-        manifest_data = upload_manifest(manifest_name)
+        # Loop through ShipCase1 to ShipCase6
+        for i in range(1, 7):
+            # Load manifest for the current shipcase (ShipCase1, ShipCase2, ...)
+            manifest_name = f"ShipCase{i}.txt"
+            manifest_data = upload_manifest(manifest_name)
+            
+            if job_choice == '1':  # Balancing job
+                new_grid = Grid()
+                new_grid.setup_grid(manifest_data)
+                pathfinder = Pathfinder(new_grid)
+                
+                print(f"Balancing job selected for ShipCase {i}.")
+                balance_moves = pathfinder.balance()
+                print('Balance Moves:')
+                for move in balance_moves:
+                    print(move)
+                
+            elif job_choice == '2':  # Transferring job
+                # Load transfer list for the current case (Case1, Case2, ...)
+                transfer_name = f"Case{i}.txt"
+                transfer_data = upload_transfer_list(transfer_name)
+                
+                new_grid = Grid()
+                new_grid.setup_grid(manifest_data)
+                new_grid.setup_transferlist(transfer_data)
+                pathfinder = Pathfinder(new_grid)
+                 
+                print(f"Transferring job selected for ShipCase {i}.")
+                transfer_moves = pathfinder.transfer()
+                print('Transfer Moves:')
+                
+                for move in transfer_moves:
+                    print(move)
+                
+            else:
+                print("Invalid input. Please try again.")
+            
+            print("=" * 40)
 
-        new_grid = Grid()
-        new_grid.setup_grid(manifest_data)
-        #print(new_grid)
-
-        pathfinder = Pathfinder(new_grid)
-        
-        if job_choice == '1':
-            print("Balancing job selected.")
-            balance_moves = pathfinder.balance()
-            print('Balance Moves:')
-            for move in balance_moves:
-                print(move)
-            
-            
-        
-        # elif job_choice == '2':
-        #     print("Transferring job selected.")
-        #     transfer_list_name = "sample_transfer_list.txt"
-        #     transfer_list = upload_transfer_list(transfer_list_name)
-            
-        else:
-            print("Invalid input. Please try again.")
-        
-        print("=" * 40)
-        
 if __name__ == "__main__":
     main()
