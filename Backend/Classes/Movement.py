@@ -17,7 +17,9 @@ class Movement:
         pass
 
     def __repr__(self):
-        return f"Move container from position ({self.from_slot}) to position {(self.to_slot)}, cost: {self.cost} minutes"
+        from_slot = "truck" if self.from_slot == (-1, -1) else self.from_slot
+        to_slot = "truck" if self.to_slot == (-1, -1) else self.to_slot
+        return f"Move container from position {from_slot} to position {to_slot}, cost: {self.cost} minutes"
     
     def get_from_slot(self):
         return self.from_slot
