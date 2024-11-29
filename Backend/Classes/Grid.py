@@ -206,7 +206,7 @@ class Grid:
             valid_slots = self.get_valid_slots_position(starting_position)
             for destination in valid_slots:
                 
-                move = Movement(from_slot = starting_position, to_slot = destination, crane_position = destination)
+                move = Movement(from_slot = starting_position, to_slot = destination)
                 possible_moves.append(move)
         return possible_moves
 
@@ -398,7 +398,7 @@ class Grid:
             #name, weight = self.load_list[0]  # Pick the first item to load
             valid_slots = self.get_valid_slots_position_for_loading()  # Find all valid slots
             for target_position in valid_slots:
-                move = Movement(from_slot=(-1,-1), to_slot=target_position, crane_position=target_position)
+                move = Movement(from_slot=(-1,-1), to_slot=target_position)
                 possible_moves.append(move)
                 
             
@@ -406,14 +406,14 @@ class Grid:
         if self.unload_list:
             for container in self.unload_list:
                 if self.can_unload(container):
-                    move = Movement(from_slot=(container.row, container.col), to_slot=(-1,-1), crane_position=(-1,-1))
+                    move = Movement(from_slot=(container.row, container.col), to_slot=(-1,-1))
                     possible_moves.append(move)
                 else:
                     pos1 = self.get_topmost_blocking_container_position(container)
                     valid_slots = self.get_valid_slots_position(pos1)
                     for pos2 in valid_slots:
                         # Generate a single move to remove the topmost blocker
-                        move = Movement(from_slot=pos1,to_slot=pos2,crane_position=pos2)
+                        move = Movement(from_slot=pos1,to_slot=pos2)
                         possible_moves.append(move)
          
         return possible_moves

@@ -3,11 +3,10 @@ from Backend.Classes.Container import Container
 
 
 class Movement:
-    def __init__(self, from_slot, to_slot, crane_position):
+    def __init__(self, from_slot, to_slot):
 
         self.from_slot = from_slot 
         self.to_slot = to_slot
-        self.crane_position = crane_position # ending position after the move
         self.cost = 0
 
     def get_cost(self):
