@@ -36,8 +36,12 @@ class Pathfinder():
                 for child_state, move in state.getPossibleStatesMoves():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        crane_to_start_cost = state.calulate_path_cost(state.crane_position, move.from_slot)
-                        move_cost = state.calulate_path_cost(move.from_slot, move.to_slot)
+                        if(move.from_slot==(6,4)and  move.to_slot==(1,6)):
+                            crane_to_start_cost = state.calulate_path_cost(state.crane_position, move.from_slot)
+                            move_cost = state.calulate_path_cost(move.from_slot, move.to_slot)
+                        else:
+                            crane_to_start_cost = state.calulate_path_cost(state.crane_position, move.from_slot)
+                            move_cost = state.calulate_path_cost(move.from_slot, move.to_slot)
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         #new_g_cost = g_cost + move.get_cost(child_state)
                         
@@ -180,14 +184,14 @@ class Pathfinder():
             if state not in self.closed_set:
                 self.closed_set.add(state)
 
-                for child_state, move in state.getPossibleTransferStatesMoves():
+                for child_state, move in state.get_possible_transfer_states_moves():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
                         crane_to_start_cost = state.calulate_transfer_path_cost(state.crane_position, move.from_slot)
                         move_cost = state.calulate_transfer_path_cost(move.from_slot, move.to_slot)
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         
-                        h_cost = self.balance_heuristic(child_state)
+                        h_cost = self.transfer_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
                         move.cost = crane_to_start_cost + move_cost
                         new_path = path + [move]
@@ -196,4 +200,7 @@ class Pathfinder():
                         
         print("No balanced path found")
         return None
+    
+    def transfer_heuristic(self, state):
+        return 0
         

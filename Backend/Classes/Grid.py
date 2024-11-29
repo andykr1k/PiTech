@@ -1,4 +1,3 @@
-
 from Backend.Classes.Slot import Slot
 from Backend.Classes.Container import Container
 from Backend.Classes.Movement import Movement
@@ -120,6 +119,15 @@ class Grid:
         new_container = Container(name, weight, pos2[0],pos2[1])
         self.get_slot(pos2[0],pos2[1]).set_container(new_container)
         self.crane_position = pos2
+ 
+    def unload_container(self,pos1, pos2):
+        # to unload, remove the container at pos1
+        from_slot = self.get_slot(pos1[0], pos1[1])
+        container = from_slot.get_container()
+        self.update_unload_container_lists(container,pos2)
+        from_slot.remove_container()
+        self.crane_position = pos2
+        
         
     def get_movable_containers_position(self):
         # Returns the positions of all containers that can be moved (topmost in each column)
@@ -268,6 +276,16 @@ class Grid:
             self.left_containers.add(container_copy)
         else:  
             self.right_containers.add(container_copy)
+            
+    def update_unload_container_lists(self, container, pos2):
+        
+
+        if container in self.left_containers:
+            self.left_containers.remove(container)
+        else:
+            self.right_containers.remove(container)
+        
+        self.unload_list.remove(container)
     
     def calulate_path_cost(self, pos1, pos2):
         
@@ -294,6 +312,8 @@ class Grid:
                 if current_row < self.rows - 1:
                     current_row += 1
                     distance += 1
+                    if current_row == target_row:
+                        break
                 else:
                     # Imaginary row, move across
                     distance += 1
@@ -346,7 +366,17 @@ class Grid:
         for container in self.right_containers:
             if container.name == name:
                 return container
-    def getPossibleTransferMoves(self):
+    
+    def can_unload(self, container):
+        row = container.row
+        col = container.col
+        
+        if row == self.rows-1 or self.get_slot(row+1,col).state==1:
+            return True 
+        
+        return False
+        
+    def get_possible_transfer_moves(self):
         possible_moves = []
         # Handle load
         if self.load_list:  # Check if there are items to load
@@ -361,7 +391,7 @@ class Grid:
         if self.unload_list:
             for container in self.unload_list:
                 if self.can_unload(container):
-                    move = Movement(from_slot=self.get_slot(container.row, container.col), to_slot=(-1,-1), crane_position=(-1,-1))
+                    move = Movement(from_slot=(container.row, container.col), to_slot=(-1,-1), crane_position=(-1,-1))
                     possible_moves.append(move)
                 else:
                     block_container = self.get_topmost_blocking_container(container)
@@ -376,15 +406,12 @@ class Grid:
                         possible_moves.append(move)
                         break 
          
-         
-
         return possible_moves
         
-        pass
-    def getPossibleTransferStatesMoves(self):
+    def get_possible_transfer_states_moves(self):
         
         neighbor_states_moves = []
-        possible_moves = self.getPossibleTransferMoves()
+        possible_moves = self.get_possible_transfer_moves()
         
         for move in possible_moves:
             
@@ -395,7 +422,7 @@ class Grid:
             if from_slot == (-1,-1):  # Load 
                 new_grid.load_container(to_slot)
             elif to_slot == (-1,-1):  # Unload
-                new_grid.unload_container(from_slot)
+                new_grid.unload_container(from_slot, to_slot)
             else:  # Internal move
                 new_grid.move_container(from_slot, to_slot)
             

@@ -16,10 +16,8 @@ def main():
             print("Quitting program.")
             break
         
-        manifest_name = "ShipCase1.txt"
+        manifest_name = "SilverQueen.txt"
         manifest_data = upload_manifest(manifest_name)
-        
-
         
         if job_choice == '1':
             new_grid = Grid()
@@ -33,7 +31,7 @@ def main():
                 print(move)
         
         elif job_choice == '2':
-            transfer_name = "case2.txt"
+            transfer_name = "case1.1.txt"
             transfer_data = upload_transfer_list(transfer_name)
         
             new_grid = Grid()
