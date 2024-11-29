@@ -31,7 +31,7 @@ def main():
                 print(move)
         
         elif job_choice == '2':
-            transfer_name = "case1.1.txt"
+            transfer_name = "case6.txt"
             transfer_data = upload_transfer_list(transfer_name)
         
             new_grid = Grid()

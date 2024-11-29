@@ -118,6 +118,7 @@ class Grid:
         name, weight = self.load_list.pop(0)
         new_container = Container(name, weight, pos2[0],pos2[1])
         self.get_slot(pos2[0],pos2[1]).set_container(new_container)
+        self.update_load_container_lists(new_container,pos2)
         self.crane_position = pos2
  
     def unload_container(self,pos1, pos2):
@@ -127,8 +128,7 @@ class Grid:
         self.update_unload_container_lists(container,pos2)
         from_slot.remove_container()
         self.crane_position = pos2
-        
-        
+    
     def get_movable_containers_position(self):
         # Returns the positions of all containers that can be moved (topmost in each column)
         movable_positions = []
@@ -277,9 +277,16 @@ class Grid:
         else:  
             self.right_containers.add(container_copy)
             
+    def update_load_container_lists(self, container,pos2):
+        
+        if container in self.left_containers:
+            self.left_containers.add(container)
+        else:
+            self.right_containers.add(container)
+
+        
     def update_unload_container_lists(self, container, pos2):
         
-
         if container in self.left_containers:
             self.left_containers.remove(container)
         else:
@@ -366,7 +373,7 @@ class Grid:
         for container in self.right_containers:
             if container.name == name:
                 return container
-    
+
     def can_unload(self, container):
         row = container.row
         col = container.col
@@ -375,7 +382,15 @@ class Grid:
             return True 
         
         return False
-        
+    
+    def get_topmost_blocking_container_position(self, container):
+        col = container.col
+        for r in range(self.rows - 1, -1, -1): 
+            slot = self.get_slot(r, col)
+            if slot.state == 2:  
+                return (r, col)
+        return None    
+    
     def get_possible_transfer_moves(self):
         possible_moves = []
         # Handle load
@@ -394,17 +409,12 @@ class Grid:
                     move = Movement(from_slot=(container.row, container.col), to_slot=(-1,-1), crane_position=(-1,-1))
                     possible_moves.append(move)
                 else:
-                    block_container = self.get_topmost_blocking_container(container)
-                    valid_slots = self.get_valid_slots_position((block_container.row, block_container.col))
-                    for destination in valid_slots:
+                    pos1 = self.get_topmost_blocking_container_position(container)
+                    valid_slots = self.get_valid_slots_position(pos1)
+                    for pos2 in valid_slots:
                         # Generate a single move to remove the topmost blocker
-                        move = Movement(
-                            from_slot=self.get_slot(block_container.row, block_container.col),
-                            to_slot=self.get_slot(*destination),
-                            crane_position=self.destination
-                        )
+                        move = Movement(from_slot=pos1,to_slot=pos2,crane_position=pos2)
                         possible_moves.append(move)
-                        break 
          
         return possible_moves
         
