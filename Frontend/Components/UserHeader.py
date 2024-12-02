@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QFont
+from Frontend.Screens.LogPage import LogPage
 
 class UserHeader(QWidget):
     def __init__(self, stacked_widget, parent=None):
@@ -25,6 +26,18 @@ class UserHeader(QWidget):
         layout.addSpacerItem(QSpacerItem(
             40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
+        log_button = QPushButton("Log")
+        log_button.setFont(QFont("Roboto", 14))
+        log_button.setStyleSheet("""
+            background-color: #3F51B5;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+        """)
+        log_button.clicked.connect(self.goToLog)
+        layout.addWidget(log_button)
+
         sign_out_button = QPushButton("Sign out")
         sign_out_button.setFont(QFont("Roboto", 14))
         sign_out_button.setStyleSheet("""
@@ -46,3 +59,7 @@ class UserHeader(QWidget):
     def signOut(self):
         self.stacked_widget.setCurrentIndex(0)
         self.stacked_widget.sign_in_page.clearUsernameInput()
+
+    def goToLog(self):
+        log = LogPage(self)
+        log.exec_()

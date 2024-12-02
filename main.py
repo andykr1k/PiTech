@@ -5,7 +5,7 @@ from Backend.Classes.Grid import Grid
 from Backend.Classes.Pathfinder import Pathfinder
 from Backend.Utilities.Utils import upload_manifest, upload_transfer_list
 from Frontend.Screens.OperationPage import OperationPage
-
+from Frontend.Screens.LogPage import LogPage
 
 class PiTech:
     def __init__(self):
@@ -14,14 +14,12 @@ class PiTech:
         self.grid = None
         self.pathfinder = None
         
-        # Initialize operation pages
         self.operation_page_balance = OperationPage(self.main_widget, "Balance")
         self.operation_page_transfer = OperationPage(self.main_widget, "Transfer")
         
-        # Add operation pages to main widget
         self.main_widget.addWidget(self.operation_page_balance)
         self.main_widget.addWidget(self.operation_page_transfer)
-        
+
         self.setup_connections()
         self.main_widget.show()
 
@@ -39,10 +37,8 @@ class PiTech:
         self.pathfinder = Pathfinder(self.grid)
         balance_moves = self.pathfinder.balance()
 
-        # Update the balance operation page with the moves
         self.operation_page_balance.update_steps(balance_moves)
         
-        # Switch to balance operation page
         self.main_widget.setCurrentWidget(self.operation_page_balance)
 
     def handle_transfer(self):
@@ -59,10 +55,8 @@ class PiTech:
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
 
-        # Update the transfer operation page with the moves
         self.operation_page_transfer.update_steps(transfer_moves)
         
-        # Switch to transfer operation page
         self.main_widget.setCurrentWidget(self.operation_page_transfer)
 
     def run(self):

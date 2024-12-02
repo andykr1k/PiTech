@@ -50,23 +50,6 @@ class HomePage(QWidget):
         main_layout.addLayout(center_layout)
         main_layout.addStretch()
 
-        bottom_layout = QHBoxLayout()
-        bottom_layout.addSpacerItem(QSpacerItem(
-            40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-
-        log_button = QPushButton("Log")
-        log_button.setFont(QFont("Roboto", 12, QFont.Bold))
-        log_button.setStyleSheet("""
-            background-color: #E8EAF6;
-            color: #3F51B5;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-        """)
-        bottom_layout.addWidget(log_button, alignment=Qt.AlignRight)
-
-        main_layout.addLayout(bottom_layout)
-
         self.setLayout(main_layout)
 
     def signOut(self):
