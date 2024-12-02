@@ -5,7 +5,6 @@ from Backend.Classes.Grid import Grid
 from Backend.Classes.Pathfinder import Pathfinder
 from Backend.Utilities.Utils import upload_manifest, upload_transfer_list
 from Frontend.Screens.OperationPage import OperationPage
-from Frontend.Screens.LogPage import LogPage
 
 class PiTech:
     def __init__(self):

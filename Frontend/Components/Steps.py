@@ -11,33 +11,34 @@ class Steps(QWidget):
         self.initUI()
 
     def initUI(self):
-        # Main container layout
         main_layout = QVBoxLayout(self)
         self.setLayout(main_layout)
 
-        # Steps container with styling
         steps_container = QFrame()
         steps_container.setStyleSheet(
             """
             QFrame {
-                border: 2px solid rgba(47, 39, 206, 0.5);
-                border-radius: 15px;
-                background-color: #F5F5F5;
-                padding: 15px;
+                border: 1px solid #CCCCCC;
+                border-radius: 16px;
+                background-color: #FFFFFF;
+                padding: 20px;
             }
             """
         )
         steps_layout = QVBoxLayout(steps_container)
         steps_layout.setAlignment(Qt.AlignTop)
 
-        # Steps title
-        steps_title = QLabel("_______ Steps")
-        steps_title.setFont(QFont("Arial", 18, QFont.Bold))
-        steps_title.setStyleSheet("color: black;")
+        steps_title = QLabel("Steps")
+        steps_title.setFont(QFont("Arial", 20, QFont.Bold))
+        steps_title.setStyleSheet(
+            """
+            color: #333333;
+            background-color: #FAFAFA;
+            padding: 8px;
+            """)
         steps_title.setAlignment(Qt.AlignCenter)
         steps_layout.addWidget(steps_title)
 
-        # Steps widget with scrollable area
         steps_widget = QWidget()
         steps_widget_layout = QVBoxLayout(steps_widget)
         steps_widget_layout.setAlignment(Qt.AlignTop)
@@ -45,7 +46,14 @@ class Steps(QWidget):
         for step in self.steps_list:
             step_label = QLabel(step)
             step_label.setFont(QFont("Arial", 14))
-            step_label.setStyleSheet("color: black; border: 2px solid rgba(47, 39, 206, 0.5);")
+            step_label.setStyleSheet(
+                """
+                color: #333333;
+                background-color: #FAFAFA;
+                padding: 12px 20px;
+                margin-bottom: 4px;
+                """
+            )
             steps_widget_layout.addWidget(step_label)
 
         scroll_area = QScrollArea()
@@ -56,25 +64,36 @@ class Steps(QWidget):
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         steps_layout.addWidget(scroll_area)
 
-        # Spacer for alignment
-        steps_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        steps_layout.addSpacerItem(QSpacerItem(
+            20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        # Total time label
         total_time_label = QLabel(f"Total Time: {self.total_time}")
         total_time_label.setFont(QFont("Arial", 16, QFont.Bold))
-        total_time_label.setStyleSheet("color: black; border: none;")
+        total_time_label.setStyleSheet("""
+                color: #333333;
+                background-color: #FAFAFA;
+                padding: 12px 20px;
+                """)
         total_time_label.setAlignment(Qt.AlignCenter)
         steps_layout.addWidget(total_time_label)
 
-        main_layout.addWidget(steps_container)
-
-        # Start button
         start_button = QPushButton("Start")
-        start_button.setFont(QFont("Arial", 14, QFont.Bold))
-        start_button.setStyleSheet("background-color: #008000; padding: 10px; border-radius: 10px;")
-        start_button_layout = QHBoxLayout()
-        start_button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        start_button_layout.addWidget(start_button, alignment=Qt.AlignCenter)
-        start_button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        
-        main_layout.addLayout(start_button_layout)
+        start_button.setFont(QFont("Arial", 16, QFont.Bold))
+        start_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #6200EE;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 10px;
+                font-weight: bold;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: #3700B3;
+            }
+            """
+        )
+        steps_layout.addWidget(start_button)
+
+        main_layout.addWidget(steps_container)

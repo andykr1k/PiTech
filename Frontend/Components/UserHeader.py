@@ -14,12 +14,13 @@ class UserHeader(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
 
         self.userLabel = QLabel(f"User: {self.username}")
-        self.userLabel.setFont(QFont("Roboto", 14, QFont.Bold))
+        self.userLabel.setFont(QFont("Roboto", 16))
         self.userLabel.setStyleSheet("""
-            background-color: #E8EAF6;
-            padding: 8px 12px;
-            border-radius: 5px;
-            color: #3F51B5;
+            background-color: #3F51B5;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: 600;
         """)
         layout.addWidget(self.userLabel)
 

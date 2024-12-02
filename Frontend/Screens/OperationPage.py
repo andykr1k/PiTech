@@ -59,28 +59,6 @@ class OperationPage(QWidget):
         main_layout.addLayout(middle_section)
         self.setLayout(main_layout)
 
-        bottom_section = QHBoxLayout()
-
-        input_field = QLineEdit()
-        input_field.setFont(QFont("Arial", 12))
-        input_field.setPlaceholderText("Comment in log")
-        input_field.setStyleSheet("padding: 10px; border-radius: 10px; border: 1px solid gray;")
-        bottom_section.addWidget(input_field)
-
-        arrow_button = QPushButton("➔")
-        arrow_button.setFont(QFont("Arial", 14, QFont.Bold))
-        arrow_button.setStyleSheet(
-            "background-color: #2F27CE; color: white; padding: 10px; border-radius: 10px;"
-        )
-        bottom_section.addWidget(arrow_button)
-
-        main_layout.addLayout(bottom_section)
-
-        bottom_section.setStretch(0, 7)
-        bottom_section.setStretch(1, 1)
-
-        self.setLayout(main_layout)
-
     def update_steps(self, moves):
         """Update the steps widget with new moves"""
         step_strings = []
