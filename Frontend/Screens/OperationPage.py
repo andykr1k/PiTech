@@ -24,17 +24,18 @@ test_grid_state = [
      'UNUSED', 'UNUSED', 'CONTAINER', 'NAN', 'NAN', 'NAN']
 ]
 
+
 class OperationPage(QWidget):
-    def __init__(self, stacked_widget, operationTitle):
+    def __init__(self, parent, operationTitle):
         super().__init__()
-        self.stacked_widget = stacked_widget
+        self.parent = parent
         self.operation_title = operationTitle
         self.initUI()
 
     def initUI(self):
         main_layout = QVBoxLayout()
 
-        self.header = UserHeader(self.stacked_widget)
+        self.header = UserHeader(self.parent)
         main_layout.addWidget(self.header)
 
         title_label = QLabel(self.operation_title + " Operation")
@@ -52,7 +53,8 @@ class OperationPage(QWidget):
         grid_layout.addWidget(grid.visualizeGrid())
         middle_section.addWidget(grid_container)
 
-        steps_list = ["Step 1: 1 min", "Step 2: 2 min", "Step 3: 3 min", "Step 5: 5 min"]
+        steps_list = ["Step 1: 1 min", "Step 2: 2 min",
+                      "Step 3: 3 min", "Step 5: 5 min"]
         steps_widget = Steps(steps_list, "14 min")
         middle_section.addWidget(steps_widget)
 
@@ -63,13 +65,13 @@ class OperationPage(QWidget):
         """Update the steps widget with new moves"""
         step_strings = []
         total_time = 0
-        
+
         for i, move in enumerate(moves, 1):
             step_strings.append(f"Step {i}: {move}")
             total_time += move.cost
-        
+
         self.steps_widget = Steps(step_strings, f"{total_time} min")
-        
+
         for i in range(self.layout().count()):
             item = self.layout().itemAt(i)
             if isinstance(item.widget(), Steps):

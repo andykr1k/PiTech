@@ -1,30 +1,35 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QMessageBox
-from PyQt5.QtGui import QFont, QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt, QTimer, QTime, QDate, pyqtSignal
 
 
 class SignInPage(QWidget):
-    def __init__(self, stacked_widget):
+    username_updated = pyqtSignal(str)
+
+    def __init__(self, parent):
         super().__init__()
-        self.stacked_widget = stacked_widget
+        self.parent = parent
         self.initUI()
 
     def initUI(self):
         layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
-        layout.setSpacing(30)
+
+        self.timeLabel = QLabel()
+        self.timeLabel.setFont(QFont("Roboto", 12))
+        self.timeLabel.setAlignment(Qt.AlignCenter)
+        self.timeLabel.setStyleSheet("color: #3F51B5;")
+        layout.addWidget(self.timeLabel)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.updateTime)
+        self.timer.start(1000)
+        self.updateTime()
 
         self.titleLabel = QLabel("Keogh's Ports")
         self.titleLabel.setFont(QFont("Roboto", 42, QFont.Bold))
         self.titleLabel.setAlignment(Qt.AlignCenter)
         self.titleLabel.setStyleSheet("color: #3F51B5;")
         layout.addWidget(self.titleLabel)
-
-        self.subtitleLabel = QLabel("PiTech")
-        self.subtitleLabel.setFont(QFont("Roboto", 24, QFont.Bold))
-        self.subtitleLabel.setAlignment(Qt.AlignCenter)
-        self.subtitleLabel.setStyleSheet("color: #3F51B5;")
-        layout.addWidget(self.subtitleLabel)
 
         self.usernameInput = QLineEdit()
         self.usernameInput.setPlaceholderText("Enter your username")
@@ -42,6 +47,8 @@ class SignInPage(QWidget):
                 background-color: #FFFFFF;
             }
         """)
+        self.usernameInput.returnPressed.connect(
+            self.goToNextPage)
         layout.addWidget(self.usernameInput, alignment=Qt.AlignCenter)
 
         self.continueButton = QPushButton("Sign In")
@@ -65,16 +72,33 @@ class SignInPage(QWidget):
         self.continueButton.clicked.connect(self.goToNextPage)
         layout.addWidget(self.continueButton, alignment=Qt.AlignCenter)
 
+        self.copyrightLabel = QLabel("PiTech 2024")
+        self.copyrightLabel.setFont(QFont("Roboto", 8))
+        self.copyrightLabel.setAlignment(Qt.AlignCenter)
+        self.copyrightLabel.setStyleSheet("color: #3F51B5;")
+        layout.addWidget(self.copyrightLabel)
+
         self.setLayout(layout)
+
+    def updateTime(self):
+        current_time = QTime.currentTime().toString("hh:mm:ss AP")
+        current_date = QDate.currentDate().toString("MMMM dd, yyyy")
+        self.timeLabel.setText(current_time + " - " + current_date)
 
     def goToNextPage(self):
         username = self.usernameInput.text().strip()
         if not username:
-            QMessageBox.warning(
-                self, "Error", "Username field cannot be empty")
-        else:
-            self.stacked_widget.home_page.header.updateUsername(username)
-            self.stacked_widget.setCurrentIndex(1)
+            QMessageBox.warning(self, "Error", "Username field cannot be empty")
+            return
+        
+        existing_user = self.parent.db.fetch_one(
+            "profile", "1=1 ORDER BY id ASC")
+        if existing_user:
+            self.parent.db.delete("profile", "id = ?", (existing_user[0],))
+
+        self.parent.db.insert("profile", "username", (username,))
+
+        self.parent.setCurrentIndex(1)
 
     def clearUsernameInput(self):
         self.usernameInput.clear()

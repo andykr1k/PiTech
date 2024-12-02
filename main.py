@@ -1,32 +1,57 @@
 import sys
-from PyQt5.QtWidgets import QApplication
-from frontend import MainWidget
+from PyQt5.QtWidgets import QApplication, QStackedWidget
 from Backend.Classes.Grid import Grid
 from Backend.Classes.Pathfinder import Pathfinder
 from Backend.Utilities.Utils import upload_manifest, upload_transfer_list
-from Frontend.Screens.OperationPage import OperationPage
+from Frontend import SignInPage, HomePage, LogPage, TransferPage, OperationPage
+from Database import SQLiteDatabase
 
-class PiTech:
+class PiTech(QStackedWidget):
     def __init__(self):
-        self.app = QApplication(sys.argv)
-        self.main_widget = MainWidget()
+        super().__init__()
+
         self.grid = None
         self.pathfinder = None
-        
-        self.operation_page_balance = OperationPage(self.main_widget, "Balance")
-        self.operation_page_transfer = OperationPage(self.main_widget, "Transfer")
-        
-        self.main_widget.addWidget(self.operation_page_balance)
-        self.main_widget.addWidget(self.operation_page_transfer)
+        self.db = self.setup_db()
+
+        self.sign_in_page = SignInPage(self)
+        self.home_page = HomePage(self)
+        self.transfer_page = TransferPage(self)
+        self.operation_page_balance = OperationPage(self, "Balance")
+        self.operation_page_transfer = OperationPage(self, "Transfer")
+
+        self.addWidget(self.sign_in_page)
+        self.addWidget(self.home_page)
+        self.addWidget(self.transfer_page)
+        self.addWidget(self.operation_page_balance)
+        self.addWidget(self.operation_page_transfer)
 
         self.setup_connections()
-        self.main_widget.show()
+        self.show()
+
+    def setup_db(self):
+        db = SQLiteDatabase("Data/Database.db")
+
+        db.create_table(
+            "profile", "id INTEGER PRIMARY KEY, username TEXT")
+
+        if not db.fetch_one("profile", "1=1"):
+            db.insert("profile", "username", ("default",))
+            print("Default added.")
+
+        return db
+
+    def fetch_username(self):
+        user = self.db.fetch_all("profile")
+        return user[0][1]
+    
+    def close_db(self):
+        self.db.close()
 
     def setup_connections(self):
-        self.main_widget.home_page.balance_button.clicked.connect(
-            self.handle_balance)
-        self.main_widget.home_page.transfer_button.clicked.connect(
-            self.handle_transfer)
+        self.home_page.balance_button.clicked.connect(self.handle_balance)
+        self.home_page.transfer_button.clicked.connect(self.handle_transfer)
+
 
     def handle_balance(self):
         manifest_filename = "ShipCase1.txt"
@@ -37,34 +62,26 @@ class PiTech:
         balance_moves = self.pathfinder.balance()
 
         self.operation_page_balance.update_steps(balance_moves)
-        
-        self.main_widget.setCurrentWidget(self.operation_page_balance)
+        self.setCurrentWidget(self.operation_page_balance)
 
     def handle_transfer(self):
         manifest_filename = "ShipCase1.txt"
         transfer_filename = "case1.txt"
-        
         manifest_data = upload_manifest(manifest_filename)
         transfer_data = upload_transfer_list(transfer_filename)
-        
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
         self.grid.setup_transferlist(transfer_data)
-        
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
 
         self.operation_page_transfer.update_steps(transfer_moves)
-        
-        self.main_widget.setCurrentWidget(self.operation_page_transfer)
-
-    def run(self):
-        return self.app.exec_()
-
+        self.setCurrentWidget(self.operation_page_transfer)
 
 def main():
+    app = QApplication(sys.argv)
     system = PiTech()
-    sys.exit(system.run())
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

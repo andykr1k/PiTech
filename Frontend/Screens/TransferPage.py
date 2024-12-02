@@ -4,10 +4,9 @@ from Frontend.Components.UserHeader import UserHeader
 
 
 class TransferPage(QWidget):
-    def __init__(self, stacked_widget):
+    def __init__(self, parent):
         super().__init__()
-        self.stacked_widget = stacked_widget
-        self.username = ""
+        self.parent = parent
         self.initUI()
 
     def initUI(self):
@@ -15,7 +14,7 @@ class TransferPage(QWidget):
 
         top_layout = QHBoxLayout()
         top_layout.setContentsMargins(10, 10, 10, 10)
-        self.header = UserHeader(self.stacked_widget)
+        self.header = UserHeader(self.parent)
         main_layout.addWidget(self.header)
 
         main_layout.addLayout(top_layout)
@@ -50,7 +49,3 @@ class TransferPage(QWidget):
         main_layout.addStretch()
 
         self.setLayout(main_layout)
-
-    def signOut(self):
-        self.stacked_widget.setCurrentIndex(0)
-        self.stacked_widget.sign_in_page.clearUsernameInput()

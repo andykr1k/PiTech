@@ -1,12 +1,12 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QTextEdit
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QTextEdit, QLineEdit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
 
 class LogPage(QDialog):
-    def __init__(self, stacked_widget):
+    def __init__(self, parent):
         super().__init__()
-        self.stacked_widget = stacked_widget
+        self.parent = parent
         self.initUI()
 
     def initUI(self):
@@ -29,10 +29,10 @@ class LogPage(QDialog):
         self.logDisplay.setReadOnly(True)
         self.logDisplay.setStyleSheet(
             """
-            background-color: #D3D3D3; 
+            background-color: #F1F1F1; 
             color: black; 
             font-weight: bold; 
-            font-size: 20px;
+            font-size: 12px;
             border-radius: 10px;
             """
         )
@@ -47,7 +47,7 @@ class LogPage(QDialog):
 
         comment_layout = QHBoxLayout()
 
-        self.commentInput = QTextEdit(self)
+        self.commentInput = QLineEdit(self)
         self.commentInput.setPlaceholderText("Add your comment here...")
         self.commentInput.setStyleSheet(
             """
@@ -91,7 +91,7 @@ class LogPage(QDialog):
         self.move(x, y)
 
     def addComment(self):
-        text = self.commentInput.toPlainText()
+        text = self.commentInput.text().strip()
         if text:
             timestamp = "2024-10-30 11:45"
             self.logDisplay.append(f"{timestamp}: {text}")

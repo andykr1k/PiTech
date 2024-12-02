@@ -3,10 +3,10 @@ from PyQt5.QtGui import QFont
 from Frontend.Screens.LogPage import LogPage
 
 class UserHeader(QWidget):
-    def __init__(self, stacked_widget, parent=None):
-        super().__init__(parent)
-        self.stacked_widget = stacked_widget
-        self.username = ""
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+        self.username = self.getUsername()
         self.initUI()
 
     def initUI(self):
@@ -53,13 +53,21 @@ class UserHeader(QWidget):
 
         self.setLayout(layout)
 
-    def updateUsername(self, username):
-        self.username = username
-        self.userLabel.setText(f"User: {self.username}")
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.updateUsername()
 
     def signOut(self):
-        self.stacked_widget.setCurrentIndex(0)
-        self.stacked_widget.sign_in_page.clearUsernameInput()
+        self.parent.username = ""
+        self.parent.sign_in_page.clearUsernameInput()
+        self.parent.setCurrentIndex(0)
+    
+    def updateUsername(self):
+        self.username = self.getUsername()
+        self.userLabel.setText(f"User: {self.username}")
+
+    def getUsername(self):
+        return self.parent.fetch_username()
 
     def goToLog(self):
         log = LogPage(self)
