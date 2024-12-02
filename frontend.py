@@ -1,5 +1,5 @@
 import sys
-from Frontend import SignInPage, HomePage, OperationPage, TestPage, LogPage
+from Frontend import SignInPage, HomePage, TestPage, LogPage
 from PyQt5.QtWidgets import QApplication, QStackedWidget
 
 class MainWidget(QStackedWidget):
@@ -8,14 +8,12 @@ class MainWidget(QStackedWidget):
 
         self.sign_in_page = SignInPage(self)  
         self.home_page = HomePage(self)  
-        self.operation_page = OperationPage(self) 
         self.test_page = TestPage(self)
         self.log_page = LogPage(self)
          
         
         self.addWidget(self.sign_in_page)
         self.addWidget(self.home_page)
-        self.addWidget(self.operation_page)
         self.addWidget(self.test_page) 
         self.addWidget(self.log_page)
 
