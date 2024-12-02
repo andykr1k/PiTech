@@ -3,9 +3,10 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
 class TestPage(QWidget):
-    def __init__(self, stacked_widget):
+    def __init__(self, stacked_widget, db):
         super().__init__()
         self.stacked_widget = stacked_widget
+        self.db = db
         self.initUI()
 
     def initUI(self):

@@ -3,9 +3,10 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 class LogPage(QWidget): 
-    def __init__(self, stacked_widget):
+    def __init__(self, stacked_widget, db):
         super().__init__()
         self.stacked_widget = stacked_widget
+        self.db = db
         self.initUI()
 
     def initUI(self):
@@ -85,11 +86,29 @@ class LogPage(QWidget):
         main_layout.addLayout(layout)
         self.setLayout(main_layout)
 
-    def goToPreviousPage(self):
-        self.stacked_widget.setCurrentIndex(0)
 
     def addComment(self):
         text, ok = QInputDialog().getText(self, "Add Comment", "Enter comment:")
         if ok and text:
             timestamp = "2024-10-30 11:45"
             self.logDisplay.append(f"{timestamp} {text}")
+
+    def goToPreviousPage(self):
+        # Fetch the last page from page_history
+        last_page = self.stacked_widget.db.fetch_one(
+            "page_history", "1=1 ORDER BY id DESC LIMIT 1"
+        )
+
+        if last_page:
+            previous_page = last_page[1]  # Extract the page name
+            # Navigate to the previous page
+            if previous_page == "home":
+                self.stacked_widget.setCurrentIndex(1) # Switch to Home page
+            elif previous_page == "operation":
+                self.stacked_widget.setCurrentIndex(2) # Switch to Operation page
+
+            # Delete the last page entry from the history
+            self.stacked_widget.db.delete("page_history", "id = ?", (last_page[0],))
+        else:
+            QMessageBox.warning(self, "Error", "No previous page found!")
+    

@@ -24,18 +24,39 @@ test_grid_state = [
 ]
 
 class OperationPage(QWidget):
-    def __init__(self, stacked_widget):
+    def __init__(self, stacked_widget, db):
         super().__init__()
         self.stacked_widget = stacked_widget
+        self.db = db
         self.initUI()
 
     def initUI(self):
         # Main layout
         main_layout = QVBoxLayout()
 
-        # Top Section: Log and Sign In Buttons
+        # Top Section: Username Label, Log Button, and Sign In Button
         top_section = QHBoxLayout()
         top_section.setContentsMargins(0, 0, 0, 0)
+
+        # Fetch the current username from the database
+        record = self.db.fetch_one("current_user", "1=1")  # Fetch username from the 'current_user' table
+        current_username = record[1] if record else "Unknown"  # Use "Unknown" if no user is found
+        
+        # Username Label
+        self.userLabel = QLabel(f"User: {current_username}")
+        self.userLabel.setFont(QFont("Arial", 12, QFont.Bold))
+        self.userLabel.setStyleSheet("background-color: #D3D3D3; padding: 5px; border-radius: 5px;")
+        top_section.addWidget(self.userLabel)
+
+        # Spacer to push "Sign In Button" and "Log Button" to the right
+        top_section.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        # Sign In Button
+        sign_in_button = QPushButton("Sign In")
+        sign_in_button.setFont(QFont("Arial", 12, QFont.Bold))
+        sign_in_button.setStyleSheet("background-color: #2F27CE; color: white; padding: 10px; border-radius: 10px;")
+        sign_in_button.clicked.connect(self.goToSignInPage)
+        top_section.addWidget(sign_in_button)
 
         # Log Button
         self.log_button = QPushButton("Log")
@@ -43,15 +64,6 @@ class OperationPage(QWidget):
         self.log_button.setStyleSheet("background-color: #2F27CE; color: white; padding: 10px; border-radius: 10px;")
         self.log_button.clicked.connect(self.goToLogPage)
         top_section.addWidget(self.log_button)
-
-        # Spacer to push Sign In button to the right
-        top_section.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-
-        # Sign In Button
-        sign_in_button = QPushButton("Sign In")
-        sign_in_button.setFont(QFont("Arial", 12, QFont.Bold))
-        sign_in_button.setStyleSheet("background-color: #2F27CE; color: white; padding: 10px; border-radius: 10px;")
-        top_section.addWidget(sign_in_button)
 
         # Add top section to main layout
         main_layout.addLayout(top_section)
@@ -85,8 +97,8 @@ class OperationPage(QWidget):
         middle_section.addWidget(grid_container)
 
         # Steps
-        steps_list = ["Step 1: 1 min", "Step 2: 2 min", "Step 3: 3 min", "Step 5: 5 min"]
-        steps_widget = Steps(steps_list, "14 min")
+        steps_list = ["Step 1: 1 min", "Step 2: 2 min", "Step 3: 3 min", "Step 4: 5 min"]
+        steps_widget = Steps(steps_list, "11 min")
         middle_section.addWidget(steps_widget)
 
         main_layout.addLayout(middle_section)
@@ -119,5 +131,19 @@ class OperationPage(QWidget):
         # Set the main layout
         self.setLayout(main_layout)
 
+    def updateUserLabel(self):
+        # Fetch the current username from the "current_user" table
+        record = self.db.fetch_one("current_user", "1=1")
+        if record:
+            self.userLabel.setText(f"User: {record[1]}")  # Update label with the username
+        else:
+            self.userLabel.setText("User: Unknown")  # Fallback if no current user
+
     def goToLogPage(self):
-        self.stacked_widget.setCurrentIndex(4)
+        self.stacked_widget.db.insert("page_history", "page", ("operation",)) # Insert "operation" in page_history
+        self.stacked_widget.setCurrentIndex(3) # Switch to Log page
+
+    def goToSignInPage(self):
+        self.stacked_widget.db.insert("page_history", "page", ("operation",)) # Insert "operation" in page_history
+        self.stacked_widget.sign_in_page.clearUsernameInput() #Clear the username input
+        self.stacked_widget.setCurrentIndex(0) # Switch to SignIn page
