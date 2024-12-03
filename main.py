@@ -26,6 +26,8 @@ class PiTech(QStackedWidget):
         self.addWidget(self.operation_page_balance)
         self.addWidget(self.operation_page_transfer)
 
+        self.state = self.fetch_state()
+
         self.setup_connections()
         self.show()
 
@@ -37,9 +39,14 @@ class PiTech(QStackedWidget):
 
         if not db.fetch_one("profile", "1=1"):
             db.insert("profile", "username", ("default",))
-            print("Default added.")
 
         return db
+    
+    def fetch_state(self):
+        user = self.db.fetch_all("profile")
+        if user[0][1] != "default":
+            print(user[0][1])
+            self.setCurrentWidget(self.home_page)
 
     def fetch_username(self):
         user = self.db.fetch_all("profile")
@@ -51,7 +58,6 @@ class PiTech(QStackedWidget):
     def setup_connections(self):
         self.home_page.balance_button.clicked.connect(self.handle_balance)
         self.home_page.transfer_button.clicked.connect(self.handle_transfer)
-
 
     def handle_balance(self):
         manifest_filename = "ShipCase1.txt"

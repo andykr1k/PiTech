@@ -58,7 +58,8 @@ class UserHeader(QWidget):
         self.updateUsername()
 
     def signOut(self):
-        self.parent.username = ""
+        # update user name to "default" in db when logged out
+        self.parent.username = "default"
         self.parent.sign_in_page.clearUsernameInput()
         self.parent.setCurrentIndex(0)
     

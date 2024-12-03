@@ -34,7 +34,8 @@ class Steps(QWidget):
             """
             color: #333333;
             background-color: #FAFAFA;
-            padding: 8px;
+            padding: 12px 20px;
+                border-radius: 10px;
             """)
         steps_title.setAlignment(Qt.AlignCenter)
         steps_layout.addWidget(steps_title)
@@ -51,6 +52,7 @@ class Steps(QWidget):
                 color: #333333;
                 background-color: #FAFAFA;
                 padding: 12px 20px;
+                border-radius: 10px;
                 margin-bottom: 4px;
                 """
             )
@@ -73,6 +75,7 @@ class Steps(QWidget):
                 color: #333333;
                 background-color: #FAFAFA;
                 padding: 12px 20px;
+                border-radius: 10px;
                 """)
         total_time_label.setAlignment(Qt.AlignCenter)
         steps_layout.addWidget(total_time_label)

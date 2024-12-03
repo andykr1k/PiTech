@@ -73,7 +73,7 @@ class SignInPage(QWidget):
         layout.addWidget(self.continueButton, alignment=Qt.AlignCenter)
 
         self.copyrightLabel = QLabel("PiTech 2024")
-        self.copyrightLabel.setFont(QFont("Roboto", 8))
+        self.copyrightLabel.setFont(QFont("Roboto", 12))
         self.copyrightLabel.setAlignment(Qt.AlignCenter)
         self.copyrightLabel.setStyleSheet("color: #3F51B5;")
         layout.addWidget(self.copyrightLabel)
