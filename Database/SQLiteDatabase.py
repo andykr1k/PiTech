@@ -47,23 +47,3 @@ class SQLiteDatabase:
     def close(self) -> None:
         self.conn.close()
         print(f"Closed connection to database: {self.db_name}")
-
-
-if __name__ == "__main__":
-    db = SQLiteDatabase("Data/Database.db")
-
-    db.create_table(
-        "profiles", "id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, email TEXT")
-
-    db.insert("profiles", "username, email", ("test", "test@example.com"))
-
-    user = db.fetch_one("profiles", "username = ?", ("test",))
-    print(f"Fetched user: {user}")
-
-    if user:
-        db.delete("profiles", "username = ?", ("test",))
-        print("User deleted.")
-
-    db.drop_table("profiles")
-
-    db.close()

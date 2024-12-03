@@ -30,7 +30,7 @@ class Grid:
 
             for col in range(self.columns):
                 cell = QPushButton()
-                cell.setFixedSize(50, 50)
+                cell.setFixedSize(65, 65)
 
                 self.buttons[(row, col)] = cell
 
