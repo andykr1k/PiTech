@@ -14,23 +14,33 @@ class Slot:
     def __repr__(self):
         return f"{self.position}, {self.state}, {self.container}\n-------------------------------\n"
     
+    def get_state(self):
+        return self.state
+    
     def get_container(self):
         return self.container
     
     def set_container(self, container: Container):
         self.container = container
         self.state = self.parseState()
+        return 1
+    
+    def get_grid_id(self):
+        return self.grid_id
+
 
     def remove_container(self):
         self.container.name = 'UNUSED'
         self.container.weight = 0
         self.state = 1
 
+        return 1
+
     def parseState(self):
-        match self.container.get_name():
-            case "NAN":
+        match (self.container.get_name(), self.container.get_weight()):
+            case ("NAN",_):
                 return 0
-            case "UNUSED":
+            case ("UNUSED",0):
                 return 1
         return 2
 

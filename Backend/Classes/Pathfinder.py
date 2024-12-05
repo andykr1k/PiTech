@@ -19,7 +19,10 @@ class Pathfinder():
         if(self.can_balance(self.start_state)):
             heapq.heappush(self.open_set, (0, 0, self.path, self.start_state))
             return self.balanceHelper()
-        return self.sift()
+        
+        else:
+            print("Beginning SIFT Operation")
+            return self.sift()
 
     def balanceHelper(self):
 
@@ -35,12 +38,8 @@ class Pathfinder():
                 for child_state, move in state.getPossibleStatesMoves():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        if(move.from_slot==(6,4)and  move.to_slot==(1,6)):
-                            crane_to_start_cost = state.calulate_path_cost(state.crane_position, move.from_slot)
-                            move_cost = state.calulate_path_cost(move.from_slot, move.to_slot)
-                        else:
-                            crane_to_start_cost = state.calulate_path_cost(state.crane_position, move.from_slot)
-                            move_cost = state.calulate_path_cost(move.from_slot, move.to_slot)
+                        crane_to_start_cost = state.calulate_path_cost(state.crane_position, move.from_slot)
+                        move_cost = state.calulate_path_cost(move.from_slot, move.to_slot)
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         #new_g_cost = g_cost + move.get_cost(child_state)
                         
@@ -152,16 +151,89 @@ class Pathfinder():
         else:
             print("Not balanceable.")
             return False
+
+
     
     def load():
         pass
 
     def unload():
         pass
-    
+
     def sift(self):
-        print("Sifting...")
-        return []
+        print('Sifting...')
+        
+        current_ship_grid = self.start_state
+        #initialize a 4x24 buffer grid. All slots UNUSED, weight = 0
+        buffer_grid = Grid(rows=4, columns=24)
+        buffer_grid.setup_grid()
+
+        #get goal_state
+        goal_ship_grid = self.get_sift_goal(current_ship_grid)
+
+        print(goal_ship_grid)
+
+        #find the shortest path to goal_state. Must update available moves function to consider buffer as an available grid
+
+        return ['Move1', 'Move2']
+    
+    def get_sift_goal(self, grid):
+
+        virtual_grid = copy.copy(grid)
+        containers = copy.deepcopy(self.get_containers(virtual_grid))
+
+        for container in containers: #remove all containers while keeping grid NANs the same
+            container_position =  container.get_position()
+            row, column = container_position[0], container_position[1]
+            virtual_grid.remove_container(row,column)
+
+        heap = []
+        midpoint = virtual_grid.columns//2
+        left_offset = 1
+        right_offset = 0
+
+        for container in containers:
+            container_weight = container.get_weight()
+            container_name = container.get_name()
+            heapq.heappush(heap, (-container_weight, container)) #push containers to heap, highest weight on top
+        for i in range(0, len(heap),):
+            heaviest_container = heapq.heappop(heap)[1]
+            container_position = heaviest_container.get_position()
+            from_slot = virtual_grid.get_slot(container_position[0],container_position[1])
+
+            condition =  i % 2
+            match condition:
+                case 0: #place container on left half as close as possible to mid point
+                    column = midpoint - left_offset
+                    row = 0
+                    to_slot = virtual_grid.get_slot(row,column)
+                    if to_slot.get_state() == '2':
+                        to_slot.remove_container()
+                    
+                    print(f"Move container from position {from_slot.position} to position {to_slot.position}")
+
+                    to_row = to_slot.x
+                    to_column = to_slot.y
+                    virtual_grid.add_container(heaviest_container, to_row, to_column)
+                    to_slot = virtual_grid.get_slot(row,column)
+                    left_offset += 1
+
+#                    print(virtual_grid)
+
+                case 1: #place container on right half as close as possible to mid point
+                    column = midpoint + right_offset
+                    row = 0
+                    to_slot = virtual_grid.get_slot(row,column)
+                    print(f"Move container from position {from_slot.position} to position {to_slot.position}")
+
+                    to_row = to_slot.x
+                    to_column = to_slot.y
+                    virtual_grid.add_container(heaviest_container, to_row, to_column)
+                    to_slot = virtual_grid.get_slot(row,column)
+                    right_offset += 1
+
+        return virtual_grid
+
 
     def transfer(self):
         start_state_grid = self.start_state  # Initial state with crane at (8, 0)
@@ -189,7 +261,6 @@ class Pathfinder():
                         crane_to_start_cost = state.calulate_transfer_path_cost(state.crane_position, move.from_slot)
                         move_cost = state.calulate_transfer_path_cost(move.from_slot, move.to_slot)
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
-                        
                         h_cost = self.transfer_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
                         move.cost = crane_to_start_cost + move_cost
@@ -203,3 +274,13 @@ class Pathfinder():
     def transfer_heuristic(self, state):
         return 0
         
+    def get_containers(self, grid):
+        containers = grid.left_containers.union(grid.right_containers)
+        # containers = []
+        # for row in range(grid.rows):
+        #     for column in range(grid.columns):
+        #         container = grid.get_slot(row,column).get_container()
+
+        #         containers.append(container)
+
+        return containers

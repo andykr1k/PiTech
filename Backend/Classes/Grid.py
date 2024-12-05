@@ -19,6 +19,7 @@ class Grid:
         self.unload_list = [] # [Container]
         self.load_list = []   # [(name, weight)]
         self.crane_position = (8,0) # (-1,-1) for "truck"
+        self.crane_grid = self.id #grid should not be an attribute of the grid because it needs to move between grids
         
     def get_slot(self, row, col):
         if 0 <= row < self.rows and 0 <= col < self.columns:
@@ -26,7 +27,16 @@ class Grid:
         else:
             raise IndexError("Slot position out of grid bounds")
 
-    def setup_grid(self, manifestData):
+    def setup_grid(self, manifestData=None):
+        if manifestData is None: #no manifest provided, initialize empty grid
+            rows = self.rows
+            columns = self.columns
+            for row in range(rows):
+                for column in range(columns):
+                    empty_container = Container("UNUSED", 00000, row, column)
+                    slot = self.get_slot(row,column).set_container(empty_container)
+            return self.slot
+        
         row = 0
         col = 0
         containerName = ""
@@ -50,11 +60,12 @@ class Grid:
                             self.left_containers.add(container)
                         else:
                             self.right_containers.add(container)
+
                     
         self.calculate_weights()
         return self.slot
     
-    def get_grid(self):
+    def get_grid(self): #not sure what this is for
         return self.slot
     
     def get_weights(self):
@@ -101,19 +112,26 @@ class Grid:
         self.slot[row][column].state = 1  # Mark UNUSED
 
     def move_container(self, pos1, pos2):
-        # now only consider moving within the grid
+
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
-        container = from_slot.get_container()
-        name = container.get_name()
-        weight = container.get_weight()
-        self.update_container_lists(container, pos2)
-        self.update_weight(pos1,add=False)
-        from_slot.remove_container()
-        to_slot.set_container(Container(name,weight,pos2[0],pos2[1]))
-        self.update_weight(pos2,add=True)
-        self.crane_position = pos2
-    
+        from_grid = from_slot.get_grid_id()
+        to_grid = to_slot.get_grid_id()
+
+        if from_grid == to_grid: #moving within the same grid
+            container = from_slot.get_container()
+            name = container.get_name()
+            weight = container.get_weight()
+            self.update_container_lists(container, pos2)
+            self.update_weight(pos1,add=False)
+            from_slot.remove_container()
+            to_slot.set_container(Container(name,weight, pos2[0], pos2[1]))
+            self.update_weight(pos2,add=True)
+            self.crane_position = pos2
+        else:
+            #handle movement between grids
+            pass
+          
     def load_container(self, pos2):
         name, weight = self.load_list.pop(0)
         new_container = Container(name, weight, pos2[0],pos2[1])
