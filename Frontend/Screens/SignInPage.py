@@ -90,14 +90,9 @@ class SignInPage(QWidget):
         if not username:
             QMessageBox.warning(self, "Error", "Username field cannot be empty")
             return
-        
-        existing_user = self.parent.db.fetch_one(
-            "profile", "1=1 ORDER BY id ASC")
-        if existing_user:
-            self.parent.db.delete("profile", "id = ?", (existing_user[0],))
 
-        self.parent.db.insert("profile", "username, currentTab", (username, "Balance"))
-
+        self.parent.db.update_by_id("profile", "id", 1, {"username": username, "currentTab": "Home"})
+        print(self.parent.fetch_username())
         self.parent.setCurrentIndex(1)
 
         self.parent.add_log_entry(f"{username} signs in")
