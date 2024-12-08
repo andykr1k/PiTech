@@ -45,7 +45,8 @@ class Steps(QWidget):
         steps_widget_layout.setAlignment(Qt.AlignTop)
 
         for step in self.steps_list:
-            step_label = QLabel(step)
+            label = "Move container from " + step[1] + " to " + step[2] + " in " + str(step[3]) + " minutes."
+            step_label = QLabel(label)
             step_label.setFont(QFont("Arial", 14))
             step_label.setStyleSheet(
                 """

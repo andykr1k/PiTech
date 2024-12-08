@@ -23,7 +23,7 @@ class Grid:
         layout = QVBoxLayout()
         widget.setLayout(layout)
 
-        for row in range(self.rows):
+        for row in range(self.rows - 1, -1, -1):
             row_widget = QWidget()
             row_layout = QHBoxLayout()
             row_widget.setLayout(row_layout)
@@ -40,7 +40,7 @@ class Grid:
                 cell.col = col
 
                 cell.clicked.connect(lambda checked, r=row,
-                                     c=col: self.cell_clicked(r, c))
+                                    c=col: self.cell_clicked(r, c))
 
                 row_layout.addWidget(cell)
 
@@ -61,7 +61,7 @@ class Grid:
         elif state == 'UNUSED':
             button.setStyleSheet(
                 "background-color: grey; border: 0.5px solid black;")
-        elif state == 'CONTAINER':
+        else:
             color = self.get_random_color()
             button.setStyleSheet(
                 f"background-color: {color}; border: 0.5px solid black;")

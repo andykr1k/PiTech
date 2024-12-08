@@ -96,7 +96,7 @@ class SignInPage(QWidget):
         if existing_user:
             self.parent.db.delete("profile", "id = ?", (existing_user[0],))
 
-        self.parent.db.insert("profile", "username", (username,))
+        self.parent.db.insert("profile", "username, currentTab", (username, "Balance"))
 
         self.parent.setCurrentIndex(1)
 

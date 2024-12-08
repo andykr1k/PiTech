@@ -16,7 +16,7 @@ class Slot:
     
     def get_container(self):
         return self.container
-    
+
     def set_container(self, container: Container):
         self.container = container
         self.state = self.parseState()
