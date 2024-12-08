@@ -37,10 +37,10 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        # db.drop_table("profile")
-        # db.drop_table("Grids")
-        # db.drop_table("Lists")
-        db.drop_table("Log")
+        #db.drop_table("profile")
+        #db.drop_table("Grids")
+        #db.drop_table("Lists")
+        #db.drop_table("Log")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
