@@ -33,7 +33,7 @@ class OperationPage(QWidget):
         grid_container = QFrame()
         grid_layout = QVBoxLayout(grid_container)
         grid_layout.setAlignment(Qt.AlignCenter)
-        grid = Grid(self.grid_state)
+        grid = Grid(self, static=True, gridState=self.grid_state)
         grid_layout.addWidget(grid.visualizeGrid())
         middle_section.addWidget(grid_container)
 
@@ -45,19 +45,19 @@ class OperationPage(QWidget):
 
     def get_grid_state(self):
         return self.parent.fetch_grid_state()
-    
+
     def get_moves_list(self):
         return self.parent.fetch_moves_list()
-    
+
     def parse_grid_state(self, string_grid):
         return ast.literal_eval(string_grid)
-    
+
     def get_total_moves_cost(self):
         cost = 0
         for move in self.steps_list:
             cost += move[3]
         return cost
-    
+
     # def update_steps(self, moves):
     #     """Update the steps widget with new moves"""
     #     step_strings = []

@@ -4,11 +4,13 @@ import random
 
 
 class Grid:
-    def __init__(self, gridState=None) -> None:
+    def __init__(self, parent, static=True, gridState=None) -> None:
+        self.parent = parent
         self.rows = 8
         self.columns = 12
-        self.container_colors = []
+        self.container_colors = ["green"]
         self.buttons = {}
+        self.static = static
 
         if gridState:
             self.gridState = gridState
@@ -34,13 +36,12 @@ class Grid:
 
                 self.buttons[(row, col)] = cell
 
-                self.update_button_color(cell, row, col)
+                self.update_button_color(cell, row, col, False)
 
                 cell.row = row
                 cell.col = col
-
-                cell.clicked.connect(lambda checked, r=row,
-                                    c=col: self.cell_clicked(r, c))
+                if not self.static:
+                    cell.clicked.connect(lambda checked, r=row, c=col: self.cell_clicked(r, c))
 
                 row_layout.addWidget(cell)
 
@@ -53,36 +54,41 @@ class Grid:
 
         return widget
 
-    def update_button_color(self, button, row, col):
+    def update_button_color(self, button, row, col, tapped):
         state = self.gridState[row][col]
         if state == 'NAN':
-            button.setStyleSheet(
-                "background-color: black; border: 0.5px solid black;")
+            button.setStyleSheet("background-color: black; border: 0.5px solid black;")
+            button.setText("")
         elif state == 'UNUSED':
-            button.setStyleSheet(
-                "background-color: grey; border: 0.5px solid black;")
+            button.setStyleSheet("background-color: grey; border: 0.5px solid black;")
+            button.setText("")
         else:
-            color = self.get_random_color()
-            button.setStyleSheet(
-                f"background-color: {color}; border: 0.5px solid black;")
+            if tapped:
+                color = "green"
+            else:
+                color = self.get_random_color()
+            button.setStyleSheet(f"background-color: {color}; border: 0.5px solid black;")
+            button.setText(state)
 
     def cell_clicked(self, r, c):
         current_state = self.gridState[r][c]
+        button = self.buttons[(r, c)]
 
         if current_state == 'UNUSED':
-            self.gridState[r][c] = 'CONTAINER'
-        elif current_state == 'CONTAINER':
-            self.gridState[r][c] = 'NAN'
+            container_name = f"Container {r},{c}"
+            self.gridState[r][c] = container_name
+            self.update_button_color(button, r, c, False)
         elif current_state == 'NAN':
-            self.gridState[r][c] = 'UNUSED'
-
-        button = self.buttons[(r, c)]
-        self.update_button_color(button, r, c)
+            self.gridState[r][c] = 'NAN'
+            self.update_button_color(button, r, c, False)
+        else:
+            self.parent.unload_load_list.append("unload," + current_state)
+            self.update_button_color(button, r, c, True)
+            print(self.parent.unload_load_list)
 
     def get_random_color(self):
         while True:
-            color = QColor(random.randint(0, 255), random.randint(
-                0, 255), random.randint(0, 255))
+            color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
             color_str = color.name()
             if color_str not in self.container_colors:
                 self.container_colors.append(color_str)

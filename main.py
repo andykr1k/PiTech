@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication, QStackedWidget
 from Backend.Classes.Grid import Grid
 from Backend.Classes.Pathfinder import Pathfinder
 from Backend.Utilities.Utils import upload_manifest, upload_transfer_list
-from Frontend import SignInPage, HomePage, LogPage, TransferPage, OperationPage
+from Frontend import SignInPage, HomePage, LogPage, TransferPage, OperationPage, UnloadLoadPage
 from Database import SQLiteDatabase
 
 
@@ -35,9 +35,10 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        # db.drop_table("profile")
-        # db.drop_table("Moves")
-        # db.drop_table("Grids")
+        db.drop_table("profile")
+        db.drop_table("Moves")
+        db.drop_table("Grids")
+        db.drop_table("Lists")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -50,6 +51,12 @@ class PiTech(QStackedWidget):
 
         db.create_table(
             "Grids", "id INTEGER PRIMARY KEY, Name TEXT, State TEXT")
+
+        db.create_table(
+            "Lists", "id INTEGER PRIMARY KEY, UnloadLoadList TEXT")
+
+        if not db.fetch_one("Lists", "1=1"):
+            db.insert("Lists", "UnloadLoadList", ("NAN",))
 
         return db
 
@@ -75,6 +82,10 @@ class PiTech(QStackedWidget):
     def fetch_grid_state(self):
         grid_state = self.db.fetch_one("Grids", "id = ?", params=(1,))[2]
         return grid_state
+
+    def fetch_unload_and_load_list(self):
+        list = self.db.fetch_one("Lists", "id = ?", params=(1,))[1]
+        return list
 
     def fetch_moves_list(self):
         moves = self.db.fetch_all("Moves")
@@ -125,9 +136,12 @@ class PiTech(QStackedWidget):
         manifest_filename = "ShipCase1.txt"
         transfer_filename = "case1.txt"
         manifest_data = upload_manifest(manifest_filename)
-        transfer_data = upload_transfer_list(transfer_filename)
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
+        self.update_grid_state_in_db(self.grid.get_grid())
+        transfer_list_page = UnloadLoadPage(self)
+        transfer_list_page.exec_()
+        transfer_data = self.fetch_unload_and_load_list()
         self.grid.setup_transferlist(transfer_data)
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
