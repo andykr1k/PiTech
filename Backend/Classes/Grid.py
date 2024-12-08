@@ -19,53 +19,55 @@ class Grid:
         self.unload_list = [] # [Container]
         self.load_list = []   # [(name, weight)]
         self.crane_position = (8,0) # (-1,-1) for "truck"
-        self.crane_grid = self.id #grid should not be an attribute of the grid because it needs to move between grids
         
     def get_slot(self, row, col):
-        if 0 <= row < self.rows and 0 <= col < self.columns:
+
+        valid_slots = [(-1,-1), (8,0)]
+        if (0 <= row < self.rows and 0 <= col < self.columns) or (row,col) in valid_slots:
             return self.slot[row][col]
         else:
+            print(row, col)
             raise IndexError("Slot position out of grid bounds")
 
     def setup_grid(self, manifestData=None):
-        if manifestData is None: #no manifest provided, initialize empty grid
-            rows = self.rows
-            columns = self.columns
-            for row in range(rows):
-                for column in range(columns):
-                    empty_container = Container("UNUSED", 00000, row, column)
-                    slot = self.get_slot(row,column).set_container(empty_container)
+
+        if manifestData is None: #setup empty Grid
+            for i in range(self.rows):
+                for j in range(self.columns):
+                    container = Container("UNUSED", 0, i,j)
+                    self.slot[i][j].set_container(container)
+                    self.slot[i][j].state = 1
             return self.slot
         
-        row = 0
-        col = 0
-        containerName = ""
-        containerWeight = 0
-        for i in range(len(manifestData)):
-            condition = i % 3
-            match condition:
-                case 0:
-                    manifestPosition = str(manifestData[i])[1:-1].strip().split(",")
-                    row = int(manifestPosition[0]) -1
-                    col = int(manifestPosition[1]) -1
-                case 1:
-                    containerWeight = int(manifestData[i][1:-1])
-                case 2:
-                    containerName = manifestData[i]
-                    container = Container(containerName, containerWeight, row, col)
-                    self.get_slot(row, col).set_container(container)
-                    
-                    if (self.slot[row][col].state==2):
-                        if col < self.columns // 2:
-                            self.left_containers.add(container)
-                        else:
-                            self.right_containers.add(container)
-
-                    
+        else: 
+            row = 0
+            col = 0
+            containerName = ""
+            containerWeight = 0
+            for i in range(len(manifestData)):
+                condition = i % 3
+                match condition:
+                    case 0:
+                        manifestPosition = str(manifestData[i])[1:-1].strip().split(",")
+                        row = int(manifestPosition[0]) -1
+                        col = int(manifestPosition[1]) -1
+                    case 1:
+                        containerWeight = int(manifestData[i][1:-1])
+                    case 2:
+                        containerName = manifestData[i]
+                        container = Container(containerName, containerWeight, row, col)
+                        self.get_slot(row, col).set_container(container)
+                        
+                        if (self.slot[row][col].state==2):
+                            if col < self.columns // 2:
+                                self.left_containers.add(container)
+                            else:
+                                self.right_containers.add(container)
+                
         self.calculate_weights()
         return self.slot
     
-    def get_grid(self): #not sure what this is for
+    def get_grid(self):
         return self.slot
     
     def get_weights(self):
@@ -112,26 +114,23 @@ class Grid:
         self.slot[row][column].state = 1  # Mark UNUSED
 
     def move_container(self, pos1, pos2):
-
+        # now only consider moving within the grid
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
-        from_grid = from_slot.get_grid_id()
-        to_grid = to_slot.get_grid_id()
+        container = from_slot.get_container()
+        if from_slot.get_position() == (7,11): # without this line the reconstruct_grids function will crash whenever there's a move from truck
+            self.load_container(pos2)
+            return
 
-        if from_grid == to_grid: #moving within the same grid
-            container = from_slot.get_container()
-            name = container.get_name()
-            weight = container.get_weight()
-            self.update_container_lists(container, pos2)
-            self.update_weight(pos1,add=False)
-            from_slot.remove_container()
-            to_slot.set_container(Container(name,weight, pos2[0], pos2[1]))
-            self.update_weight(pos2,add=True)
-            self.crane_position = pos2
-        else:
-            #handle movement between grids
-            pass
-          
+        name = container.get_name()
+        weight = container.get_weight()
+        self.update_container_lists(container, pos2)
+        self.update_weight(pos1,add=False)
+        from_slot.remove_container()
+        to_slot.set_container(Container(name,weight,pos2[0],pos2[1]))
+        self.update_weight(pos2,add=True)
+        self.crane_position = pos2
+    
     def load_container(self, pos2):
         name, weight = self.load_list.pop(0)
         new_container = Container(name, weight, pos2[0],pos2[1])
@@ -208,54 +207,61 @@ class Grid:
 
         return nearest_slot, min_distance
     
-    def getPossibleMoves(self):
+    def getPossibleMoves(self, buffer= None):
         """
         Generate a list of all possible moves for movable containers.
-        This method identifies all movable containers and their valid destination slots,
-        then creates a list of Movement objects representing each possible move.
+
         Returns:
             List[Movement]: A list of possible moves, where each move is represented
             by a Movement object with 'from_slot' as the starting position and 'to_slot'
             as the destination position.
         """
-        possible_moves = []
-        movable_containers_position = self.get_movable_containers_position()
-        for starting_position in movable_containers_position:
-            valid_slots = self.get_valid_slots_position(starting_position)
-            for destination in valid_slots:
-                
-                move = Movement(from_slot = starting_position, to_slot = destination)
-                possible_moves.append(move)
-        return possible_moves
 
-    def getPossibleStatesMoves(self): 
+        if buffer is not None:
+            print('possible moves w buffer')
+            
+
+
+            return 1
+
+        else:
+
+            possible_moves = []
+            movable_containers_position = self.get_movable_containers_position()
+            for starting_position in movable_containers_position:
+                valid_slots = self.get_valid_slots_position(starting_position)
+                for destination in valid_slots:
+                    
+                    move = Movement(from_slot = starting_position, to_slot = destination)
+                    possible_moves.append(move)
+            return possible_moves
+
+
+    def getPossibleStatesMoves(self, buffer=None): 
         """
         Generates all possible states and their corresponding moves from the current grid state.
-
-        This method first retrieves all possible moves from the current grid state. For each possible move,
-        it creates a deep copy of the current grid, applies the move to the copied grid, and then appends
-        the new grid state along with the move to a list. The list of all possible new grid states and their
-        corresponding moves is then returned.
 
         Returns:
             list of tuple: A list where each element is a tuple containing a new grid state (after a move)
                            and the move that was applied to reach that state.
         """
+
+        if buffer is not None:
+            possible_moves = self.getPossibleMoves(buffer)
+        else:
+            possible_moves = self.getPossibleMoves()
+
         neighbor_states_moves = []
-        possible_moves = self.getPossibleMoves()
         for move in possible_moves:
             new_grid = copy.deepcopy(self)
             new_grid.move_container(move.from_slot, move.to_slot)
             neighbor_states_moves.append((new_grid, move))
-            
+        
         return neighbor_states_moves
    
     def print_path(self, goal_state):
         # Placeholder"
         return 0
-
-    def get_slot(self, row, col):
-        return self.slot[row][col]
 
     def update_weight(self, pos, add=True):
         """
@@ -312,7 +318,7 @@ class Grid:
         
         self.unload_list.remove(container)
     
-    def calulate_path_cost(self, pos1, pos2):
+    def calculate_path_cost(self, pos1, pos2):
         
         current_row = pos1[0]
         current_col = pos1[1]
@@ -362,12 +368,12 @@ class Grid:
             if pos2 == (-1,-1):
                 return 0
             else:
-                return 2 + self.calulate_path_cost((8, 0), pos2)
+                return 2 + self.calculate_path_cost((8, 0), pos2)
         
         if pos2 == (-1,-1):
-            return self.calulate_path_cost(pos1, (8, 0)) + 2
+            return self.calculate_path_cost(pos1, (8, 0)) + 2
 
-        return self.calulate_path_cost(pos1, pos2)
+        return self.calculate_path_cost(pos1, pos2)
         
     def setup_transferlist(self, tranfser_list):
         # Assume valid transfer list
