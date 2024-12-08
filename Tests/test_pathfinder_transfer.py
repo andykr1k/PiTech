@@ -27,33 +27,39 @@ def pathfinder_with_transfer(shipcase):
 def test_transfer_move_prints(shipcase, pathfinder_with_transfer, capsys):
     expected_transfer_moves = {
         1: [
-            "Move container from position (0, 1) to position truck, Time estimation: 20 minutes"
+            "Move container from position (0, 1) to position truck, Time estimation: 20 minutes",
+            "Move crane from position truck to position (8, 0), Time estimation: 2 minutes"
         ],
         2: [
-            "Move container from position truck to position (3, 0), Time estimation: 7 minutes"
+            "Move container from position truck to position (3, 0), Time estimation: 9 minutes",
+            "Move crane from position (3, 0) to position (8, 0), Time estimation: 5 minutes"
         ],
         3: [
-            "Move container from position truck to position (2, 0), Time estimation: 8 minutes",
+            "Move container from position truck to position (2, 0), Time estimation: 10 minutes",
             "Move container from position (1, 1) to position (1, 2), Time estimation: 3 minutes",
             "Move container from position (0, 1) to position truck, Time estimation: 13 minutes",
-            "Move container from position truck to position (3, 0), Time estimation: 7 minutes"
+            "Move container from position truck to position (3, 0), Time estimation: 7 minutes",
+            "Move crane from position (3, 0) to position (8, 0), Time estimation: 5 minutes"
         ],
         4: [
-            "Move container from position truck to position (2, 0), Time estimation: 8 minutes",
-            "Move container from position (7, 4) to position (1, 5), Time estimation: 16 minutes",
-            "Move container from position (6, 4) to position truck, Time estimation: 14 minutes"
+            "Move container from position (7, 4) to position (1, 5), Time estimation: 12 minutes",
+            "Move container from position (6, 4) to position truck, Time estimation: 14 minutes",
+            "Move container from position truck to position (6, 4), Time estimation: 8 minutes",
+            "Move crane from position (6, 4) to position (8, 0), Time estimation: 6 minutes"
         ],
         5: [
-            "Move container from position truck to position (1, 0), Time estimation: 9 minutes",
+            "Move container from position truck to position (1, 0), Time estimation: 11 minutes",
             "Move container from position (0, 3) to position truck, Time estimation: 17 minutes",
             "Move container from position truck to position (2, 0), Time estimation: 8 minutes",
-            "Move container from position (0, 4) to position truck, Time estimation: 20 minutes"
+            "Move container from position (0, 4) to position truck, Time estimation: 20 minutes",
+            "Move crane from position truck to position (8, 0), Time estimation: 2 minutes"
         ],
         6: [
-            "Move container from position truck to position (1, 0), Time estimation: 9 minutes",
+            "Move container from position truck to position (1, 0), Time estimation: 11 minutes",
             "Move container from position (1, 1) to position (1, 2), Time estimation: 2 minutes",
             "Move container from position (0, 3) to position truck, Time estimation: 15 minutes",
-            "Move container from position (0, 1) to position truck, Time estimation: 22 minutes"
+            "Move container from position (0, 1) to position truck, Time estimation: 22 minutes",
+            "Move crane from position truck to position (8, 0), Time estimation: 2 minutes"
          ],
     }
 
