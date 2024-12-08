@@ -105,7 +105,7 @@ class UnloadLoadPage(QDialog):
 
         if container_name and weight and quantity:
             for _ in range(int(quantity)):
-                self.unload_load_list.append("Load," + container_name + "," + weight)
+                self.unload_load_list.append("load," + container_name + "," + weight)
             self.container_name_input.clear()
             self.weight_input.clear()
             self.quantity_input.clear()

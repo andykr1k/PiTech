@@ -23,7 +23,7 @@ class SQLiteDatabase:
         print(f"Inserted record into '{table_name}'.")
 
     def fetch_all(self, table_name: str) -> List[Tuple]:
-        query = f"SELECT * FROM {table_name}"
+        query = f"SELECT * FROM {table_name} ORDER BY id DESC"
         self.cursor.execute(query)
         return self.cursor.fetchall()
 

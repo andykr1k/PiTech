@@ -351,12 +351,13 @@ class Grid:
 
         return self.calulate_path_cost(pos1, pos2)
         
-    def setup_transferlist(self, tranfser_list):
+    def setup_transferlist(self, transfer_list):
         # Assume valid transfer list
-        for command in tranfser_list:
+        for command in transfer_list:
+            print(command)
             parts = command.strip().split(',')
             operation = parts[0]
-            
+            print(operation)
             if operation == 'load':
                 name = parts[1]
                 weight = int(parts[2])

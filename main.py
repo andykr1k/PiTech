@@ -37,7 +37,6 @@ class PiTech(QStackedWidget):
 
         # For setting db up before final db structure
         # db.drop_table("profile")
-        # db.drop_table("Moves")
         # db.drop_table("Grids")
         # db.drop_table("Lists")
 
@@ -46,9 +45,6 @@ class PiTech(QStackedWidget):
 
         if not db.fetch_one("profile", "1=1"):
             db.insert("profile", "username, currentTab", ("default", "SignIn"))
-
-        db.create_table(
-            "Moves", "id INTEGER PRIMARY KEY, From_Slot TEXT, To_Slot TEXT, Cost INT(4), Status TEXT, Completed_Grid_State TEXT")
 
         db.create_table(
             "Grids", "id INTEGER PRIMARY KEY, Name TEXT, State TEXT")
@@ -86,6 +82,8 @@ class PiTech(QStackedWidget):
 
     def fetch_unload_and_load_list(self):
         list = self.db.fetch_one("Lists", "id = ?", params=(1,))[1]
+        if list:
+            list = ast.literal_eval(list)
         return list
 
     def fetch_manifest(self):
@@ -123,6 +121,9 @@ class PiTech(QStackedWidget):
         return
 
     def update_moves_in_db(self, moves):
+        self.db.drop_table("Moves")
+        self.db.create_table(
+            "Moves", "id INTEGER PRIMARY KEY, From_Slot TEXT, To_Slot TEXT, Cost INT(4), Status TEXT, Completed_Grid_State TEXT")
         for move in moves:
             self.db.insert("Moves", "From_Slot, To_Slot, Cost, Status, Completed_Grid_State", (str(
                 move.get_from_slot()), str(move.get_to_slot()), move.get_cost(), "NOT STARTED", "TEMP_GRID_STATE_HOLDER"))
@@ -147,6 +148,7 @@ class PiTech(QStackedWidget):
         transfer_list_page = UnloadLoadPage(self)
         transfer_list_page.exec_()
         transfer_data = self.fetch_unload_and_load_list()
+
         self.grid.setup_transferlist(transfer_data)
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
