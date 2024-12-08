@@ -32,6 +32,14 @@ class SQLiteDatabase:
         self.cursor.execute(query, params)
         return self.cursor.fetchone()
 
+    def update_by_id(self, table_name: str, id_column: str, record_id: Any, update_values: dict) -> None:
+        set_clause = ', '.join([f"{column} = ?" for column in update_values.keys()])
+        query = f"UPDATE {table_name} SET {set_clause} WHERE {id_column} = ?"
+        params = tuple(update_values.values()) + (record_id,)
+        self.cursor.execute(query, params)
+        self.conn.commit()
+        print(f"Updated record with ID {record_id} in '{table_name}'.")
+
     def delete(self, table_name: str, condition: str, params: Tuple) -> None:
         query = f"DELETE FROM {table_name} WHERE {condition}"
         self.cursor.execute(query, params)

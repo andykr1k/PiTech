@@ -35,9 +35,9 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        db.drop_table("profile")
-        db.drop_table("Moves")
-        db.drop_table("Grids")
+        # db.drop_table("profile")
+        # db.drop_table("Moves")
+        # db.drop_table("Grids")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -46,7 +46,7 @@ class PiTech(QStackedWidget):
             db.insert("profile", "username, currentTab", ("default", "SignIn"))
 
         db.create_table(
-            "Moves", "id INTEGER PRIMARY KEY, From_Slot TEXT, To_Slot TEXT, Cost INT(4)")
+            "Moves", "id INTEGER PRIMARY KEY, From_Slot TEXT, To_Slot TEXT, Cost INT(4), Status TEXT, Completed_Grid_State TEXT")
 
         db.create_table(
             "Grids", "id INTEGER PRIMARY KEY, Name TEXT, State TEXT")
@@ -62,8 +62,12 @@ class PiTech(QStackedWidget):
                 self.operation_page_balance = OperationPage(self, "Balance")
                 self.addWidget(self.operation_page_balance)
                 self.setCurrentWidget(self.operation_page_balance)
+            elif user[0][2] == "Transfer":
+                self.operation_page_transfer = OperationPage(self, "Transfer")
+                self.addWidget(self.operation_page_transfer)
+                self.setCurrentWidget(self.operation_page_transfer)
         return
-    
+
     def fetch_username(self):
         user = self.db.fetch_all("profile")
         return user[0][1]
@@ -71,7 +75,7 @@ class PiTech(QStackedWidget):
     def fetch_grid_state(self):
         grid_state = self.db.fetch_one("Grids", "id = ?", params=(1,))[2]
         return grid_state
-    
+
     def fetch_moves_list(self):
         moves = self.db.fetch_all("Moves")
         return moves
@@ -79,14 +83,14 @@ class PiTech(QStackedWidget):
     def close_db(self):
         self.db.close()
         return
-    
+
     def setup_connections(self):
         self.home_page.balance_button.clicked.connect(self.handle_balance)
         self.home_page.transfer_button.clicked.connect(self.handle_transfer)
         return
-    
+
     def handle_balance(self):
-        manifest_filename = "ShipCase4.txt"
+        manifest_filename = "ShipCase1.txt"
         manifest_data = upload_manifest(manifest_filename)
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
@@ -94,17 +98,18 @@ class PiTech(QStackedWidget):
         self.update_grid_state_in_db(self.grid.get_grid())
         balance_moves = self.pathfinder.balance()
         self.update_moves_in_db(balance_moves)
+        self.db.update_by_id("profile", "id", 1, {"currentTab": "Balance"})
         self.operation_page_balance = OperationPage(self, "Balance")
         self.addWidget(self.operation_page_balance)
         self.setCurrentWidget(self.operation_page_balance)
         return
-    
+
     def update_moves_in_db(self, moves):
         for move in moves:
-            self.db.insert("Moves", "From_Slot, To_Slot, Cost", (str(
-                move.get_from_slot()), str(move.get_to_slot()), move.get_cost()))
+            self.db.insert("Moves", "From_Slot, To_Slot, Cost, Status, Completed_Grid_State", (str(
+                move.get_from_slot()), str(move.get_to_slot()), move.get_cost(), "NOT STARTED", "TEMP_GRID_STATE_HOLDER"))
         return
-    
+
     def update_grid_state_in_db(self, grid_state):
         state = []
         row = []
@@ -115,9 +120,9 @@ class PiTech(QStackedWidget):
             row = []
         self.db.insert("Grids", "Name, State", ("Name", str(state)))
         return
-    
+
     def handle_transfer(self):
-        manifest_filename = "ShipCase4.txt"
+        manifest_filename = "ShipCase1.txt"
         transfer_filename = "case1.txt"
         manifest_data = upload_manifest(manifest_filename)
         transfer_data = upload_transfer_list(transfer_filename)
@@ -127,6 +132,7 @@ class PiTech(QStackedWidget):
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
         self.update_moves_in_db(transfer_moves)
+        self.db.update_by_id("profile", "id", 1, {"currentTab": "Transfer"})
         self.operation_page_transfer = OperationPage(self, "Transfer")
         self.addWidget(self.operation_page_transfer)
         self.setCurrentWidget(self.operation_page_transfer)
