@@ -1,5 +1,6 @@
 import os
 import sys
+import ast
 from PyQt5.QtWidgets import QApplication, QStackedWidget
 from Backend.Classes.Grid import Grid
 from Backend.Classes.Pathfinder import Pathfinder
@@ -35,10 +36,10 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        db.drop_table("profile")
-        db.drop_table("Moves")
-        db.drop_table("Grids")
-        db.drop_table("Lists")
+        # db.drop_table("profile")
+        # db.drop_table("Moves")
+        # db.drop_table("Grids")
+        # db.drop_table("Lists")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -53,7 +54,7 @@ class PiTech(QStackedWidget):
             "Grids", "id INTEGER PRIMARY KEY, Name TEXT, State TEXT")
 
         db.create_table(
-            "Lists", "id INTEGER PRIMARY KEY, UnloadLoadList TEXT")
+            "Lists", "id INTEGER PRIMARY KEY, UnloadLoadList TEXT, Manifest TEXT, ManifestName TEXT, OutboundManifest TEXT, OutboundManifestName TEXT")
 
         if not db.fetch_one("Lists", "1=1"):
             db.insert("Lists", "UnloadLoadList", ("NAN",))
@@ -87,6 +88,13 @@ class PiTech(QStackedWidget):
         list = self.db.fetch_one("Lists", "id = ?", params=(1,))[1]
         return list
 
+    def fetch_manifest(self):
+        data = self.db.fetch_one("Lists", "id = ?", params=(1,))[2]
+        name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3]
+        if data and name:
+            data = ast.literal_eval(data)
+        return data, name
+
     def fetch_moves_list(self):
         moves = self.db.fetch_all("Moves")
         return moves
@@ -101,8 +109,7 @@ class PiTech(QStackedWidget):
         return
 
     def handle_balance(self):
-        manifest_filename = "ShipCase1.txt"
-        manifest_data = upload_manifest(manifest_filename)
+        manifest_data, manifest_name = self.fetch_manifest()
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
         self.pathfinder = Pathfinder(self.grid)
@@ -133,9 +140,7 @@ class PiTech(QStackedWidget):
         return
 
     def handle_transfer(self):
-        manifest_filename = "ShipCase1.txt"
-        transfer_filename = "case1.txt"
-        manifest_data = upload_manifest(manifest_filename)
+        manifest_data, manifest_name = self.fetch_manifest()
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
         self.update_grid_state_in_db(self.grid.get_grid())
