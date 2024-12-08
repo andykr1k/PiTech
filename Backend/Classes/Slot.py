@@ -25,6 +25,9 @@ class Slot:
         self.state = self.parseState()
         return 1
     
+    def get_position(self):
+        return self.position
+    
     def get_grid_id(self):
         return self.grid_id
 

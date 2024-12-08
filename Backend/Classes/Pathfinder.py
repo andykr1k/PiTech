@@ -30,7 +30,11 @@ class Pathfinder():
             f_cost, g_cost, path, state = heapq.heappop(self.open_set)
      
             if state.isBalanced():
-                return path
+
+                current_grid = self.start_state
+                path_with_intermediate_grids = self.reconstruct_grids_from_path(current_grid, path)
+
+                return path_with_intermediate_grids
 
             if state not in self.closed_set:
                 self.closed_set.add(state)
@@ -38,8 +42,8 @@ class Pathfinder():
                 for child_state, move in state.getPossibleStatesMoves():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        crane_to_start_cost = state.calulate_path_cost(state.crane_position, move.from_slot)
-                        move_cost = state.calulate_path_cost(move.from_slot, move.to_slot)
+                        crane_to_start_cost = state.calculate_path_cost(state.crane_position, move.from_slot)
+                        move_cost = state.calculate_path_cost(move.from_slot, move.to_slot)
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         #new_g_cost = g_cost + move.get_cost(child_state)
                         
@@ -47,6 +51,7 @@ class Pathfinder():
                         new_f_cost += new_g_cost + h_cost
                         move.cost = crane_to_start_cost + move_cost
                         new_path = path + [move]
+
 
                         heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, child_state))
                         
@@ -63,6 +68,21 @@ class Pathfinder():
             best_heuristic_value = min(best_heuristic_value, heuristic_value)
         
         return best_heuristic_value
+    
+    def reconstruct_grids_from_path(self, current_grid, path):
+
+        moves_intermediate_grids = []
+        grid_copy = copy.deepcopy(current_grid)
+
+        for move in path:
+
+            from_slot = move.get_from_slot()
+            to_slot = move.get_to_slot()
+            grid_copy.move_container(from_slot, to_slot)
+            intermediate_state = copy.deepcopy(grid_copy)
+            moves_intermediate_grids.append((move, intermediate_state))
+
+        return (moves_intermediate_grids)
     
     def calculate_distance_heuristic(self, state, goal_combination):
        
@@ -171,16 +191,45 @@ class Pathfinder():
         #get goal_state
         goal_ship_grid = self.get_sift_goal(current_ship_grid)
 
-        print(goal_ship_grid)
-
         #find the shortest path to goal_state. Must update available moves function to consider buffer as an available grid
 
-        return ['Move1', 'Move2']
+        # Initialize the open set with the current ship grid
+        heapq.heappush(self.open_set, (0, 0, [], current_ship_grid))
+
+        while self.open_set:
+            # Pop the state with the lowest cost
+            total_cost, path_cost, path, state = heapq.heappop(self.open_set)
+
+            # If the state matches the goal state, return the path
+            if state == goal_ship_grid:
+                return path
+
+            if state not in self.closed_set:
+                self.closed_set.add(state)
+
+            # Generate possible states and moves
+            for child_state, move in state.getPossibleStatesMoves(buffer_grid):
+                if child_state not in self.closed_set:
+                        new_total_cost = total_cost
+                        crane_to_start_cost = state.calculate_path_cost(state.crane_position, move.from_slot)
+                        move_cost = state.calculate_path_cost(move.from_slot, move.to_slot)
+                        new_path_cost = path_cost + crane_to_start_cost + move_cost
+                        heuristic_cost = self.sift_heuristic(child_state, goal_ship_grid)
+                        new_total_cost += new_path_cost + heuristic_cost
+                        move.cost = crane_to_start_cost + move_cost
+                        new_path = path + [move]
+
+                        heapq.heappush(self.open_set, (new_total_cost, new_path_cost, new_path, child_state))
+
+        print("No SIFT path found")
+        return None
     
     def get_sift_goal(self, grid):
 
-        virtual_grid = copy.copy(grid)
+        virtual_grid = copy.deepcopy(grid)
         containers = copy.deepcopy(self.get_containers(virtual_grid))
+
+        print(containers)
 
         for container in containers: #remove all containers while keeping grid NANs the same
             container_position =  container.get_position()
@@ -192,6 +241,9 @@ class Pathfinder():
         left_offset = 1
         right_offset = 0
 
+        left_row = 0
+        right_row = 0
+
         for container in containers:
             container_weight = container.get_weight()
             container_name = container.get_name()
@@ -202,35 +254,56 @@ class Pathfinder():
             from_slot = virtual_grid.get_slot(container_position[0],container_position[1])
 
             condition =  i % 2
-            match condition:
-                case 0: #place container on left half as close as possible to mid point
+
+            if condition == 0: #place container on left half as close as possible to mid point
+                column = midpoint - left_offset
+
+                
+                if (0 >= column > virtual_grid.columns):
+                    left_offset = 1
                     column = midpoint - left_offset
-                    row = 0
-                    to_slot = virtual_grid.get_slot(row,column)
-                    if to_slot.get_state() == '2':
-                        to_slot.remove_container()
-                    
-                    print(f"Move container from position {from_slot.position} to position {to_slot.position}")
+                    left_row += 1
+                
+                to_slot = virtual_grid.get_slot(left_row, column)
 
-                    to_row = to_slot.x
-                    to_column = to_slot.y
-                    virtual_grid.add_container(heaviest_container, to_row, to_column)
-                    to_slot = virtual_grid.get_slot(row,column)
-                    left_offset += 1
+                if to_slot.get_state() == 0:
+                    print(f'reached NAN at {left_row}, {column}')
+                    left_offset = 1
+                    column = midpoint - left_offset
+                    left_row += 1
+                to_slot = virtual_grid.get_slot(left_row, column)
 
-#                    print(virtual_grid)
+                
+                
+                print(f"Move container from position {from_slot.position} to position {left_row}, {column}")
+                to_row = to_slot.x
+                to_column = to_slot.y
+                virtual_grid.add_container(heaviest_container, left_row, column)
+                left_offset += 1
 
-                case 1: #place container on right half as close as possible to mid point
+            if condition == 1:  # Place container on right half as close as possible to the midpoint
+                column = midpoint + right_offset
+
+                if not (0 <= column < virtual_grid.columns):  # Check if column is out of bounds
+                    print(f"Reached the edge")
+                    right_offset = 1
                     column = midpoint + right_offset
-                    row = 0
-                    to_slot = virtual_grid.get_slot(row,column)
-                    print(f"Move container from position {from_slot.position} to position {to_slot.position}")
+                    right_row += 1
 
-                    to_row = to_slot.x
-                    to_column = to_slot.y
-                    virtual_grid.add_container(heaviest_container, to_row, to_column)
-                    to_slot = virtual_grid.get_slot(row,column)
-                    right_offset += 1
+                to_slot = virtual_grid.get_slot(right_row, column)
+
+                if to_slot.get_state() == 0:  # Check if slot is NAN
+                    print(f"Reached NAN at {right_row}, {column}")
+                    right_offset = 0
+                    column = midpoint + right_offset
+                    right_row += 1
+                to_slot = virtual_grid.get_slot(right_row, column)
+
+                print(f"Move container from position {from_slot.position} to position {right_row}, {column}")
+                to_row = to_slot.x
+                to_column = to_slot.y
+                virtual_grid.add_container(heaviest_container, right_row, column)
+                right_offset += 1
 
         return virtual_grid
 
@@ -249,8 +322,11 @@ class Pathfinder():
             f_cost, g_cost, path,_, state = heapq.heappop(self.open_set)
      
             if not state.unload_list and not state.load_list:
+
+                current_grid = self.start_state
+                path_with_intermediate_grids = self.reconstruct_grids_from_path(current_grid, path)
     
-                return path
+                return path_with_intermediate_grids
             
             if state not in self.closed_set:
                 self.closed_set.add(state)

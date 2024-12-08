@@ -11,7 +11,6 @@ manifest_name = "sample_manifest.txt"
 manifest_data = upload_manifest(manifest_name)
 grid.setup_grid(manifest_data)
 
-print(grid)
 
 x, y, z = grid.calculate_weights()
 print(f"Weight: {x, y, z}")
