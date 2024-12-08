@@ -100,5 +100,7 @@ class SignInPage(QWidget):
 
         self.parent.setCurrentIndex(1)
 
+        self.parent.add_log_entry(f"{username} signs in")
+
     def clearUsernameInput(self):
         self.usernameInput.clear()

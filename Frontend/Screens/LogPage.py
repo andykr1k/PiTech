@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QTextEdit, QLineEdit
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 
 
@@ -36,13 +36,6 @@ class LogPage(QDialog):
             border-radius: 10px;
             """
         )
-        self.logDisplay.setText("\n".join([
-            "2024-10-30 08:00: Jerry Taylor signs out",
-            "2024-10-30 08:01: Rodney Bernard signs in",
-            "2024-10-30 08:08: Manifest GracefulCapRon.txt is opened, there are 8 containers",
-            "2024-10-30 10:32: “Bike parts” is offloaded",
-            "2024-10-30 10:33: Noticed the “Bike parts” container is 10% below its stated weight",
-        ]))
         layout.addWidget(self.logDisplay)
 
         comment_layout = QHBoxLayout()
@@ -80,8 +73,14 @@ class LogPage(QDialog):
         self.setWindowFlag(Qt.FramelessWindowHint, False)
 
         self.setModal(True)
-        self.resize(500, 400)
+        self.resize(1000, 1000)
         self.center()
+
+        self.refresh_logs()  # Populate logs initially
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.refresh_logs)
+        self.timer.start(500)  # Refresh frequently
 
     def center(self):
         screen_geometry = self.screen().geometry()
@@ -92,7 +91,13 @@ class LogPage(QDialog):
 
     def addComment(self):
         text = self.commentInput.text().strip()
-        if text:
-            timestamp = "2024-10-30 11:45"
-            self.logDisplay.append(f"{timestamp}: {text}")
-            self.commentInput.clear()
+        self.parent.add_log_entry(f"{text}")
+        self.clearCommentInput()
+
+    def refresh_logs(self):
+        logs = self.parent.fetch_logs()
+        self.logDisplay.setText("\n".join(logs))
+
+    def clearCommentInput(self):
+        self.commentInput.clear()
+

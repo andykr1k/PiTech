@@ -1,6 +1,7 @@
 import os
 import sys
 from PyQt5.QtWidgets import QApplication, QStackedWidget
+from PyQt5.QtCore import QTime, QDate
 from Backend.Classes.Grid import Grid
 from Backend.Classes.Pathfinder import Pathfinder
 from Backend.Utilities.Utils import upload_manifest, upload_transfer_list
@@ -38,6 +39,7 @@ class PiTech(QStackedWidget):
         db.drop_table("profile")
         db.drop_table("Moves")
         db.drop_table("Grids")
+        db.drop_table("Log")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -50,6 +52,10 @@ class PiTech(QStackedWidget):
 
         db.create_table(
             "Grids", "id INTEGER PRIMARY KEY, Name TEXT, State TEXT")
+        
+        db.create_table(
+            "Log", "id INTEGER PRIMARY KEY, Time TEXT, Event TEXT"
+        )
 
         return db
 
@@ -131,6 +137,18 @@ class PiTech(QStackedWidget):
         self.addWidget(self.operation_page_transfer)
         self.setCurrentWidget(self.operation_page_transfer)
         return
+    
+    def add_log_entry(self, event_description):
+        # Retrieve current time
+        current_time = QTime.currentTime().toString("hh:mm")
+        current_date = QDate.currentDate().toString("yyyy-MM-dd")
+        timestamp = f"{current_date} {current_time}"
+        # Insert event with timestamp into log database
+        self.db.insert("Log", "Time, Event", (timestamp, event_description))
+
+    def fetch_logs(self):
+        logs = self.db.fetch_all("Log")
+        return [f"{log[1]}: {log[2]}" for log in logs]
 
 def main():
     app = QApplication(sys.argv)

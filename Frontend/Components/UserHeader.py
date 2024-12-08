@@ -58,11 +58,13 @@ class UserHeader(QWidget):
         self.updateUsername()
 
     def signOut(self):
+        username = self.getUsername()
+        self.parent.add_log_entry(f"{username} signs out")
         # update user name to "default" in db when logged out
         self.parent.username = "default"
         self.parent.sign_in_page.clearUsernameInput()
         self.parent.setCurrentIndex(0)
-    
+        
     def updateUsername(self):
         self.username = self.getUsername()
         self.userLabel.setText(f"User: {self.username}")
@@ -71,5 +73,6 @@ class UserHeader(QWidget):
         return self.parent.fetch_username()
 
     def goToLog(self):
-        log = LogPage(self)
+        log = LogPage(self.parent)
         log.exec_()
+
