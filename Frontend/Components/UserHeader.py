@@ -81,6 +81,7 @@ class UserHeader(QWidget):
 
     def signOut(self):
         self.parent.sign_in_page.clearUsernameInput()
+        self.parent.db.update_by_id("profile", "id", 1, {"username": "Default", "currentTab": "SignIn"})
         self.parent.setCurrentIndex(0)
 
     def updateUsername(self):
