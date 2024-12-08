@@ -15,10 +15,7 @@ def main():
             print("Quitting program.")
             break
         
-        # Loop through ShipCase1 to ShipCase6
-        # Load manifest for the current shipcase (ShipCase1, ShipCase2, ...)
-        #manifest_name = "ShipCase2.txt"
-        i = 5
+        i = 1
         manifest_name = f"ShipCase{i}.txt"
         manifest_data = upload_manifest(manifest_name)
         
@@ -35,7 +32,7 @@ def main():
             
         elif job_choice == '2':  # Transferring job
             # Load transfer list for the current case (Case1, Case2, ...)
-            transfer_name = f"Case2.txt"
+            transfer_name = f"Case{i}.txt"
             transfer_data = upload_transfer_list(transfer_name)
             
             new_grid = Grid()
