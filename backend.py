@@ -17,9 +17,9 @@ def main():
         
         # Loop through ShipCase1 to ShipCase6
         # Load manifest for the current shipcase (ShipCase1, ShipCase2, ...)
-        manifest_name = "ShipCase2.txt"
-        #i = 6
-        #manifest_name = f"ShipCase{i}.txt"
+        #manifest_name = "ShipCase2.txt"
+        i = 5
+        manifest_name = f"ShipCase{i}.txt"
         manifest_data = upload_manifest(manifest_name)
         
         if job_choice == '1':  # Balancing job
@@ -31,7 +31,7 @@ def main():
             balance_moves = pathfinder.balance()
             print('Balance Moves:')
             for move in balance_moves:
-                print(move)
+                print(move[0])
             
         elif job_choice == '2':  # Transferring job
             # Load transfer list for the current case (Case1, Case2, ...)
@@ -48,8 +48,9 @@ def main():
             print('Transfer Moves:')
             
             for move in transfer_moves:
-                print(move)
-            
+                print(move[0])
+                
+        
         else:
             print("Invalid input. Please try again.")
         
