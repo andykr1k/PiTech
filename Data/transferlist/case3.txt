@@ -1,0 +1,3 @@
+load,Bat,532
+load,Rat,6317
+unload,Cow
