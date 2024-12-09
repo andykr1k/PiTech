@@ -7,6 +7,7 @@ class Container:
         self.row = row
         self.col = col
 
+
     def __repr__(self):
         return f"{self.name}, {self.weight}"
 
@@ -33,3 +34,8 @@ class Container:
 
     def __hash__(self):
          return hash((self.weight, self.name, self.row, self.col))
+    
+    def __lt__(self, other):
+        if self.weight == other.weight:
+            return self.name > other.name #this is reversed so this function can be used in SIFT. if two containers have same weights we place the higher ASCII on top
+        return self.weight <other.weight
