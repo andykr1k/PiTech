@@ -32,8 +32,10 @@ class LogPage(QDialog):
             background-color: #F1F1F1; 
             color: black; 
             font-weight: bold; 
-            font-size: 12px;
+            font-size: 20px;
+            border: 2px solid #3F51B5;
             border-radius: 10px;
+            padding: 15px;
             """
         )
         layout.addWidget(self.logDisplay)
@@ -46,9 +48,10 @@ class LogPage(QDialog):
             """
             background-color: #F1F1F1;
             color: black;
-            font-size: 16px;
+            font-size: 20px;
+            border: 2px solid #3F51B5;
             border-radius: 10px;
-            padding: 10px;
+            padding: 15px;
             """
         )
         comment_layout.addWidget(self.commentInput, 1)
@@ -90,8 +93,9 @@ class LogPage(QDialog):
         self.move(x, y)
 
     def addComment(self):
+        username = self.getUsername()
         text = self.commentInput.text().strip()
-        self.parent.add_log_entry(f"{text}")
+        self.parent.add_log_entry(f"{username} comments: {text}")
         self.clearCommentInput()
 
     def refresh_logs(self):
@@ -100,4 +104,7 @@ class LogPage(QDialog):
 
     def clearCommentInput(self):
         self.commentInput.clear()
+
+    def getUsername(self):
+        return self.parent.fetch_username()
 

@@ -37,10 +37,10 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        db.drop_table("profile")
-        db.drop_table("Grids")
-        db.drop_table("Lists")
-        db.drop_table("Log")
+        # db.drop_table("profile")
+        # db.drop_table("Grids")
+        # db.drop_table("Lists")
+        # db.drop_table("Log")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -173,19 +173,28 @@ class PiTech(QStackedWidget):
         # Retrieve current time
         current_time = QTime.currentTime().toString("hh:mm")
         current_date = QDate.currentDate().toString("yyyy-MM-dd")
-        timestamp = f"{current_date} {current_time}"
+        timestamp = f"{current_date}: {current_time}"
         # Insert event with timestamp into log database
         self.db.insert("Log", "Time, Event", (timestamp, event_description))
 
     def fetch_logs(self):
         logs = self.db.fetch_all("Log", "ASC")
         return [f"{log[1]}: {log[2]}" for log in logs]
+    
+    def export_log(self):
+        log_dir = os.path.join(os.getcwd(), "Data", "logs")
+        export_path = os.path.join(log_dir, "KeoghsPort2024.txt")
+        logs = self.db.fetch_all("Log", "ASC")
+        with open(export_path, "w") as file:
+            for log in logs:
+                file.write(f"{log[1]}: {log[2]}\n")
 
 def main():
     app = QApplication(sys.argv)
     system = PiTech()
+    system.export_log()
     sys.exit(app.exec_())
-
+    
 
 if __name__ == "__main__":
     main()
