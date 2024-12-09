@@ -14,6 +14,7 @@ class OperationPage(QWidget):
         self.grid_state = self.parse_grid_state(self.get_grid_state())
         self.steps_list = self.get_moves_list()
         self.steps_cost = self.get_total_moves_cost()
+        self.current_step = self.get_current_step()
         self.initUI()
 
     def initUI(self):
@@ -37,7 +38,7 @@ class OperationPage(QWidget):
         grid_layout.addWidget(grid.visualizeGrid())
         middle_section.addWidget(grid_container)
 
-        steps_widget = Steps(self.steps_list, self.steps_cost)
+        steps_widget = Steps(self.steps_list, self.current_step, self.steps_cost, self)
         middle_section.addWidget(steps_widget)
 
         main_layout.addLayout(middle_section)
@@ -58,6 +59,9 @@ class OperationPage(QWidget):
             cost += move[3]
         return cost
 
+    def get_current_step(self):
+        return self.parent.fetch_current_step()
+            
     # def update_steps(self, moves):
     #     """Update the steps widget with new moves"""
     #     step_strings = []

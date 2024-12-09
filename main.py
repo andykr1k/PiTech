@@ -37,10 +37,10 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        # db.drop_table("profile")
-        # db.drop_table("Grids")
-        # db.drop_table("Lists")
-        # db.drop_table("Log")
+        db.drop_table("profile")
+        db.drop_table("Grids")
+        db.drop_table("Lists")
+        db.drop_table("Log")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -102,6 +102,13 @@ class PiTech(QStackedWidget):
     def fetch_moves_list(self):
         moves = self.db.fetch_all("Moves", "DESC")
         return moves
+    
+    def fetch_current_step(self):
+        current_step = self.db.fetch_one("Moves", "Status = ?", params=("NOT STARTED",))
+        if current_step is None:
+            print("COOKED")
+        return current_step
+
 
     def close_db(self):
         self.db.close()
@@ -134,6 +141,12 @@ class PiTech(QStackedWidget):
             self.db.insert("Moves", "From_Slot, To_Slot, Cost, Status, Completed_Grid_State", (str(
                 move[0].get_from_slot()), str(move[0].get_to_slot()), move[0].get_cost(), "NOT STARTED", str(self.parse_grid_state(move[1].get_grid()))))
         return
+    
+    def update_current_step_in_db(self, moves, status):
+        if status =="STARTED":
+            self.db.update_by_id("Moves", "id", 1, {"Status": "STARTED"})
+        elif status == "COMPLETED":
+            self.db.update_by_id("Moves", "id", 1, {"Status": "COMPLETED"})
 
     def parse_grid_state(self, grid_state):
         state = []
