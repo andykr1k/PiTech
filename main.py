@@ -132,10 +132,10 @@ class PiTech(QStackedWidget):
             "Moves", "id INTEGER PRIMARY KEY, From_Slot TEXT, To_Slot TEXT, Cost INT(4), Status TEXT, Completed_Grid_State TEXT")
         for move in moves:
             self.db.insert("Moves", "From_Slot, To_Slot, Cost, Status, Completed_Grid_State", (str(
-                move.get_from_slot()), str(move.get_to_slot()), move.get_cost(), "NOT STARTED", "TEMP_GRID_STATE_HOLDER"))
+                move[0].get_from_slot()), str(move[0].get_to_slot()), move[0].get_cost(), "NOT STARTED", str(self.parse_grid_state(move[1].get_grid()))))
         return
 
-    def update_grid_state_in_db(self, grid_state):
+    def parse_grid_state(self, grid_state):
         state = []
         row = []
         for grid_row in range(len(grid_state)):
@@ -143,6 +143,10 @@ class PiTech(QStackedWidget):
                 row.append(grid_state[grid_row][grid_col].container.name)
             state.append(row)
             row = []
+        return state
+
+    def update_grid_state_in_db(self, grid_state):
+        state = self.parse_grid_state(grid_state)
         self.db.insert("Grids", "Name, State", ("Name", str(state)))
         return
 
