@@ -22,8 +22,8 @@ class SQLiteDatabase:
         self.conn.commit()
         print(f"Inserted record into '{table_name}'.")
 
-    def fetch_all(self, table_name: str) -> List[Tuple]:
-        query = f"SELECT * FROM {table_name} ORDER BY id DESC"
+    def fetch_all(self, table_name: str, order: str) -> List[Tuple]:
+        query = f"SELECT * FROM {table_name} ORDER BY id {order}"
         self.cursor.execute(query)
         return self.cursor.fetchall()
 

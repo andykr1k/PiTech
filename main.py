@@ -37,10 +37,10 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        #db.drop_table("profile")
-        #db.drop_table("Grids")
-        #db.drop_table("Lists")
-        #db.drop_table("Log")
+        db.drop_table("profile")
+        db.drop_table("Grids")
+        db.drop_table("Lists")
+        db.drop_table("Log")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -64,7 +64,7 @@ class PiTech(QStackedWidget):
         return db
 
     def fetch_state(self):
-        user = self.db.fetch_all("profile")
+        user = self.db.fetch_all("profile", "DESC")
         if user[0][1] != "default":
             if user[0][2] == "Home":
                 self.setCurrentWidget(self.home_page)
@@ -79,7 +79,7 @@ class PiTech(QStackedWidget):
         return
 
     def fetch_username(self):
-        user = self.db.fetch_all("profile")
+        user = self.db.fetch_all("profile", "DESC")
         return user[0][1]
 
     def fetch_grid_state(self):
@@ -100,7 +100,7 @@ class PiTech(QStackedWidget):
         return data, name
 
     def fetch_moves_list(self):
-        moves = self.db.fetch_all("Moves")
+        moves = self.db.fetch_all("Moves", "DESC")
         return moves
 
     def close_db(self):
@@ -178,7 +178,7 @@ class PiTech(QStackedWidget):
         self.db.insert("Log", "Time, Event", (timestamp, event_description))
 
     def fetch_logs(self):
-        logs = self.db.fetch_all("Log")
+        logs = self.db.fetch_all("Log", "ASC")
         return [f"{log[1]}: {log[2]}" for log in logs]
 
 def main():
