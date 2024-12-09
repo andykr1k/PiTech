@@ -33,7 +33,23 @@ class PiTech(QStackedWidget):
         self.fetch_state()
         self.show()
 
+    def set_up(self):
+        db_dir = os.path.join(os.getcwd(), "Data")
+        db_path = os.path.join(db_dir, "Database.db")
+
+        os.makedirs(db_dir, exist_ok=True)
+
+        if not os.path.isfile(db_path):
+            with open(db_path, "w") as db_file:
+                pass
+            print(f"Database file created at {db_path}")
+        else:
+            print(f"Database file already exists at {db_path}")
+        return
+    
     def setup_db(self):
+        self.set_up()
+
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
@@ -183,20 +199,20 @@ class PiTech(QStackedWidget):
         return
     
     def add_log_entry(self, event_description):
-        # Retrieve current time
         current_time = QTime.currentTime().toString("hh:mm")
         current_date = QDate.currentDate().toString("yyyy-MM-dd")
         timestamp = f"{current_date}: {current_time}"
-        # Insert event with timestamp into log database
         self.db.insert("Log", "Time, Event", (timestamp, event_description))
 
     def fetch_logs(self):
         logs = self.db.fetch_all("Log", "ASC")
         return [f"{log[1]}: {log[2]}" for log in logs]
     
+
     def export_log(self):
         log_dir = os.path.join(os.getcwd(), "Data", "logs")
         export_path = os.path.join(log_dir, "KeoghsPort2024.txt")
+        os.makedirs(log_dir, exist_ok=True)
         logs = self.db.fetch_all("Log", "ASC")
         with open(export_path, "w") as file:
             for log in logs:
