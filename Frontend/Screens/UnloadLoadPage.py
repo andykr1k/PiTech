@@ -112,8 +112,6 @@ class UnloadLoadPage(QDialog):
 
             self.update_container_list_display()
 
-        print(self.unload_load_list)
-
     def confirm_load_info(self):
         self.update_unload_and_load_lists()
         self.accept()

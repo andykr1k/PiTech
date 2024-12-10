@@ -87,7 +87,6 @@ class Grid:
         else:
             self.parent.unload_load_list.append("unload," + current_state)
             self.update_button_color(button, r, c, True)
-            print(self.parent.unload_load_list)
 
     def get_random_color(self):
         while True:
@@ -100,7 +99,6 @@ class Grid:
     def get_color(self, row, col):
         if (self.current_move is not None and self.current_move[4] == "STARTED"):
             x, y = self.parse_positions(self.current_move[1])
-            print("Row", row, "Col", col, "X", x, "Y", y)
             if (y == row and x == col):
                 return "green"
         return "cyan"

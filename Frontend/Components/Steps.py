@@ -120,7 +120,6 @@ class Steps(QWidget):
         self.parent.update_operations_page()
 
     def correct_moves(self, string):
-        print("correcting", string)
         parsedLine = re.findall(r'((\d+),(\d+))', string)
         y = parsedLine[0][1]
         x = parsedLine[0][2]

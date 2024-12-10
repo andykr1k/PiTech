@@ -46,7 +46,7 @@ class PiTech(QStackedWidget):
         else:
             print(f"Database file already exists at {db_path}")
         return
-    
+
     def setup_db(self):
         self.set_up()
 
@@ -201,7 +201,7 @@ class PiTech(QStackedWidget):
         self.addWidget(self.operation_page_transfer)
         self.setCurrentWidget(self.operation_page_transfer)
         return
-    
+
     def add_log_entry(self, event_description):
         current_time = QTime.currentTime().toString("hh:mm")
         current_date = QDate.currentDate().toString("yyyy-MM-dd")
@@ -211,7 +211,6 @@ class PiTech(QStackedWidget):
     def fetch_logs(self):
         logs = self.db.fetch_all("Log", "ASC")
         return [f"{log[1]}: {log[2]}" for log in logs]
-    
 
     def export_log(self):
         log_dir = os.path.join(os.getcwd(), "Data", "logs")

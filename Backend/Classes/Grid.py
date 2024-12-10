@@ -26,7 +26,6 @@ class Grid:
         if (0 <= row < self.rows and 0 <= col < self.columns) or (row,col) in valid_slots:
             return self.slot[row][col]
         else:
-            print(row, col)
             raise IndexError("Slot position out of grid bounds")
 
     def setup_grid(self, manifestData=None):
