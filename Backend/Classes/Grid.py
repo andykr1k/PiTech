@@ -26,7 +26,6 @@ class Grid:
         if (0 <= row < self.rows and 0 <= col < self.columns) or (row,col) in valid_slots:
             return self.slot[row][col]
         else:
-            print(row, col)
             raise IndexError("Slot position out of grid bounds")
 
     def setup_grid(self, manifestData=None):
@@ -375,12 +374,13 @@ class Grid:
 
         return self.calculate_path_cost(pos1, pos2)
         
-    def setup_transferlist(self, tranfser_list):
+    def setup_transferlist(self, transfer_list):
         # Assume valid transfer list
-        for command in tranfser_list:
+        for command in transfer_list:
+            print(command)
             parts = command.strip().split(',')
             operation = parts[0]
-            
+            print(operation)
             if operation == 'load':
                 name = parts[1]
                 weight = int(parts[2])
