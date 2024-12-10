@@ -66,7 +66,10 @@ class PiTech(QStackedWidget):
 
         db.create_table(
             "Grids", "id INTEGER PRIMARY KEY, Name TEXT, State TEXT")
-        
+
+        if not db.fetch_one("Grids", "1=1"):
+            db.insert("Grids", "Name, State", ("", ""))
+
         db.create_table(
             "Log", "id INTEGER PRIMARY KEY, Time TEXT, Event TEXT"
         )
@@ -118,13 +121,13 @@ class PiTech(QStackedWidget):
     def fetch_moves_list(self):
         moves = self.db.fetch_all("Moves", "DESC")
         return moves
-    
-    def fetch_current_step(self):
-        current_step = self.db.fetch_one("Moves", "Status = ?", params=("NOT STARTED",))
-        if current_step is None:
-            print("COOKED")
-        return current_step
 
+    def fetch_current_step(self):
+        current_step = self.db.fetch_all("Moves", "DESC")
+        for move in current_step:
+            if not move[4] == "COMPLETED":
+                return move
+        return "COMPLETED"
 
     def close_db(self):
         self.db.close()
@@ -140,7 +143,7 @@ class PiTech(QStackedWidget):
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
         self.pathfinder = Pathfinder(self.grid)
-        self.update_grid_state_in_db(self.grid.get_grid())
+        self.update_grid_state_in_db(self.grid.get_grid(), True)
         balance_moves = self.pathfinder.balance()
         self.update_moves_in_db(balance_moves)
         self.db.update_by_id("profile", "id", 1, {"currentTab": "Balance"})
@@ -155,14 +158,15 @@ class PiTech(QStackedWidget):
             "Moves", "id INTEGER PRIMARY KEY, From_Slot TEXT, To_Slot TEXT, Cost INT(4), Status TEXT, Completed_Grid_State TEXT")
         for move in moves:
             self.db.insert("Moves", "From_Slot, To_Slot, Cost, Status, Completed_Grid_State", (str(
-                move[0].get_from_slot()), str(move[0].get_to_slot()), move[0].get_cost(), "NOT STARTED", str(self.parse_grid_state(move[1].get_grid()))))
+                move[0].get_from_slot()).replace(" ", ""), str(move[0].get_to_slot()).replace(" ", ""), move[0].get_cost(), "NOT STARTED", str(self.parse_grid_state(move[1].get_grid()))))
         return
-    
-    def update_current_step_in_db(self, moves, status):
+
+    def update_current_step_in_db(self, current_step, status):
         if status =="STARTED":
-            self.db.update_by_id("Moves", "id", 1, {"Status": "STARTED"})
+            self.db.update_by_id("Moves", "id", str(current_step[0]), {"Status": "STARTED"})
         elif status == "COMPLETED":
-            self.db.update_by_id("Moves", "id", 1, {"Status": "COMPLETED"})
+            self.db.update_by_id("Moves", "id", str(current_step[0]), {"Status": "COMPLETED"})
+            self.update_grid_state_in_db(str(current_step[5]), False)
 
     def parse_grid_state(self, grid_state):
         state = []
@@ -174,20 +178,20 @@ class PiTech(QStackedWidget):
             row = []
         return state
 
-    def update_grid_state_in_db(self, grid_state):
-        state = self.parse_grid_state(grid_state)
-        self.db.insert("Grids", "Name, State", ("Name", str(state)))
+    def update_grid_state_in_db(self, grid_state, parse):
+        if parse:
+            grid_state = self.parse_grid_state(grid_state)
+        self.db.update_by_id("Grids", "id", 1, {"State": str(grid_state)})
         return
 
     def handle_transfer(self):
         manifest_data, manifest_name = self.fetch_manifest()
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
-        self.update_grid_state_in_db(self.grid.get_grid())
+        self.update_grid_state_in_db(self.grid.get_grid(), True)
         transfer_list_page = UnloadLoadPage(self)
         transfer_list_page.exec_()
         transfer_data = self.fetch_unload_and_load_list()
-
         self.grid.setup_transferlist(transfer_data)
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()

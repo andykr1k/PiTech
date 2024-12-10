@@ -1,15 +1,16 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton
 from PyQt5.QtGui import QColor
 import random
-
+import re
 
 class Grid:
-    def __init__(self, parent, static=True, gridState=None) -> None:
+    def __init__(self, parent, static=True, gridState=None, current_move=None) -> None:
         self.parent = parent
         self.rows = 8
         self.columns = 12
         self.container_colors = ["green"]
         self.buttons = {}
+        self.current_move = current_move
         self.static = static
 
         if gridState:
@@ -63,10 +64,12 @@ class Grid:
             button.setStyleSheet("background-color: grey; border: 0.5px solid black;")
             button.setText("")
         else:
+            color = ""
             if tapped:
                 color = "green"
             else:
-                color = self.get_random_color()
+                # color = self.get_random_color()
+                color = self.get_color(row, col)
             button.setStyleSheet(f"background-color: {color}; border: 0.5px solid black;")
             button.setText(state)
 
@@ -93,3 +96,17 @@ class Grid:
             if color_str not in self.container_colors:
                 self.container_colors.append(color_str)
                 return color_str
+
+    def get_color(self, row, col):
+        if (self.current_move is not None and self.current_move[4] == "STARTED"):
+            x, y = self.parse_positions(self.current_move[1])
+            print("Row", row, "Col", col, "X", x, "Y", y)
+            if (y == row and x == col):
+                return "green"
+        return "cyan"
+
+    def parse_positions(self, string):
+        parsedLine = re.findall(r'((\d+),(\d+))', string)
+        y = parsedLine[0][1]
+        x = parsedLine[0][2]
+        return int(x), int(y)

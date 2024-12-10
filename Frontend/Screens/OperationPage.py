@@ -29,19 +29,20 @@ class OperationPage(QWidget):
         title_label.setStyleSheet("color: #2F27CE;")
         main_layout.addWidget(title_label)
 
-        middle_section = QHBoxLayout()
+        self.middle_section = QHBoxLayout()
 
-        grid_container = QFrame()
-        grid_layout = QVBoxLayout(grid_container)
-        grid_layout.setAlignment(Qt.AlignCenter)
-        grid = Grid(self, static=True, gridState=self.grid_state)
-        grid_layout.addWidget(grid.visualizeGrid())
-        middle_section.addWidget(grid_container)
+        self.grid_container = QFrame()
+        self.grid_layout = QVBoxLayout(self.grid_container)
+        self.grid_layout.setAlignment(Qt.AlignCenter)
+        self.grid = Grid(self, static=True, gridState=self.grid_state, current_move=self.current_step)
+        self.visual_grid = self.grid.visualizeGrid()
+        self.grid_layout.addWidget(self.visual_grid)
+        self.middle_section.addWidget(self.grid_container)
 
-        steps_widget = Steps(self.steps_list, self.current_step, self.steps_cost, self)
-        middle_section.addWidget(steps_widget)
+        self.steps_widget = Steps(self.steps_list, self.current_step, self.steps_cost, self)
+        self.middle_section.addWidget(self.steps_widget)
 
-        main_layout.addLayout(middle_section)
+        main_layout.addLayout(self.middle_section)
         self.setLayout(main_layout)
 
     def get_grid_state(self):
@@ -61,22 +62,25 @@ class OperationPage(QWidget):
 
     def get_current_step(self):
         return self.parent.fetch_current_step()
-            
-    # def update_steps(self, moves):
-    #     """Update the steps widget with new moves"""
-    #     step_strings = []
-    #     total_time = 0
 
-    #     for i, move in enumerate(moves, 1):
-    #         step_strings.append(f"Step {i}: {move}")
-    #         total_time += move.cost
+    def update_operations_page(self):
+        self.grid_state = self.parse_grid_state(self.get_grid_state())
+        self.steps_list = self.get_moves_list()
+        self.steps_cost = self.get_total_moves_cost()
+        self.current_step = self.get_current_step()
 
-    #     self.steps_widget = Steps(step_strings, f"{total_time} min")
+        new_steps_widget = Steps(self.steps_list, self.current_step, self.steps_cost, self)
+        new_grid = Grid(self, static=True, gridState=self.grid_state, current_move=self.current_step)
+        new_visual_grid = new_grid.visualizeGrid()
 
-    #     for i in range(self.layout().count()):
-    #         item = self.layout().itemAt(i)
-    #         if isinstance(item.widget(), Steps):
-    #             old_widget = item.widget()
-    #             self.layout().replaceWidget(old_widget, self.steps_widget)
-    #             old_widget.deleteLater()
-    #             break
+        self.middle_section.removeWidget(self.steps_widget)
+        self.steps_widget.deleteLater()
+
+        self.grid_layout.removeWidget(self.visual_grid)
+        self.visual_grid.deleteLater()
+
+        self.middle_section.addWidget(new_steps_widget)
+        self.grid_layout.addWidget(new_visual_grid)
+
+        self.steps_widget = new_steps_widget
+        self.visual_grid = new_visual_grid
