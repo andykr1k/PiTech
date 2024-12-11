@@ -315,8 +315,19 @@ class Pathfinder():
     
     def transfer_helper(self):
         
+        i = 0
         while self.open_set:
             f_cost, g_cost, path,_, state = heapq.heappop(self.open_set)
+            
+            if (i==0):
+            
+                unload_list_copy = state.unload_list[:]
+                load_list_copy = state.load_list[:]
+                #print("load_list_copy:", load_list_copy)
+                #print("unload_list_copy:", unload_list_copy)
+                i+=1
+            
+            
      
             if not state.unload_list and not state.load_list:
 
@@ -345,6 +356,11 @@ class Pathfinder():
         return None
     
     def transfer_heuristic(self, state):
+        """Heuristic for transfer, return the estimate cost for the rest of the task to finish
+        1. Sum the Manhattan distance for the rest of the unload to (8,0)
+        2. Sum the Manhattan distance for the rest of the loading items from truck to the nearest available slots
+        """
+ 
         return 0
         
     def get_containers(self, grid):
