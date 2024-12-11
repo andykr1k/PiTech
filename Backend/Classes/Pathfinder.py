@@ -74,6 +74,13 @@ class Pathfinder():
         moves_intermediate_grids = []
         grid_copy = copy.deepcopy(current_grid)
 
+        last_crane_pos = path[-1].to_slot
+        default_crane_pos = (8,0)
+        last_cost = 2 if last_crane_pos == (-1, -1) else abs(last_crane_pos[0] - default_crane_pos[0]) + abs(last_crane_pos[1] - default_crane_pos[1])
+        last_move = Movement(last_crane_pos,default_crane_pos)
+        last_move.cost = last_cost
+        path.append(last_move)
+        
         for move in path:
 
             from_slot = move.get_from_slot()
@@ -82,6 +89,7 @@ class Pathfinder():
             intermediate_state = copy.deepcopy(grid_copy)
             moves_intermediate_grids.append((move, intermediate_state))
 
+        
         return (moves_intermediate_grids)
     
     def calculate_distance_heuristic(self, state, goal_combination):
@@ -171,14 +179,6 @@ class Pathfinder():
         else:
             print("Not balanceable.")
             return False
-
-
-    
-    def load():
-        pass
-
-    def unload():
-        pass
 
     def sift(self):
         print('Sifting...')
@@ -310,10 +310,7 @@ class Pathfinder():
 
     def transfer(self):
         start_state_grid = self.start_state  # Initial state with crane at (8, 0)
-        truck_start_state = copy.deepcopy(self.start_state) # Deep copy of the initial state
-        truck_start_state.crane_position = (-1,-1)  # Set crane position to "truck"
         heapq.heappush(self.open_set, (0, 0, self.path, id(start_state_grid),start_state_grid))
-        heapq.heappush(self.open_set, (0, 0, self.path, id(truck_start_state),truck_start_state))
         return self.transfer_helper()
     
     def transfer_helper(self):

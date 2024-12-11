@@ -114,6 +114,8 @@ class Grid:
 
     def move_container(self, pos1, pos2):
         # now only consider moving within the grid
+        if(pos2 == (8,0)):
+            return
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
         container = from_slot.get_container()
