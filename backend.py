@@ -17,19 +17,20 @@ def main():
         
         # Loop through ShipCase1 to ShipCase6
         # Load manifest for the current shipcase (ShipCase1, ShipCase2, ...)
-        manifest_name = "ShipCase2.txt"
+        manifest_name = "ShipCaseSIFT2.txt"
         #i = 6
         #manifest_name = f"ShipCase{i}.txt"
         manifest_data = upload_manifest(manifest_name)
         
         if job_choice == '1':  # Balancing job
-            new_grid = Grid()
+            new_grid = Grid(id="Main_Grid")
             new_grid.setup_grid(manifest_data)
             pathfinder = Pathfinder(new_grid)
             
             print(f"Balancing job selected for {manifest_name}.")
             balance_moves = pathfinder.balance()
             print('Balance Moves:')
+            print(balance_moves)
             for move in balance_moves:
                 print(move)
             
@@ -38,7 +39,7 @@ def main():
             transfer_name = f"Case2.txt"
             transfer_data = upload_transfer_list(transfer_name)
             
-            new_grid = Grid()
+            new_grid = Grid(id="Main_Grid")
             new_grid.setup_grid(manifest_data)
             new_grid.setup_transferlist(transfer_data)
             pathfinder = Pathfinder(new_grid)

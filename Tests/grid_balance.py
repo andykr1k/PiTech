@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Backend.Classes.Grid import Grid
 from Backend.Utilities.Utils import upload_manifest
 
-grid = Grid(rows=8, columns=12)
+grid = Grid(id="Main_Grid", rows=8, columns=12)
 
 manifest_name = "sample_manifest.txt"
 manifest_data = upload_manifest(manifest_name)

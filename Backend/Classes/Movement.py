@@ -20,11 +20,10 @@ class Movement:
         pass
 
     def __repr__(self):
-        from_slot = "truck" if self.from_slot == (-1, -1) else self.from_slot
-        to_slot = "truck" if self.to_slot == (-1, -1) else self.to_slot
-        return f"Move container from position {from_slot} to position {to_slot}, Time estimation: {self.cost} minutes"
+        from_slot = "truck" if self.from_slot.position == (-1, -1) else self.from_slot.position
+        to_slot = "truck" if self.to_slot.position == (-1, -1) else self.to_slot.position
+        return f"Move container from position {from_slot}, grid: {self.from_slot.get_grid_id()} to position {to_slot}, grid: {self.from_slot.get_grid_id()}, Time estimation: {self.cost} minutes"
     
-
     
     def __lt__(self, other):
        return self.cost < other.cost
