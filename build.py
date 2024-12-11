@@ -1,4 +1,3 @@
-# make_exe.py
 from cx_Freeze import setup, Executable
 import sys
 
