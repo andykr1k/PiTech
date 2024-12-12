@@ -233,7 +233,7 @@ class Grid:
 
             grid_from = self.get_movable_containers_position()
             grid_to = self.get_valid_slots_position()
-            
+
             possible_from = buffer_from + grid_from
             possible_to = buffer_to + grid_to
 
@@ -253,13 +253,13 @@ class Grid:
             for starting_position in movable_containers_position:
                 valid_slots = self.get_valid_slots_position(starting_position)
                 for destination in valid_slots:
-                    
+
                     move = Movement(from_slot = starting_position, to_slot = destination)
                     possible_moves.append(move)
             return possible_moves
 
 
-    def getPossibleStatesMoves(self, buffer=None): 
+    def getPossibleStatesMoves(self, buffer=None):
         """
         Generates all possible states and their corresponding moves from the current grid state.
 
@@ -493,16 +493,17 @@ class Grid:
         for move in possible_moves:
             
             new_grid = copy.deepcopy(self)
-            from_slot = move.from_slot
-            to_slot = move.to_slot 
+            from_slot = Slot(grid_id="Main_Grid", position=move.from_slot)
+            to_slot = Slot(grid_id="Main_Grid", position=move.to_slot)
             
-            if from_slot == (-1,-1):  # Load 
-                new_grid.load_container(to_slot)
-            elif to_slot == (-1,-1):  # Unload
-                new_grid.unload_container(from_slot, to_slot)
+            if from_slot.position == (-1,-1):  # Load 
+                new_grid.load_container(to_slot.position)
+            elif to_slot.position == (-1,-1):  # Unload
+                new_grid.unload_container(from_slot.position, to_slot.position)
             else:  # Internal move
-                new_grid.move_container(from_slot, to_slot)
+                new_grid.move_container(from_slot.position, to_slot.position)
             
+            move = Movement(from_slot=from_slot,to_slot=to_slot)
             neighbor_states_moves.append((new_grid, move))
             
         return neighbor_states_moves

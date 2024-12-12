@@ -43,7 +43,7 @@ class Pathfinder():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
                         crane_to_start_cost = state.calculate_path_cost(Slot(grid_id="Main_Grid", position=(8, 0)), move.from_slot)
-                        move_cost = state.calculate_path_cost(move.from_slot, move.to_slot)
+                        move_cost = state.calculate_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         #new_g_cost = g_cost + move.get_cost(child_state)
                         
@@ -74,13 +74,13 @@ class Pathfinder():
         moves_intermediate_grids = []
         grid_copy = copy.deepcopy(current_grid)
 
-        last_crane_pos = path[-1].to_slot
-        default_crane_pos = (8,0)
-        last_cost = 2 if last_crane_pos == (-1, -1) else abs(last_crane_pos[0] - default_crane_pos[0]) + abs(last_crane_pos[1] - default_crane_pos[1])
+        last_crane_pos = Slot(grid_id="Main_Grid", position=path[-1].to_slot.position)
+        default_crane_pos = Slot(grid_id="Main_Grid", position=(8,0))
+        last_cost = 2 if last_crane_pos.position == (-1, -1) else abs(last_crane_pos.position[0] - default_crane_pos.position[0]) + abs(last_crane_pos.position[1] - default_crane_pos.position[1])
         last_move = Movement(last_crane_pos,default_crane_pos)
         last_move.cost = last_cost
         path.append(last_move)
-        
+
         for move in path:
             from_slot = move.get_from_slot()
             to_slot = move.get_to_slot()
@@ -349,22 +349,21 @@ class Pathfinder():
         
         while self.open_set:
             f_cost, g_cost, path,_, state = heapq.heappop(self.open_set)
-     
+
             if not state.unload_list and not state.load_list:
 
                 current_grid = self.start_state
                 path_with_intermediate_grids = self.reconstruct_grids_from_path(current_grid, path)
-    
                 return path_with_intermediate_grids
-            
+
             if state not in self.closed_set:
                 self.closed_set.add(state)
 
                 for child_state, move in state.get_possible_transfer_states_moves():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        crane_to_start_cost = state.calulate_transfer_path_cost(Slot(grid_id=move.from_slot.get_grid_id(), position=state.crane_position), move.from_slot)
-                        move_cost = state.calulate_transfer_path_cost(move.from_slot, move.to_slot)
+                        crane_to_start_cost = state.calulate_transfer_path_cost(Slot(grid_id="Main_Grid", position=state.crane_position), Slot(grid_id="Main_Grid", position=move.from_slot.position))
+                        move_cost = state.calulate_transfer_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         h_cost = self.transfer_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
@@ -372,7 +371,7 @@ class Pathfinder():
                         new_path = path + [move]
 
                         heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, id(child_state),child_state))
-                        
+
         print("No balanced path found")
         return None
     
@@ -381,8 +380,9 @@ class Pathfinder():
         #return abs(left_w - right_w)
 
         best_heuristic_value = float('inf')
-        heuristic_value = self.calculate_distance_heuristic(state, goal_combination)
-        best_heuristic_value = min(best_heuristic_value, heuristic_value)
+        for goal_combination in self.valid_combinations:
+            heuristic_value = self.calculate_distance_heuristic(state, goal_combination)
+            best_heuristic_value = min(best_heuristic_value, heuristic_value)
         
         return best_heuristic_value
     

@@ -48,12 +48,13 @@ class Slot:
         return 2
 
     def __eq__(self, other):
-        return (self.grid_id == other.grid_id and 
-                self.position == other.position and 
+        return (self.grid_id == other.grid_id and
+                self.position == other.position and
                 self.container == other.container)
         return False
+
     def __hash__(self):
         return hash((self.grid_id, self.position, self.container))
-    
+
     def __repr__(self):
         return f"Slot(grid_id={self.grid_id}, position={self.position}, state={self.state}, container={self.container})"
