@@ -20,13 +20,14 @@ def main():
         manifest_data = upload_manifest(manifest_name)
         
         if job_choice == '1':  # Balancing job
-            new_grid = Grid()
+            new_grid = Grid(id="Main_Grid")
             new_grid.setup_grid(manifest_data)
             pathfinder = Pathfinder(new_grid)
             
             print(f"Balancing job selected for {manifest_name}.")
             balance_moves = pathfinder.balance()
             print('Balance Moves:')
+            print(balance_moves)
             for move in balance_moves:
                 print(move[0])
             
@@ -35,7 +36,7 @@ def main():
             transfer_name = f"Case{i}.txt"
             transfer_data = upload_transfer_list(transfer_name)
             
-            new_grid = Grid()
+            new_grid = Grid(id="Main_Grid")
             new_grid.setup_grid(manifest_data)
             new_grid.setup_transferlist(transfer_data)
             pathfinder = Pathfinder(new_grid)

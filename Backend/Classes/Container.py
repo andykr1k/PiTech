@@ -6,10 +6,11 @@ class Container:
         self.weight = weight
         self.row = row
         self.col = col
+        
 
 
     def __repr__(self):
-        return f"{self.name}, {self.weight}"
+        return f"{self.name}, {self.weight}, row: {self.row}, col: {self.col}"
 
     def get_weight(self):
         return self.weight
@@ -22,7 +23,12 @@ class Container:
 
     def set_name(self, name):
         self.name = name
-        return   
+        return
+    
+    def set_position(self, row, col):
+        self.row = row
+        self.col = col
+        return
     
     def get_position(self):
         return self.row, self.col

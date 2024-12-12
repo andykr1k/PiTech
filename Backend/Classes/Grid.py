@@ -2,10 +2,9 @@ from Backend.Classes.Slot import Slot
 from Backend.Classes.Container import Container
 from Backend.Classes.Movement import Movement
 import copy
-import uuid
 
 class Grid:
-    def __init__(self, total_weight=0, goal_weight=0, rows=8, columns=12, id=uuid.uuid4()):
+    def __init__(self, total_weight=0, goal_weight=0, rows=8, columns=12, id="Main_Grid"):
         self.rows = rows
         self.columns = columns
         self.id = id
@@ -18,11 +17,11 @@ class Grid:
         self.right_containers = set()
         self.unload_list = [] # [Container]
         self.load_list = []   # [(name, weight)]
-        self.crane_position = (8,0) # (-1,-1) for "truck"
+        self.crane_position = (self.rows,0) # (-1,-1) for "truck"
         
     def get_slot(self, row, col):
 
-        valid_slots = [(-1,-1), (8,0)]
+        valid_slots = [(-1,-1), self.crane_position ]
         if (0 <= row < self.rows and 0 <= col < self.columns) or (row,col) in valid_slots:
             return self.slot[row][col]
         else:
@@ -49,6 +48,8 @@ class Grid:
                     case 0:
                         manifestPosition = str(manifestData[i])[1:-1].strip().split(",")
                         row = int(manifestPosition[0]) -1
+                        
+
                         col = int(manifestPosition[1]) -1
                     case 1:
                         containerWeight = int(manifestData[i][1:-1])
@@ -92,6 +93,8 @@ class Grid:
         upper_bound = round((1.1 / 2.1) * self.total_weight)
         # print(f"Balance range: {lower_bound} kg - {upper_bound} kg")
         self.goal_weight = (lower_bound, upper_bound)
+
+        print(f'lower_bound {lower_bound}, left_weight {self.left_weight}, upper_bound {upper_bound}, right_weight {self.right_weight}')
         return lower_bound <= self.left_weight <= upper_bound
 
     def get_weightlist(self):
@@ -119,6 +122,7 @@ class Grid:
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
         container = from_slot.get_container()
+
         if from_slot.get_position() == (7,11): # without this line the reconstruct_grids function will crash whenever there's a move from truck
             self.load_container(pos2)
             return
@@ -152,23 +156,23 @@ class Grid:
         movable_positions = []
         for j in range(self.columns):
             for i in range(self.rows - 1, -1, -1):
-                slot = self.slot[i][j]
+                slot = self.get_slot(i,j)
                 if slot.state == 2:
-                    movable_positions.append((i, j))
+                    movable_positions.append(slot)
                     break
         return movable_positions 
 
-    def get_valid_slots_position(self, pos1):
+    def get_valid_slots_position(self, pos1=None):
     # Returns a list of valid slot positions where a container can be moved
         valid_slot_position = []
-        curr_col = pos1[1]
+        # curr_col = pos1[1]
         for j in range(self.columns): 
-            if j == curr_col:  
-                continue
+            # if j == curr_col:  
+            #     continue
             for i in range(self.rows):  
-                slot = self.slot[i][j]
-                if slot.state == 1:  
-                    valid_slot_position.append((i, j))  
+                slot = self.get_slot(i,j)
+                if slot.state == 1:
+                    valid_slot_position.append(slot)
                     break 
     
         return valid_slot_position
@@ -219,11 +223,28 @@ class Grid:
         """
 
         if buffer is not None:
-            print('possible moves w buffer')
+            #get possible moves for buffer
+            possible_from = []
+            possible_to = []
+            possible_moves = []
+
+            buffer_from = buffer.get_movable_containers_position()
+            buffer_to = buffer.get_valid_slots_position()
+
+            grid_from = self.get_movable_containers_position()
+            grid_to = self.get_valid_slots_position()
             
+            possible_from = buffer_from + grid_from
+            possible_to = buffer_to + grid_to
 
+            #print(f'possible_to: {len(possible_to)}')
 
-            return 1
+            for starting_position in possible_from:
+                for destination in possible_to:
+                    move = Movement(from_slot = starting_position, to_slot = destination)
+                    possible_moves.append(move)
+
+            return possible_moves
 
         else:
 
@@ -247,17 +268,37 @@ class Grid:
                            and the move that was applied to reach that state.
         """
 
+        neighbor_states_moves = []
+
         if buffer is not None:
             possible_moves = self.getPossibleMoves(buffer)
+            for move in possible_moves:
+                main_grid = copy.deepcopy(self)
+                buffer_grid = copy.deepcopy(buffer)
+                move_from_grid_id = move.from_slot.get_grid_id()
+                move_to_grid_id = move.to_slot.get_grid_id()
+                if (move_to_grid_id == main_grid.id):
+                    main_grid.add_container(move.from_slot.container, move.to_slot.x, move.to_slot.y)
+                else:
+                    buffer_grid.add_container(move.from_slot.container, move.to_slot.x, move.to_slot.y) 
+
+                if (move_from_grid_id == main_grid.id):
+                    main_grid.remove_container(move.from_slot.x, move.from_slot.y)
+                else:
+                    buffer_grid.remove_container(move.from_slot.x, move.from_slot.y)
+
+
+                neighbor_states_moves.append((main_grid, buffer_grid, move))
+
         else:
             possible_moves = self.getPossibleMoves()
+            for move in possible_moves:
+                main_grid = copy.deepcopy(self)
+                main_grid.move_container(move.from_slot.position, move.to_slot.position)
 
-        neighbor_states_moves = []
-        for move in possible_moves:
-            new_grid = copy.deepcopy(self)
-            new_grid.move_container(move.from_slot, move.to_slot)
-            neighbor_states_moves.append((new_grid, move))
-        
+                # print(move)
+                # print(main_grid)
+                neighbor_states_moves.append((main_grid, None, move))
         return neighbor_states_moves
    
     def print_path(self, goal_state):
@@ -321,14 +362,14 @@ class Grid:
     
     def calculate_path_cost(self, pos1, pos2):
         
-        current_row = pos1[0]
-        current_col = pos1[1]
-        target_row = pos2[0]
-        target_col = pos2[1]
+        current_row = pos1.position[0]
+        current_col = pos1.position[1]
+        target_row = pos2.position[0]
+        target_col = pos2.position[1]
         distance = 0
   
-        # Special case: Starting from (8, 0)
-        if current_row == 8:
+        # Special case: Starting from crane position
+        if current_row == self.rows:
             return distance + abs(current_col - target_col) + abs(current_row - target_row)
 
         # General: Move within the grid
@@ -336,8 +377,8 @@ class Grid:
             next_col = current_col + (1 if target_col > current_col else -1)
 
             if next_col == target_col and current_row == target_row:
-                    distance += 1
-                    break
+                distance += 1
+                break
             
             # Check for obstacles in the next column
             while self.get_slot(current_row, next_col).state != 1:  # Obstacle
@@ -365,14 +406,14 @@ class Grid:
     
     def calulate_transfer_path_cost(self, pos1, pos2):
         
-        if pos1 == (-1,-1):
-            if pos2 == (-1,-1):
+        if pos1.position == (-1,-1):
+            if pos2.position == (-1,-1):
                 return 0
             else:
-                return 2 + self.calculate_path_cost((8, 0), pos2)
+                return 2 + self.calculate_path_cost((self.rows, 0), pos2)
         
-        if pos2 == (-1,-1):
-            return self.calculate_path_cost(pos1, (8, 0)) + 2
+        if pos2.position == (-1,-1):
+            return self.calculate_path_cost(pos1, Slot(grid_id=pos1.get_grid_id(), position=self.crane_position)) + 2
 
         return self.calculate_path_cost(pos1, pos2)
         
