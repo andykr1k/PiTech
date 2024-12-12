@@ -33,6 +33,7 @@ class Pathfinder():
 
                 current_grid = self.start_state
                 path_with_intermediate_grids = self.reconstruct_grids_from_path(current_grid, path)
+                print(f'path w grid: {path_with_intermediate_grids}')
                 return path_with_intermediate_grids
 
             if state not in self.closed_set:
@@ -124,13 +125,13 @@ class Pathfinder():
         weights = state.get_weightlist()
         lower_bound = round(total_weight / 2.1)
         upper_bound = round((1.1 / 2.1) * total_weight)
+
         can_balance = 0
         achievable = 1 
         sum_combinations = {0: []} 
         unique_combinations = set() 
         
-        for weight in weights:
-           
+        for weight in weights:           
             new_combinations = {}
             for curr_sum in sum_combinations:
                 new_sum = curr_sum + weight
@@ -189,7 +190,7 @@ class Pathfinder():
         heapq.heappush(self.open_set, (0, 0, [], current_ship_grid, buffer_grid))
 
         max_depth = 50
-        max_heap_size = 200
+        max_heap_size = 1000
 
         while self.open_set:
             total_cost, path_cost, path, state, buffer_grid = heapq.heappop(self.open_set)
