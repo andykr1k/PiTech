@@ -27,8 +27,7 @@ class Pathfinder():
     def balanceHelper(self):
 
         while self.open_set:
-            f_cost, g_cost, path, state = heapq.heappop(self.open_set)
-     
+            f_cost, g_cost, path, state = heapq.heappop(self.open_set)     
             if state.isBalanced():
 
                 current_grid = self.start_state
@@ -40,6 +39,7 @@ class Pathfinder():
                 self.closed_set.add(state)
 
                 for child_state, _, move in state.getPossibleStatesMoves():
+                    #print(f'child_state {child_state}, move {move}')
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
                         crane_to_start_cost = state.calculate_path_cost(Slot(grid_id="Main_Grid", position=(8, 0)), move.from_slot)
@@ -77,7 +77,7 @@ class Pathfinder():
         for move in path:
             from_slot = move.get_from_slot()
             to_slot = move.get_to_slot()
-            grid_copy.move_container(from_slot, to_slot)
+            grid_copy.move_container(from_slot.position, to_slot.position)
             intermediate_state = copy.deepcopy(grid_copy)
             moves_intermediate_grids.append((move, intermediate_state))
 

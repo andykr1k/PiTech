@@ -17,7 +17,7 @@ def main():
         
         # Loop through ShipCase1 to ShipCase6
         # Load manifest for the current shipcase (ShipCase1, ShipCase2, ...)
-        manifest_name = "ShipCase2.txt"
+        manifest_name = "ShipCaseSIFT3.txt"
         #i = 6
         #manifest_name = f"ShipCase{i}.txt"
         manifest_data = upload_manifest(manifest_name)

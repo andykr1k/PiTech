@@ -48,6 +48,8 @@ class Grid:
                     case 0:
                         manifestPosition = str(manifestData[i])[1:-1].strip().split(",")
                         row = int(manifestPosition[0]) -1
+                        
+
                         col = int(manifestPosition[1]) -1
                     case 1:
                         containerWeight = int(manifestData[i][1:-1])
@@ -91,6 +93,8 @@ class Grid:
         upper_bound = round((1.1 / 2.1) * self.total_weight)
         # print(f"Balance range: {lower_bound} kg - {upper_bound} kg")
         self.goal_weight = (lower_bound, upper_bound)
+
+        print(f'lower_bound {lower_bound}, left_weight {self.left_weight}, upper_bound {upper_bound}, right_weight {self.right_weight}')
         return lower_bound <= self.left_weight <= upper_bound
 
     def get_weightlist(self):
@@ -116,6 +120,7 @@ class Grid:
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
         container = from_slot.get_container()
+
         if from_slot.get_position() == (7,11): # without this line the reconstruct_grids function will crash whenever there's a move from truck
             self.load_container(pos2)
             return
@@ -287,7 +292,10 @@ class Grid:
             possible_moves = self.getPossibleMoves()
             for move in possible_moves:
                 main_grid = copy.deepcopy(self)
-                main_grid.move_container(move.from_slot.position, move.from_slot.position)
+                main_grid.move_container(move.from_slot.position, move.to_slot.position)
+
+                # print(move)
+                # print(main_grid)
                 neighbor_states_moves.append((main_grid, None, move))
         return neighbor_states_moves
    
