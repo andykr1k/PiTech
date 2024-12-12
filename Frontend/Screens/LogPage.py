@@ -98,13 +98,17 @@ class LogPage(QDialog):
         self.parent.add_log_entry(f"{username} comments: {text}")
         self.clearCommentInput()
 
+    # Refresh the log page to display updated log database
     def refresh_logs(self):
+        # Fetch all rows in log database
         logs = self.parent.fetch_logs()
+        # Display log database on log page
         self.logDisplay.setText("\n".join(logs))
 
     def clearCommentInput(self):
         self.commentInput.clear()
 
+    # Get current users username
     def getUsername(self):
         return self.parent.fetch_username()
 

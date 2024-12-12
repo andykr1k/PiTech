@@ -73,7 +73,7 @@ class PiTech(QStackedWidget):
         db.create_table(
             "Log", "id INTEGER PRIMARY KEY, Time TEXT, Event TEXT"
         )
-
+        
         db.create_table(
             "Lists", "id INTEGER PRIMARY KEY, UnloadLoadList TEXT, Manifest TEXT, ManifestName TEXT, OutboundManifest TEXT, OutboundManifestName TEXT")
 
@@ -202,21 +202,35 @@ class PiTech(QStackedWidget):
         self.setCurrentWidget(self.operation_page_transfer)
         return
 
+    # Function that adds atomic events to log
     def add_log_entry(self, event_description):
+        # Get current time
         current_time = QTime.currentTime().toString("hh:mm")
+        # Get current date
         current_date = QDate.currentDate().toString("yyyy-MM-dd")
+        # Create timestamp with time and date in ISO format (excluding seconds and miliseconds)
         timestamp = f"{current_date}: {current_time}"
+        # Insert atomic event into the log database
         self.db.insert("Log", "Time, Event", (timestamp, event_description))
 
+    # Function that fetches the log
     def fetch_logs(self):
+        # Define log database
         logs = self.db.fetch_all("Log", "ASC")
+        # Return all rows in log database
         return [f"{log[1]}: {log[2]}" for log in logs]
 
+    # Function that exports the log to a .txt file
     def export_log(self):
+        # Define export path
         log_dir = os.path.join(os.getcwd(), "Data", "logs")
+        # Define log .txt file name 
         export_path = os.path.join(log_dir, "KeoghsPort2024.txt")
+        # Make a directory for log file unless it already exists
         os.makedirs(log_dir, exist_ok=True)
+        # Define log database
         logs = self.db.fetch_all("Log", "ASC")
+        # Write all data in log database to export path
         with open(export_path, "w") as file:
             for log in logs:
                 file.write(f"{log[1]}: {log[2]}\n")
