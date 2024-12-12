@@ -315,9 +315,10 @@ class Pathfinder():
     
     def transfer_helper(self):
         
+        i = 0
         while self.open_set:
             f_cost, g_cost, path,_, state = heapq.heappop(self.open_set)
-     
+              
             if not state.unload_list and not state.load_list:
 
                 current_grid = self.start_state
@@ -334,6 +335,7 @@ class Pathfinder():
                         crane_to_start_cost = state.calulate_transfer_path_cost(state.crane_position, move.from_slot)
                         move_cost = state.calulate_transfer_path_cost(move.from_slot, move.to_slot)
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
+                        
                         h_cost = self.transfer_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
                         move.cost = crane_to_start_cost + move_cost
@@ -345,8 +347,28 @@ class Pathfinder():
         return None
     
     def transfer_heuristic(self, state):
-        return 0
-        
+        """Heuristic for transfer, return the estimate cost for the rest of the task to finish
+        1. Sum the Manhattan distance for unloading to truck
+        2. Sum the Manhattan distance for loading items from truck to the nearest available slots
+        """
+        grid_copy = copy.deepcopy(state)  # Create a deep copy of the state
+
+        load_cost = 0
+        unload_cost = 0
+
+        while grid_copy.load_list:
+            pos_1 = (8, 0)
+            min_distance, to_slot = grid_copy.get_distance_to_nearest_available_slot(pos_1)
+            load_cost += min_distance
+            grid_copy.load_container(to_slot)
+
+
+        for container in grid_copy.unload_list:
+            unload_cost += (8 - container.row) + container.col
+
+        cost = 0.5*load_cost + unload_cost
+        return cost
+    
     def get_containers(self, grid):
         containers = grid.left_containers.union(grid.right_containers)
         # containers = []

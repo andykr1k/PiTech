@@ -207,6 +207,25 @@ class Grid:
                     break
 
         return nearest_slot, min_distance
+            
+    def get_distance_to_nearest_available_slot(self, pos1):
+        """
+        Finds the Manhattan distance to the nearest available slot from a given position (pos1).
+        """
+        min_distance = float('inf')
+        pos = (8,0)
+        
+        for j in range(self.columns):
+            for i in range(self.rows):
+                slot = self.slot[i][j]
+                if slot.state == 1:  
+                    distance = abs(pos1[0] - i) + abs(pos1[1] - j)
+                    if distance < min_distance:
+                        min_distance = distance
+                        pos = (i,j)
+                        
+                    break 
+        return min_distance, pos
     
     def getPossibleMoves(self, buffer= None):
         """
@@ -421,7 +440,6 @@ class Grid:
         possible_moves = []
         # Handle load
         if self.load_list:  # Check if there are items to load
-            #name, weight = self.load_list[0]  # Pick the first item to load
             valid_slots = self.get_valid_slots_position_for_loading()  # Find all valid slots
             for target_position in valid_slots:
                 move = Movement(from_slot=(-1,-1), to_slot=target_position)
