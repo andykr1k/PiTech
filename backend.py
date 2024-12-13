@@ -1,6 +1,7 @@
 from Backend.Classes.Grid import Grid
 from Backend.Utilities.Utils import upload_manifest, upload_transfer_list
 from Backend.Classes.Pathfinder import Pathfinder
+import time 
 
 def main():
     while True:
@@ -15,28 +16,39 @@ def main():
             print("Quitting program.")
             break
         
-        i = 1
-        manifest_name = f"ShipCase{i}.txt"
+        i = 5
+        # manifest_name = f"ShipCase{i}.txt"
+        manifest_name = "test_one_no_move.txt"
         manifest_data = upload_manifest(manifest_name)
         
         if job_choice == '1':  # Balancing job
-            new_grid = Grid(id="Main_Grid")
+            
+            new_grid = Grid()
             new_grid.setup_grid(manifest_data)
             pathfinder = Pathfinder(new_grid)
             
             print(f"Balancing job selected for {manifest_name}.")
+            start_time = time.time()
+            
             balance_moves = pathfinder.balance()
-            print('Balance Moves:')
-            print(balance_moves)
-            for move in balance_moves:
-                print(move[0])
+            if balance_moves[0] is None:
+                print("No movements needed")
+            
+            else:
+                print('Balance Moves:')
+                for move in balance_moves:
+                    print(move[0])
+
+            end_time = time.time()
+            cost_time = end_time - start_time
+            print(f"\nBalancing completed in {cost_time:.1f} seconds.")
             
         elif job_choice == '2':  # Transferring job
             # Load transfer list for the current case (Case1, Case2, ...)
             transfer_name = f"Case{i}.txt"
             transfer_data = upload_transfer_list(transfer_name)
             
-            new_grid = Grid(id="Main_Grid")
+            new_grid = Grid()
             new_grid.setup_grid(manifest_data)
             new_grid.setup_transferlist(transfer_data)
             pathfinder = Pathfinder(new_grid)
