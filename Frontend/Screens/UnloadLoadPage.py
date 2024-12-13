@@ -1,5 +1,5 @@
 import ast
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QLineEdit, QFormLayout, QFrame, QScrollArea, QWidget
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QLineEdit, QFormLayout, QFrame, QScrollArea, QWidget, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from Frontend.Components.Grid import Grid
@@ -172,14 +172,34 @@ class UnloadLoadPage(QDialog):
         weight = self.weight_input.text().strip()
         quantity = self.quantity_input.text().strip()
 
-        if container_name and weight and quantity:
-            for _ in range(int(quantity)):
-                self.unload_load_list.append("load," + container_name + "," + weight)
-            self.container_name_input.clear()
-            self.weight_input.clear()
-            self.quantity_input.clear()
+        # Validation checks
+        if not container_name:
+            self.show_error_message("Container name cannot be empty.")
+            return
+        if not (1 <= len(container_name) <= 255):
+            self.show_error_message("Container name must be between 1 and 255 characters.")
+            return
+        if not container_name.isalnum() and "_" not in container_name:
+            self.show_error_message("Container name can only contain alphanumeric characters and underscores.")
+            return
+        if not container_name[0].isalpha():
+            self.show_error_message("Container name must start with a letter.")
+            return
+        if not weight.isdigit() or float(weight) < 0:
+            self.show_error_message("Weight must be a non-negative number.")
+            return
+        if not quantity.isdigit() or int(quantity) < 1:
+            self.show_error_message("Quantity must be an integer of 1 or higher.")
+            return
 
-            self.update_container_list_display()
+        # Add container(s) to the list
+        for _ in range(int(quantity)):
+            self.unload_load_list.append(f"load,{container_name},{weight}")
+        self.container_name_input.clear()
+        self.weight_input.clear()
+        self.quantity_input.clear()
+
+        self.update_container_list_display()
 
     # Confirm the load information and update the database
     def confirm_load_info(self):
@@ -274,3 +294,11 @@ class UnloadLoadPage(QDialog):
         x = (screen_geometry.width() - dialog_geometry.width()) // 2
         y = (screen_geometry.height() - dialog_geometry.height()) // 2
         self.move(x, y)
+
+    def show_error_message(self, message):
+        error_message = QMessageBox()
+        error_message.setIcon(QMessageBox.Critical)
+        error_message.setWindowTitle("Error")
+        error_message.setText(message)
+        error_message.setStandardButtons(QMessageBox.Ok)
+        error_message.exec_()

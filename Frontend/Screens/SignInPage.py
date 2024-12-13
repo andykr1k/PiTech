@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QMessageBox
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, QTimer, QTime, QDate, pyqtSignal
-
+import re
 
 class SignInPage(QWidget):
     username_updated = pyqtSignal(str)
@@ -89,8 +89,16 @@ class SignInPage(QWidget):
     # Handle logic to sign in and navigate to the next page
     def goToNextPage(self):
         username = self.usernameInput.text().strip()
-        if not username:
-            QMessageBox.warning(self, "Error", "Username field cannot be empty")
+
+        if not self.is_valid_username(username):
+            QMessageBox.warning(
+                self,
+                "Error",
+                "Invalid username. Please follow the guidelines:\n\n"
+                "1. Username must be between 1 and 255 characters.\n"
+                "2. Username must start with a letter.\n"
+                "3. Only ASCII characters are allowed (English Keyboard)."
+            )
             return
 
         # Update the user profile in the database and switch to the next page
@@ -98,6 +106,24 @@ class SignInPage(QWidget):
         self.parent.setCurrentIndex(1)
 
         self.parent.add_log_entry(f"{username} signed in")
+
+    def is_valid_username(self, username):
+        if not (1 <= len(username) <= 255):
+            return False
+
+        # Check for non-ASCII characters
+        if not all(ord(char) < 128 for char in username):
+            return False
+
+        # Single character usernames must be a letter
+        if len(username) == 1 and not username.isalpha():
+            return False
+
+        # Ensure it doesn't contain invalid characters
+        if not re.fullmatch(r"[A-Za-z0-9\s]*", username):
+            return False
+
+        return True
 
     # Clear the username input field
     def clearUsernameInput(self):
