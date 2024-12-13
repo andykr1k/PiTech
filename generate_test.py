@@ -37,7 +37,7 @@ def generate_grid(num_containers=40):
     formatted_grid = []
     for row in range(rows):  # Output starts from bottom row (index 0)
         for col in range(cols):
-            position = f"[{row + 1},{col + 1:02}]"  # Convert to 1-based indexing
+            position = f"[{row + 1},{col + 1:02}]" 
             if grid[row][col] == "UNUSED":
                 formatted_grid.append(f"{position}, {{00000}}, UNUSED")
             else:
@@ -45,11 +45,23 @@ def generate_grid(num_containers=40):
 
     return formatted_grid
 
+
+def add_zero_to_row_index(input_file, output_file):
+
+    with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
+        for line in infile:
+            parts = line.split(',', 1)
+            if len(parts) > 1 and parts[0].strip().isdigit():
+                new_row_index = parts[0].zfill(2)  # Add leading zero
+                outfile.write(f"{new_row_index},{parts[1]}")
+            else:
+                outfile.write(line)
+
+
 # Generate and save the grid
-for i in range(41, 90):  # Generate grids for 21 to 30 containers
+for i in range(20, 30):  # Generate grids for 21 to 30 containers
     test_grid = generate_grid(num_containers=i)
     filename = f"{i}Containers.txt"  # Use f-string to format the filename
     with open(filename, "w") as file:
         for line in test_grid:
             file.write(line + "\n")
-
