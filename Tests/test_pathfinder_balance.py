@@ -44,7 +44,6 @@ def test_balancing_move_prints(shipcase, pathfinder, capsys):
             "Move container from position (1, 0) to position (2, 1), Time estimation: 9 minutes",
             "Move container from position (0, 0) to position (0, 6), Time estimation: 15 minutes",
             "Move crane from position (0, 6) to position (8, 0), Time estimation: 14 minutes"
-            
         ],
         4: [
             "Move container from position (7, 4) to position (1, 3), Time estimation: 12 minutes",

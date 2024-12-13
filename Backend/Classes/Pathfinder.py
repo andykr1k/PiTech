@@ -27,7 +27,7 @@ class Pathfinder():
     def balanceHelper(self):
 
         while self.open_set:
-            f_cost, g_cost, path, state = heapq.heappop(self.open_set)     
+            f_cost, g_cost, path, state = heapq.heappop(self.open_set)
             if state.isBalanced():
 
                 current_grid = self.start_state
@@ -42,11 +42,10 @@ class Pathfinder():
                     #print(f'child_state {child_state}, move {move}')
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        crane_to_start_cost = state.calculate_path_cost(Slot(grid_id="Main_Grid", position=(8, 0)), move.from_slot)
-                        move_cost = state.calculate_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
+                        crane_to_start_cost = state.calculate_transfer_path_cost(Slot(grid_id="Main_Grid", position=state.crane_position), Slot(grid_id="Main_Grid", position=move.from_slot.position))
+                        move_cost = state.calculate_transfer_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         #new_g_cost = g_cost + move.get_cost(child_state)
-                        
                         h_cost = self.balance_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
                         move.cost = crane_to_start_cost + move_cost
@@ -54,7 +53,7 @@ class Pathfinder():
 
 
                         heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, child_state))
-                        
+
         print("No balanced path found")
         return None
  
@@ -196,9 +195,11 @@ class Pathfinder():
             total_cost, path_cost, path, state, buffer_grid = heapq.heappop(self.open_set)
 
             if self.check_grid_equality(state, goal_ship_grid):
-                print(f"Goal reached with cost {total_cost}")
-                return path
-            
+                current_grid = self.start_state
+                path_with_intermediate_grids = self.reconstruct_grids_from_path(current_grid, path)
+                print(f'path w grid: {path_with_intermediate_grids}')
+                return path_with_intermediate_grids
+
             if (state, buffer_grid) not in self.closed_set:
                 self.closed_set.add((state, buffer_grid))
                 for child_state, child_buffer, move in state.getPossibleStatesMoves(buffer_grid):
@@ -362,8 +363,8 @@ class Pathfinder():
                 for child_state, move in state.get_possible_transfer_states_moves():
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        crane_to_start_cost = state.calulate_transfer_path_cost(Slot(grid_id="Main_Grid", position=state.crane_position), Slot(grid_id="Main_Grid", position=move.from_slot.position))
-                        move_cost = state.calulate_transfer_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
+                        crane_to_start_cost = state.calculate_transfer_path_cost(Slot(grid_id="Main_Grid", position=state.crane_position), Slot(grid_id="Main_Grid", position=move.from_slot.position))
+                        move_cost = state.calculate_transfer_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         h_cost = self.transfer_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
@@ -379,14 +380,25 @@ class Pathfinder():
         #left_w, right_w, total_w = state.get_weights()
         #return abs(left_w - right_w)
 
-        best_heuristic_value = float('inf')
-        for goal_combination in self.valid_combinations:
-            heuristic_value = self.calculate_distance_heuristic(state, goal_combination)
-            best_heuristic_value = min(best_heuristic_value, heuristic_value)
-        
-        return best_heuristic_value
-    
-        
+        grid_copy = copy.deepcopy(state)  # Create a deep copy of the state
+
+        load_cost = 0
+        unload_cost = 0
+
+        while grid_copy.load_list:
+            pos_1 = (8, 0)
+            min_distance, to_slot = grid_copy.get_distance_to_nearest_available_slot(pos_1)
+            load_cost += min_distance
+            grid_copy.load_container(to_slot)
+
+
+        for container in grid_copy.unload_list:
+            unload_cost += (8 - container.row) + container.col
+
+        cost = 0.5*load_cost + unload_cost
+        return cost
+
+
     def get_containers(self, grid):
         #containers = grid.left_containers.union(grid.right_containers)
         containers = []

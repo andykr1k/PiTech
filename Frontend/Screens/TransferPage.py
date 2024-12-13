@@ -22,6 +22,7 @@ class TransferPage(QWidget):
         center_layout = QHBoxLayout()
         center_layout.setSpacing(20)
 
+        # 'Unload' button setup
         self.unload_button = QPushButton("Unload")
         self.unload_button.setFont(QFont("Roboto", 24, QFont.Bold))
         self.unload_button.setStyleSheet("""
@@ -33,6 +34,7 @@ class TransferPage(QWidget):
         """)
         center_layout.addWidget(self.unload_button)
 
+        # 'Load' button setup
         self.load_button = QPushButton("Load")
         self.load_button.setFont(QFont("Roboto", 24, QFont.Bold))
         self.load_button.setStyleSheet("""
