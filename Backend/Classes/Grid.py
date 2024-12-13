@@ -465,49 +465,48 @@ class Grid:
             #name, weight = self.load_list[0]  # Pick the first item to load
             valid_slots = self.get_valid_slots_position_for_loading()  # Find all valid slots
             for target_position in valid_slots:
-                move = Movement(from_slot=(-1,-1), to_slot=target_position)
+                move = Movement(from_slot=Slot(grid_id="Main_Grid", position=(-1,-1)), to_slot=Slot(grid_id="Main_Grid", position=target_position))
                 possible_moves.append(move)
-                
-            
-         # Handle unload 
+
+         # Handle unload
         if self.unload_list:
             for container in self.unload_list:
                 if self.can_unload(container):
-                    move = Movement(from_slot=(container.row, container.col), to_slot=(-1,-1))
+                    move = Movement(from_slot=Slot(grid_id="Main_Grid", position=(container.row, container.col)), to_slot=Slot(grid_id="Main_Grid", position=(-1,-1)))
                     possible_moves.append(move)
                 else:
                     pos1 = self.get_topmost_blocking_container_position(container)
                     valid_slots = self.get_valid_slots_position(pos1)
                     for pos2 in valid_slots:
                         # Generate a single move to remove the topmost blocker
-                        move = Movement(from_slot=pos1,to_slot=pos2)
+                        move = Movement(from_slot=Slot(grid_id="Main_Grid", position=pos1),to_slot=Slot(grid_id="Main_Grid", position=pos2))
                         possible_moves.append(move)
-         
+
         return possible_moves
-        
+
     def get_possible_transfer_states_moves(self):
-        
+
         neighbor_states_moves = []
         possible_moves = self.get_possible_transfer_moves()
-        
+
         for move in possible_moves:
-            
+
             new_grid = copy.deepcopy(self)
-            from_slot = Slot(grid_id="Main_Grid", position=move.from_slot)
-            to_slot = Slot(grid_id="Main_Grid", position=move.to_slot)
-            
-            if from_slot.position == (-1,-1):  # Load 
+            from_slot = Slot(grid_id="Main_Grid", position=move.from_slot.position)
+            to_slot = Slot(grid_id="Main_Grid", position=move.to_slot.position)
+
+            if from_slot.position == (-1,-1):  # Load
                 new_grid.load_container(to_slot.position)
             elif to_slot.position == (-1,-1):  # Unload
                 new_grid.unload_container(from_slot.position, to_slot.position)
             else:  # Internal move
                 new_grid.move_container(from_slot.position, to_slot.position)
-            
+
             move = Movement(from_slot=from_slot,to_slot=to_slot)
             neighbor_states_moves.append((new_grid, move))
-            
+
         return neighbor_states_moves
-    
+
     def grid_as_tuple(self):
         return tuple(
             tuple(

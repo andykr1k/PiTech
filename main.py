@@ -1,6 +1,7 @@
 import os
 import sys
 import ast
+import signal
 from PyQt5.QtWidgets import QApplication, QStackedWidget
 from PyQt5.QtCore import QTime, QDate
 from Backend.Classes.Grid import Grid
@@ -32,6 +33,9 @@ class PiTech(QStackedWidget):
         self.setup_connections()
         self.fetch_state()
         self.show()
+
+        signal.signal(signal.SIGINT, self.handle_shutdown)
+        signal.signal(signal.SIGTERM, self.handle_shutdown)
 
     def set_up(self):
         db_dir = os.path.join(os.getcwd(), "Data")
@@ -228,6 +232,19 @@ class PiTech(QStackedWidget):
         # Return all rows in log database with new line char
         return [f"{log[1]}: {log[2]}\n" for log in logs]
 
+    def handle_shutdown(self, signum, frame):
+        print(f"Signal {signum} received. Performing cleanup...")
+        self.add_log_entry("App shutting down due to signal.")
+        self.add_log_entry("Application Shutdown - Possible Power Outage")
+        self.close_db()
+        sys.exit(0)
+
+    def closeEvent(self, event):
+        print("Application closing...")
+        username = self.fetch_username()
+        self.add_log_entry(f"Application Closed by {username}")
+        self.close_db()
+        event.accept()
 
 def main():
     app = QApplication(sys.argv)
