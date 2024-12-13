@@ -27,7 +27,7 @@ class Pathfinder():
     def balanceHelper(self):
 
         while self.open_set:
-            f_cost, g_cost, path, state = heapq.heappop(self.open_set)     
+            f_cost, g_cost, path, state = heapq.heappop(self.open_set)
             if state.isBalanced():
 
                 current_grid = self.start_state
@@ -46,7 +46,6 @@ class Pathfinder():
                         move_cost = state.calculate_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         #new_g_cost = g_cost + move.get_cost(child_state)
-                        
                         h_cost = self.balance_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
                         move.cost = crane_to_start_cost + move_cost
@@ -54,7 +53,7 @@ class Pathfinder():
 
 
                         heapq.heappush(self.open_set, (new_f_cost, new_g_cost, new_path, child_state))
-                        
+
         print("No balanced path found")
         return None
  

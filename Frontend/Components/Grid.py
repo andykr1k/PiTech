@@ -61,15 +61,15 @@ class Grid:
             button.setStyleSheet("background-color: black; border: 0.5px solid black;")
             button.setText("")
         elif state == 'UNUSED':
-            button.setStyleSheet("background-color: grey; border: 0.5px solid black;")
+            color = self.get_color(row, col, 2, False)
+            button.setStyleSheet(f"background-color: {color}; border: 0.5px solid black;")
             button.setText("")
         else:
-            color = ""
+            color = "cyan"
             if tapped:
                 color = "green"
             else:
-                # color = self.get_random_color()
-                color = self.get_color(row, col)
+                color = self.get_color(row, col, 1, True)
             button.setStyleSheet(f"background-color: {color}; border: 0.5px solid black;")
             button.setText(state)
 
@@ -96,13 +96,24 @@ class Grid:
                 self.container_colors.append(color_str)
                 return color_str
 
-    def get_color(self, row, col):
+    def get_color(self, row, col, curr, from_to):
         if (self.current_move is not None and self.current_move[4] == "STARTED"):
-            x, y = self.parse_positions(self.current_move[1])
-            if (x, y) not in [(-1,-1), (8,0), (4,0)]:
-                if (y == row and x == col):
+            x, y = self.parse_positions(self.current_move[curr])
+            if (from_to):
+                if (x, y) not in [(-1,-1), (8,0), (4,0)] and (y == row and x == col):
+                    return "red"
+                else:
+                    return "cyan"
+            else:
+                if (x, y) not in [(-1,-1), (8,0), (4,0)] and (y == row and x == col):
                     return "green"
-        return "cyan"
+                else:
+                    return "grey"
+        else:
+            if (from_to):
+                return "cyan"
+            else:
+                return "grey"
 
     def parse_positions(self, string):
         if string not in ["(-1,-1)", "(8,0)", "(4,0)"]:
