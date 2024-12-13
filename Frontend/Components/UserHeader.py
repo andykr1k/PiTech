@@ -76,10 +76,12 @@ class UserHeader(QWidget):
 
         self.setLayout(layout)
 
+    # Updates the username label when the page is shown
     def showEvent(self, event):
         super().showEvent(event)
         self.updateUsername()
 
+    # Signs out the user and clears the username input
     def signOut(self):
         username = self.getUsername()
         self.parent.add_log_entry(f"{username} signed out")
@@ -87,27 +89,33 @@ class UserHeader(QWidget):
         self.parent.db.update_by_id("profile", "id", 1, {"username": "Default", "currentTab": "SignIn"})
         self.parent.setCurrentIndex(0)
     
+    # Updates the username label with the current username
     def updateUsername(self):
         self.username = self.getUsername()
         self.userLabel.setText(f"User: {self.username}")
 
+    # Fetches the username from the database
     def getUsername(self):
         return self.parent.fetch_username()
 
+    # Fetches the manifest data from the database
     def getManifestData(self):
         data, name = self.parent.fetch_manifest()
         return data, name
 
+    # Resets the manifest data
     def resetManifest(self):
         self.manifest = None
         self.manifest_name = None
         self.upload_button.setText("Upload Manifest")
         self.home_page.updateButtons(0)
 
+    # Opens the log page
     def goToLog(self):
         log = LogPage(self.parent)
         log.exec_()
 
+    # Opens a file dialog to select a manifest file
     def openFileDialog(self):
         options = QFileDialog.Options()
         file, _ = QFileDialog.getOpenFileName(self, "Select Manifest File", "", "All Files (*);;Text Files (*.txt)", options=options)

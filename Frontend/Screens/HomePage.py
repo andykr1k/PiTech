@@ -53,7 +53,9 @@ class HomePage(QWidget):
 
         self.setLayout(main_layout)
 
+    # Updates the button states and styles based on the operation status.
     def updateButtons(self, operation):
+        # Enable buttons and change their styles to indicate they are active
         if operation:
             self.transfer_button.setStyleSheet("""
                 background-color: #3F51B5;
@@ -71,6 +73,7 @@ class HomePage(QWidget):
             """)
             self.transfer_button.setEnabled(True)
             self.balance_button.setEnabled(True)
+        # Disable buttons and change their styles to indicate they are inactive
         else:
             self.transfer_button.setStyleSheet("""
                 background-color: #e8ebf7;

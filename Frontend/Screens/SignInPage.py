@@ -80,21 +80,25 @@ class SignInPage(QWidget):
 
         self.setLayout(layout)
 
+    # Update the timeLabel with the current time and date
     def updateTime(self):
         current_time = QTime.currentTime().toString("hh:mm:ss AP")
         current_date = QDate.currentDate().toString("MMMM dd, yyyy")
         self.timeLabel.setText(current_time + " - " + current_date)
 
+    # Handle logic to sign in and navigate to the next page
     def goToNextPage(self):
         username = self.usernameInput.text().strip()
         if not username:
             QMessageBox.warning(self, "Error", "Username field cannot be empty")
             return
 
+        # Update the user profile in the database and switch to the next page
         self.parent.db.update_by_id("profile", "id", 1, {"username": username, "currentTab": "Home"})
         self.parent.setCurrentIndex(1)
 
         self.parent.add_log_entry(f"{username} signed in")
 
+    # Clear the username input field
     def clearUsernameInput(self):
         self.usernameInput.clear()

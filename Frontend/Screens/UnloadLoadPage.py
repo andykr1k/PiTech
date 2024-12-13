@@ -64,6 +64,7 @@ class UnloadLoadPage(QDialog):
         self.resize(800, 400)
         self.center()
 
+    # Set up the middle section with the grid container
     def setup_unload_page(self, layout):
         middle_section = QHBoxLayout()
         grid_container = QFrame()
@@ -74,6 +75,7 @@ class UnloadLoadPage(QDialog):
         middle_section.addWidget(grid_container)
         layout.addLayout(middle_section)
 
+    # Set up the right section with the form to load containers
     def setup_load_page(self, layout):
         form_layout = QFormLayout()
 
@@ -164,7 +166,7 @@ class UnloadLoadPage(QDialog):
         """)
         return label
 
-
+    # Submit the load information to the list
     def submit_load_info(self):
         container_name = self.container_name_input.text().strip()
         weight = self.weight_input.text().strip()
@@ -179,23 +181,29 @@ class UnloadLoadPage(QDialog):
 
             self.update_container_list_display()
 
+    # Confirm the load information and update the database
     def confirm_load_info(self):
         self.update_unload_and_load_lists()
         self.accept()
 
+    # Switch to the load page
     def switch_to_load_page(self):
         self.is_load_page = True
         self.initUI()
 
+    # Fetch the grid state from the parent
     def get_grid_state(self):
         return self.parent.fetch_grid_state()
 
+    # Parse the grid state from a string to a dictionary
     def parse_grid_state(self, string_grid):
         return ast.literal_eval(string_grid)
 
+    # Update the unload and load lists in the database
     def update_unload_and_load_lists(self):
         self.parent.db.update_by_id("Lists", "id", 1, {"UnloadLoadList": str(self.unload_load_list)})
 
+    # Update the container list display
     def update_container_list_display(self):
         print("Updated Container List:", self.unload_load_list)
 
@@ -253,12 +261,13 @@ class UnloadLoadPage(QDialog):
             self.container_list_layout.addWidget(container_frame)
 
 
-
+    # Remove the specified container and refresh the display
     def remove_container(self, container):
         if container in self.unload_load_list:
             self.unload_load_list.remove(container)
             self.update_container_list_display()
 
+    # Center the dialog on the screen
     def center(self):
         screen_geometry = self.screen().geometry()
         dialog_geometry = self.geometry()

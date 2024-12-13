@@ -18,9 +18,11 @@ class Grid:
         else:
             self.gridState = self.initialize_grid_state()
 
+    # Initialize grid state with 'UNUSED' values
     def initialize_grid_state(self):
         return [['UNUSED' for _ in range(self.columns)] for _ in range(self.rows)]
 
+    # Create a visual representation of the grid
     def visualizeGrid(self):
         widget = QWidget()
         layout = QVBoxLayout()
@@ -55,6 +57,7 @@ class Grid:
 
         return widget
 
+    # Update the color of the container based on the state of the cell
     def update_button_color(self, button, row, col, tapped):
         state = self.gridState[row][col]
         if state == 'NAN':
@@ -73,6 +76,7 @@ class Grid:
             button.setStyleSheet(f"background-color: {color}; border: 0.5px solid black;")
             button.setText(state)
 
+    # Handle cell click event
     def cell_clicked(self, r, c):
         current_state = self.gridState[r][c]
         button = self.buttons[(r, c)]
@@ -96,6 +100,7 @@ class Grid:
                 self.container_colors.append(color_str)
                 return color_str
 
+    # Get a color based on current move status
     def get_color(self, row, col, curr, from_to):
         if (self.current_move is not None and self.current_move[4] == "STARTED"):
             x, y = self.parse_positions(self.current_move[curr])
@@ -115,6 +120,7 @@ class Grid:
             else:
                 return "grey"
 
+    # Parse position strings into numeric coordinates
     def parse_positions(self, string):
         if string not in ["(-1,-1)", "(8,0)", "(4,0)"]:
             parsedLine = re.findall(r'((\d+),(\d+))', string)

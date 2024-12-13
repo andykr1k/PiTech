@@ -31,6 +31,7 @@ class OperationPage(QWidget):
 
         self.middle_section = QHBoxLayout()
 
+        # Add grid container and grid visualization
         self.grid_container = QFrame()
         self.grid_layout = QVBoxLayout(self.grid_container)
         self.grid_layout.setAlignment(Qt.AlignCenter)
@@ -39,37 +40,46 @@ class OperationPage(QWidget):
         self.grid_layout.addWidget(self.visual_grid)
         self.middle_section.addWidget(self.grid_container)
 
+        # Add steps widget to the middle section
         self.steps_widget = Steps(self.steps_list, self.current_step, self.steps_cost, self)
         self.middle_section.addWidget(self.steps_widget)
 
         main_layout.addLayout(self.middle_section)
         self.setLayout(main_layout)
 
+    # Fetch the current state of the grid from the parent
     def get_grid_state(self):
         return self.parent.fetch_grid_state()
 
+    # Fetch the list of moves for the operation from the parent
     def get_moves_list(self):
         return self.parent.fetch_moves_list()
 
+    # Parse the grid state from a string to a dictionary
     def parse_grid_state(self, string_grid):
         return ast.literal_eval(string_grid)
 
+    # Calculate the total cost of all moves in the steps list
     def get_total_moves_cost(self):
         cost = 0
         for move in self.steps_list:
             cost += move[3]
         return cost
 
+    # Fetch the current step of the operation from the parent
     def get_current_step(self):
         return self.parent.fetch_current_step()
 
+    # Initialize and return a new Steps widget
     def initialize_steps_widget(self):
         return Steps(self.steps_list, self.current_step, self.steps_cost, self)
 
+    # Initialize and return a visualized grid object
     def initialize_visual_grid(self):
         grid = Grid(self, static=True, gridState=self.grid_state, current_move=self.current_step)
         return grid.visualizeGrid()
 
+    # Update the operations page with the latest grid state and steps list
     def update_operations_page(self):
         self.grid_state = self.parse_grid_state(self.get_grid_state())
         self.steps_list = self.get_moves_list()

@@ -21,6 +21,7 @@ class Steps(QWidget):
         steps_layout = QVBoxLayout(steps_container)
         steps_layout.setAlignment(Qt.AlignTop)
 
+        # Handles completion of operation and displays download outbound manifest button
         if self.current_step == "COMPLETED":
             steps_title = self.create_label("Operation Completed", 20, bold=True)
             steps_layout.addWidget(steps_title)
@@ -43,6 +44,7 @@ class Steps(QWidget):
             main_layout.addWidget(steps_container)
             return
 
+        # Handles the fist step of the operation
         if self.current_step[0] == 1 and self.current_step[4] == "NOT STARTED":
             steps_title = self.create_label("Steps", 20, bold=True)
             steps_layout.addWidget(steps_title)
@@ -51,6 +53,7 @@ class Steps(QWidget):
             steps_layout.addItem(self.create_spacer())
             steps_layout.addWidget(self.create_label(f"Total Time: {self.total_time}", 16, bold=True))
             steps_layout.addWidget(self.create_button("Start", self.start_button_clicked, "#6200EE", "#3700B3"))
+        # Handles the rest of the steps of the operation
         else:
             steps_title = self.create_label("Steps", 20, bold=True)
             steps_layout.addWidget(steps_title)
@@ -63,6 +66,7 @@ class Steps(QWidget):
 
         main_layout.addWidget(steps_container)
 
+    # Creates a container for the steps
     def create_steps_container(self):
         container = QFrame()
         container.setStyleSheet("""
@@ -75,6 +79,7 @@ class Steps(QWidget):
         """)
         return container
 
+    # Creates a label with the given text and font size
     def create_label(self, text, font_size, bold=False):
         label = QLabel(text)
         label.setFont(QFont("Arial", font_size, QFont.Bold if bold else QFont.Normal))
@@ -87,6 +92,7 @@ class Steps(QWidget):
         label.setAlignment(Qt.AlignCenter)
         return label
 
+    # Creates a button with the given text, callback, background color and hover color
     def create_button(self, text, callback, bg_color, hover_color):
         button = QPushButton(text)
         button.setFont(QFont("Arial", 16, QFont.Bold))
@@ -109,6 +115,7 @@ class Steps(QWidget):
     def create_spacer(self):
         return QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
+    # Creates a widget for displaying the steps
     def create_steps_widget(self, steps):
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -125,6 +132,7 @@ class Steps(QWidget):
             layout.addWidget(self.create_label(label, 14))
         return widget
 
+    # Creates a scroll area for the steps widget
     def create_scroll_area(self, widget):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -134,14 +142,18 @@ class Steps(QWidget):
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         return scroll_area
 
+    # Handles the "Start" button click and updates the current step (first step) in the database to "STARTED"
     def start_button_clicked(self):
         self.parent.parent.update_current_step_in_db(self.current_step, "STARTED")
         self.parent.update_operations_page()
 
+    # Handles the "Confirm" button click and updates the current step in the database to "COMPLETED"
     def confirm_button_clicked(self):
         self.parent.parent.update_current_step_in_db(self.current_step, "COMPLETED")
         self.parent.update_operations_page()
 
+    # Handle the "Download Outbound Manifest" button click event and prompts the user to save the manifest file locally
+    # Enables the "Done" button if successful
     def download_outbound_clicked(self):
         list_object = self.parent.parent.db.fetch_one("Lists", "id = ?", params=(1,))
         # manifest = list_object[5]
@@ -163,7 +175,7 @@ class Steps(QWidget):
             except Exception as e:
                 print(f"Error saving file: {e}")
 
-
+    # Handle the "Done" button click event and updates the application's database and logs the completion of the operation
     def done_button_clicked(self):
         self.parent.parent.db.update_by_id("profile", "id", 1, {"currentTab": "Home"})
         self.parent.parent.add_log_entry(f"Operation Completed")
@@ -175,6 +187,7 @@ class Steps(QWidget):
         self.parent.parent.home_page.header.resetManifest()
         self.parent.parent.setCurrentIndex(1)
 
+    # Corrects the moves to display the correct positions
     def correct_moves(self, string):
         if string not in ["(-1,-1)", "(8,0)", "(4,0)"]:
             # parsedLine = re.findall(r'((\d+),(\d+))', string)
