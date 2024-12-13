@@ -126,7 +126,9 @@ class Grid:
         if from_slot.get_position() == (7,11): # without this line the reconstruct_grids function will crash whenever there's a move from truck
             self.load_container(pos2)
             return
-
+        elif to_slot.get_position() == (7,11):
+            self.unload_container(pos1, pos2)
+            return
         name = container.get_name()
         weight = container.get_weight()
         self.update_container_lists(container, pos2)

@@ -99,12 +99,16 @@ class Grid:
     def get_color(self, row, col):
         if (self.current_move is not None and self.current_move[4] == "STARTED"):
             x, y = self.parse_positions(self.current_move[1])
-            if (y == row and x == col):
-                return "green"
+            if (x, y) not in [(-1,-1), (8,0), (4,0)]:
+                if (y == row and x == col):
+                    return "green"
         return "cyan"
 
     def parse_positions(self, string):
-        parsedLine = re.findall(r'((\d+),(\d+))', string)
-        y = parsedLine[0][1]
-        x = parsedLine[0][2]
-        return int(x), int(y)
+        if string not in ["(-1,-1)", "(8,0)", "(4,0)"]:
+            parsedLine = re.findall(r'((\d+),(\d+))', string)
+            y = parsedLine[0][1]
+            x = parsedLine[0][2]
+            return int(x), int(y)
+        else:
+            return -1, -1
