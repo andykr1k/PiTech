@@ -117,17 +117,25 @@ class LogPage(QDialog):
         # Clear comment box after comment is pushed to log database
         self.clearCommentInput()
 
+    # Update log page with data in log database
     def refresh_logs(self):
+        # Fetch updated log database
         logs = self.parent.fetch_logs()
+        # Display updated log database
         self.logDisplay.setText("\n".join(logs))
 
+    # Download log database as .txt file
     def download_logs(self):
+        # Get username of current logged in user
         username = self.getUsername()
-        text = self.commentInput.text().strip()
+        # Define log for export
         log = self.parent.fetch_logs_for_download()
+        # Define log file name
         log_name = "KeoghsPort2024.txt"
+        # Add event to log database when user downloads log file
         self.parent.add_log_entry(f"{username} downloaded {log_name}")
 
+        # Define options for download path
         options = QFileDialog.Options()
         save_path, _ = QFileDialog.getSaveFileName(
             self, "Save Log File", log_name, "All Files (*)", options=options
@@ -135,17 +143,20 @@ class LogPage(QDialog):
 
         if save_path:
             try:
+                # Export log file to user-selected path
                 with open(save_path, 'w') as file:
                     for l in log:
                         file.write(l)
 
+            # Print error if file is not exported correctly
             except Exception as e:
                 print(f"Error saving file: {e}")
 
     # Clear comment box
     def clearCommentInput(self):
         self.commentInput.clear()
-
+ 
+    # Get username of current user
     def getUsername(self):
         return self.parent.fetch_username()
 
