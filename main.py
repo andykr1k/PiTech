@@ -150,6 +150,11 @@ class PiTech(QStackedWidget):
         self.pathfinder = Pathfinder(self.grid)
         self.update_grid_state_in_db(self.grid.get_grid(), True)
         balance_moves = self.pathfinder.balance()
+        completed_grid = balance_moves[1][-1]
+        outbound_manifest = self.create_outbound_manifest(completed_grid)
+
+        print(outbound_manifest)
+        outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3] + "OUTBOUND"
         self.update_moves_in_db(balance_moves)
         self.db.update_by_id("profile", "id", 1, {"currentTab": "Balance"})
         self.operation_page_balance = OperationPage(self, "Balance")
@@ -245,6 +250,19 @@ class PiTech(QStackedWidget):
         self.add_log_entry(f"Application Closed by {username}")
         self.close_db()
         event.accept()
+
+    def create_outbound_manifest(self, grid):
+            
+            manifest = ""
+            print(f'final grid: {grid}')
+            for row in range(grid.rows):
+                for col in range(grid.columns):
+                    position = f"[{str(row+1).zfill(2)},{str(col+1).zfill(2)}]"
+                    container = grid.get_slot(row,col).get_container()
+                    weight = f"{{{str(container.get_weight()).zfill(5)}}}"
+                    container_name = str(container.get_name())
+                    manifest += position + ', ' + weight + ', ' + container_name + '\n'
+            return manifest
 
 def main():
     app = QApplication(sys.argv)
