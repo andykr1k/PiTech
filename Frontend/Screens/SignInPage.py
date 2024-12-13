@@ -38,6 +38,7 @@ class SignInPage(QWidget):
         self.usernameInput.setStyleSheet("""
             QLineEdit {
                 padding: 12px;
+                color: black;
                 border: 1px solid #B0BEC5;
                 border-radius: 4px;
                 background-color: #FAFAFA;

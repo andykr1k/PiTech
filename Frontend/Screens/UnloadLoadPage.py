@@ -82,6 +82,7 @@ class UnloadLoadPage(QDialog):
         input_style = """
             QLineEdit {
                 background-color: #FFFFFF;
+                color: black;
                 border: 1px solid #D1D1D1;
                 border-radius: 8px;
                 padding: 8px;
