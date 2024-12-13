@@ -16,6 +16,8 @@ class Pathfinder():
         pass    
     
     def balance(self):
+
+        
         if(self.can_balance(self.start_state)):
             heapq.heappush(self.open_set, (0, 0, self.path, self.start_state))
             return self.balanceHelper()
@@ -31,8 +33,11 @@ class Pathfinder():
             if state.isBalanced():
 
                 current_grid = self.start_state
+
+                if not path:
+                    return (None,None)
+
                 path_with_intermediate_grids = self.reconstruct_grids_from_path(current_grid, path)
-                print(f'path w grid: {path_with_intermediate_grids}')
                 return path_with_intermediate_grids
 
             if state not in self.closed_set:
@@ -69,6 +74,9 @@ class Pathfinder():
         return best_heuristic_value
     
     def reconstruct_grids_from_path(self, current_grid, path):
+
+        if not path:
+            return (None, None)
 
         moves_intermediate_grids = []
         grid_copy = copy.deepcopy(current_grid)
@@ -197,7 +205,6 @@ class Pathfinder():
             if self.check_grid_equality(state, goal_ship_grid):
                 current_grid = self.start_state
                 path_with_intermediate_grids = self.reconstruct_grids_from_path(current_grid, path)
-                print(f'path w grid: {path_with_intermediate_grids}')
                 return path_with_intermediate_grids
 
             if (state, buffer_grid) not in self.closed_set:

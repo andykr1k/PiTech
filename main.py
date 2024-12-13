@@ -2,7 +2,7 @@ import os
 import sys
 import ast
 import signal
-from PyQt5.QtWidgets import QApplication, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QStackedWidget, QMessageBox
 from PyQt5.QtCore import QTime, QDate
 from Backend.Classes.Grid import Grid
 from Backend.Classes.Pathfinder import Pathfinder
@@ -57,10 +57,10 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        # db.drop_table("profile")
-        # db.drop_table("Grids")
-        # db.drop_table("Lists")
-        # db.drop_table("Log")
+        db.drop_table("profile")
+        db.drop_table("Grids")
+        db.drop_table("Lists")
+        db.drop_table("Log")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -150,15 +150,22 @@ class PiTech(QStackedWidget):
         self.pathfinder = Pathfinder(self.grid)
         self.update_grid_state_in_db(self.grid.get_grid(), True)
         balance_moves = self.pathfinder.balance()
-        completed_grid = balance_moves[-1][1]
-        outbound_manifest = self.create_outbound_manifest(completed_grid)
-        outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
-        self.db.update_by_id("Lists", "id", 1, {"OutboundManifest": outbound_manifest, "OutboundManifestName": outbound_manifest_name})
-        self.update_moves_in_db(balance_moves)
-        self.db.update_by_id("profile", "id", 1, {"currentTab": "Balance"})
-        self.operation_page_balance = OperationPage(self, "Balance")
-        self.addWidget(self.operation_page_balance)
-        self.setCurrentWidget(self.operation_page_balance)
+        if not balance_moves:
+            completed_grid = balance_moves[-1][1]
+            outbound_manifest = self.create_outbound_manifest(completed_grid)
+            outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
+            self.db.update_by_id("Lists", "id", 1, {"OutboundManifest": outbound_manifest, "OutboundManifestName": outbound_manifest_name})
+            self.update_moves_in_db(balance_moves)
+            self.db.update_by_id("profile", "id", 1, {"currentTab": "Balance"})
+            self.operation_page_balance = OperationPage(self, "Balance")
+            self.addWidget(self.operation_page_balance)
+            self.setCurrentWidget(self.operation_page_balance)
+        else:
+            QMessageBox.warning(
+                self,
+                "Error",
+                "Please submit a correct manifest!"
+            )
         return
 
     def update_moves_in_db(self, moves):
@@ -205,15 +212,22 @@ class PiTech(QStackedWidget):
         self.grid.setup_transferlist(transfer_data)
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
-        completed_grid = transfer_moves[-1][1]
-        outbound_manifest = self.create_outbound_manifest(completed_grid)
-        outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
-        self.db.update_by_id("Lists", "id", 1, {"OutboundManifest": outbound_manifest, "OutboundManifestName": outbound_manifest_name})
-        self.update_moves_in_db(transfer_moves)
-        self.db.update_by_id("profile", "id", 1, {"currentTab": "Transfer"})
-        self.operation_page_transfer = OperationPage(self, "Transfer")
-        self.addWidget(self.operation_page_transfer)
-        self.setCurrentWidget(self.operation_page_transfer)
+        if not transfer_moves:
+            completed_grid = transfer_moves[-1][1]
+            outbound_manifest = self.create_outbound_manifest(completed_grid)
+            outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
+            self.db.update_by_id("Lists", "id", 1, {"OutboundManifest": outbound_manifest, "OutboundManifestName": outbound_manifest_name})
+            self.update_moves_in_db(transfer_moves)
+            self.db.update_by_id("profile", "id", 1, {"currentTab": "Transfer"})
+            self.operation_page_transfer = OperationPage(self, "Transfer")
+            self.addWidget(self.operation_page_transfer)
+            self.setCurrentWidget(self.operation_page_transfer)
+        else:
+            QMessageBox.warning(
+                self,
+                "Error",
+                "Please submit a correct manifest!"
+            )
         return
 
     # Function that adds atomic events to log
