@@ -57,10 +57,10 @@ class PiTech(QStackedWidget):
         db = SQLiteDatabase(self.db_path)
 
         # For setting db up before final db structure
-        db.drop_table("profile")
-        db.drop_table("Grids")
-        db.drop_table("Lists")
-        db.drop_table("Log")
+        # db.drop_table("profile")
+        # db.drop_table("Grids")
+        # db.drop_table("Lists")
+        # db.drop_table("Log")
 
         db.create_table(
             "profile", "id INTEGER PRIMARY KEY, username TEXT, currentTab TEXT")
@@ -150,7 +150,7 @@ class PiTech(QStackedWidget):
         self.pathfinder = Pathfinder(self.grid)
         self.update_grid_state_in_db(self.grid.get_grid(), True)
         balance_moves = self.pathfinder.balance()
-        completed_grid = balance_moves[1][-1]
+        completed_grid = balance_moves[-1][1]
         outbound_manifest = self.create_outbound_manifest(completed_grid)
         outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
         self.db.update_by_id("Lists", "id", 1, {"OutboundManifest": outbound_manifest, "OutboundManifestName": outbound_manifest_name})
@@ -205,7 +205,7 @@ class PiTech(QStackedWidget):
         self.grid.setup_transferlist(transfer_data)
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
-        completed_grid = transfer_moves[1][-1]
+        completed_grid = transfer_moves[-1][1]
         outbound_manifest = self.create_outbound_manifest(completed_grid)
         outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
         self.db.update_by_id("Lists", "id", 1, {"OutboundManifest": outbound_manifest, "OutboundManifestName": outbound_manifest_name})

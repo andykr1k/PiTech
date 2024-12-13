@@ -32,8 +32,8 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-#### Close Virtual Environment
+### Run Platform
 
 ```
-deactivate
+python main.py
 ```

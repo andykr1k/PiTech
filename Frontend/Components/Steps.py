@@ -46,16 +46,17 @@ class Steps(QWidget):
 
         # Handles the fist step of the operation
         if self.current_step[0] == 1 and self.current_step[4] == "NOT STARTED":
-            steps_title = self.create_label("Steps", 20, bold=True)
+            steps_title = self.create_label(f"Steps Overview - {len(self.steps_list)} Steps", 20, bold=True)
             steps_layout.addWidget(steps_title)
             steps_widget = self.create_steps_widget(self.steps_list)
             steps_layout.addWidget(self.create_scroll_area(steps_widget))
             steps_layout.addItem(self.create_spacer())
-            steps_layout.addWidget(self.create_label(f"Total Time: {self.total_time}", 16, bold=True))
+            steps_layout.addWidget(self.create_label(f"Total Time: {self.total_time} minutes", 16, bold=True))
             steps_layout.addWidget(self.create_button("Start", self.start_button_clicked, "#6200EE", "#3700B3"))
         # Handles the rest of the steps of the operation
         else:
-            steps_title = self.create_label("Steps", 20, bold=True)
+            steps_title = self.create_label(
+                f"Steps - {self.current_step[0]}/{len(self.steps_list)}", 20, bold=True)
             steps_layout.addWidget(steps_title)
             self.parent.parent.update_current_step_in_db(self.current_step, "STARTED")
             steps_widget = self.create_steps_widget([self.current_step])

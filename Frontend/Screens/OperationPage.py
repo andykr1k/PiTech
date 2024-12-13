@@ -81,23 +81,37 @@ class OperationPage(QWidget):
 
     # Update the operations page with the latest grid state and steps list
     def update_operations_page(self):
+        # Update state
         self.grid_state = self.parse_grid_state(self.get_grid_state())
         self.steps_list = self.get_moves_list()
         self.steps_cost = self.get_total_moves_cost()
         self.current_step = self.get_current_step()
+        self.parent.update_current_step_in_db(self.current_step, "STARTED")
+        self.current_step = self.get_current_step()
 
+        # Remove and delete the current visual grid
         self.grid_layout.removeWidget(self.visual_grid)
         self.visual_grid.deleteLater()
 
-        self.grid = Grid(self, static=True, gridState=self.grid_state, current_move=self.current_step)
+        # Create and add the new visual grid
+        self.grid = Grid(self, static=True, gridState=self.grid_state,
+                        current_move=self.current_step)
         self.visual_grid = self.grid.visualizeGrid()
         self.grid_layout.addWidget(self.visual_grid)
 
+        # Update layout
+        self.grid_layout.update()
+        self.visual_grid.show()
+
+        # Remove and delete the current steps widget
         self.middle_section.removeWidget(self.steps_widget)
         self.steps_widget.deleteLater()
 
-        self.steps_widget = Steps(self.steps_list, self.current_step, self.steps_cost, self)
+        # Create and add the new steps widget
+        self.steps_widget = Steps(
+            self.steps_list, self.current_step, self.steps_cost, self)
         self.middle_section.addWidget(self.steps_widget)
 
+        # Ensure UI refresh
         self.update()
         self.repaint()

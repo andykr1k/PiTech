@@ -13,7 +13,7 @@ filename = "main.py"
 setup(
     name='PiTech',
     version='0.1',
-    description='Test',
+    description='PiTech Port Management Platform',
     options={'build_exe': {'excludes': excludes,
                            'packages': packages, 'includes': includes}},
     executables=[Executable(filename, base=base, icon=None)])
