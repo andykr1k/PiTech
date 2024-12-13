@@ -215,7 +215,7 @@ class PiTech(QStackedWidget):
         # Get current date
         current_date = QDate.currentDate().toString("yyyy-MM-dd")
         # Create timestamp with time and date in ISO format (excluding seconds and miliseconds)
-        timestamp = f"{current_date}: {current_time}"
+        timestamp = f"{current_date} {current_time}"
         # Insert atomic event into the log database
         self.db.insert("Log", "Time, Event", (timestamp, event_description))
 

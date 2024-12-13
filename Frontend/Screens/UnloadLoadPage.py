@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayo
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from Frontend.Components.Grid import Grid
+from functools import partial
 
 class UnloadLoadPage(QDialog):
     def __init__(self, parent):
@@ -10,13 +11,12 @@ class UnloadLoadPage(QDialog):
         self.parent = parent
         self.grid_state = self.parse_grid_state(self.get_grid_state())
         self.unload_load_list = []
-        self.is_load_page = False
         self.initUI()
 
     def initUI(self):
         main_layout = QVBoxLayout()
 
-        title_label = QLabel("Tap to Unload Container and Type to Load Containers")
+        title_label = QLabel("Tap to Unload and Type to Load")
         title_label.setFont(QFont("Arial", 28, QFont.Bold))
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("color: #2F27CE;")
@@ -37,11 +37,20 @@ class UnloadLoadPage(QDialog):
         main_layout.addLayout(unload_load_layout)
         confirm_button = QPushButton("Confirm")
         confirm_button.setStyleSheet("""
-            background-color: #3F51B5;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 4px;
-            font-weight: 600;
+            QPushButton {
+                background-color: #3F51B5;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #5C6BC0;
+            }
+            QPushButton:pressed {
+                background-color: #3949AB;
+            }
         """)
         confirm_button.clicked.connect(self.confirm_load_info)
         main_layout.addWidget(confirm_button)
@@ -68,35 +77,93 @@ class UnloadLoadPage(QDialog):
     def setup_load_page(self, layout):
         form_layout = QFormLayout()
 
+        input_style = """
+            QLineEdit {
+                background-color: #FFFFFF;
+                border: 1px solid #D1D1D1;
+                border-radius: 8px;
+                padding: 8px;
+                font-size: 14px;
+            }
+            QLineEdit:focus {
+                border: 1px solid #3F51B5;
+            }
+        """
+
         self.container_name_input = QLineEdit()
+        self.container_name_input.setPlaceholderText("Enter container name")
+        self.container_name_input.setStyleSheet(input_style)
+
         self.weight_input = QLineEdit()
+        self.weight_input.setPlaceholderText("Enter weight")
+        self.weight_input.setStyleSheet(input_style)
+
         self.quantity_input = QLineEdit()
+        self.quantity_input.setPlaceholderText("Enter quantity")
+        self.quantity_input.setStyleSheet(input_style)
 
-        form_layout.addRow("Container Name:", self.container_name_input)
-        form_layout.addRow("Weight:", self.weight_input)
-        form_layout.addRow("Quantity:", self.quantity_input)
+        form_layout.addRow(self.create_label("Container Name"), self.container_name_input)
+        form_layout.addRow(self.create_label("Weight"), self.weight_input)
+        form_layout.addRow(self.create_label("Quantity"), self.quantity_input)
 
-        submit_button = QPushButton("Submit")
+        submit_button = QPushButton("Add Container(s)")
         submit_button.setStyleSheet("""
-            background-color: #3F51B5;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 4px;
-            font-weight: 600;
+            QPushButton {
+                background-color: #3F51B5;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #5C6BC0;
+            }
+            QPushButton:pressed {
+                background-color: #3949AB;
+            }
         """)
         submit_button.clicked.connect(self.submit_load_info)
-
 
         layout.addLayout(form_layout)
         layout.addWidget(submit_button)
 
         self.container_list_layout = QVBoxLayout()
         self.scroll_area = QScrollArea()
+        self.scroll_area.setStyleSheet("""
+            QScrollArea {
+                border: none;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #F0F0F0;
+                width: 8px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #3F51B5;
+                border-radius: 4px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                background: none;
+            }
+        """)
         self.scroll_widget = QWidget()
         self.scroll_widget.setLayout(self.container_list_layout)
         self.scroll_area.setWidget(self.scroll_widget)
         self.scroll_area.setWidgetResizable(True)
         layout.addWidget(self.scroll_area)
+
+    def create_label(self, text):
+        label = QLabel(text)
+        label.setStyleSheet("""
+            font-size: 12px;
+            font-weight: bold;
+            color: #3F51B5;
+            margin-bottom: 5px;
+        """)
+        return label
+
 
     def submit_load_info(self):
         container_name = self.container_name_input.text().strip()
@@ -130,25 +197,67 @@ class UnloadLoadPage(QDialog):
         self.parent.db.update_by_id("Lists", "id", 1, {"UnloadLoadList": str(self.unload_load_list)})
 
     def update_container_list_display(self):
-        for i in reversed(range(self.container_list_layout.count())):
-            widget = self.container_list_layout.itemAt(i).widget()
+        print("Updated Container List:", self.unload_load_list)
+
+        while self.container_list_layout.count():
+            item = self.container_list_layout.takeAt(0)
+            widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
 
         for container in self.unload_load_list:
             container_widget = QHBoxLayout()
+            container_widget.setContentsMargins(10, 5, 10, 5)
+            container_widget.setSpacing(15)
+
             container_label = QLabel(container)
-            remove_button = QPushButton("X")
-            remove_button.setStyleSheet("background-color: red; color: white;")
-            remove_button.clicked.connect(lambda container=container: self.remove_container(container))
+            container_label.setStyleSheet("""
+                font-size: 16px;
+                font-weight: bold;
+                border: none;
+                color: #333;
+            """)
             container_widget.addWidget(container_label)
+
+            remove_button = QPushButton("Remove")
+            remove_button.setStyleSheet("""
+                QPushButton {
+                    background-color: #FF5252;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #FF1744;
+                }
+                QPushButton:pressed {
+                    background-color: #D50000;
+                }
+            """)
+            remove_button.clicked.connect(partial(self.remove_container, container))
             container_widget.addWidget(remove_button)
 
-            self.container_list_layout.addLayout(container_widget)
+            container_frame = QFrame()
+            container_frame.setLayout(container_widget)
+            container_frame.setStyleSheet("""
+                QFrame {
+                    background-color: #F7F7F7;
+                    border: 1px solid #E0E0E0;
+                    border-radius: 8px;
+                    padding: 5px;
+                    max-height: 40px
+                }
+            """)
+            self.container_list_layout.addWidget(container_frame)
+
+
 
     def remove_container(self, container):
-        self.unload_load_list.remove(container)
-        self.update_container_list_display()
+        if container in self.unload_load_list:
+            self.unload_load_list.remove(container)
+            self.update_container_list_display()
 
     def center(self):
         screen_geometry = self.screen().geometry()

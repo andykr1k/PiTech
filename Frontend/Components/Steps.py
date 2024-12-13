@@ -118,10 +118,10 @@ class Steps(QWidget):
             pos1 = self.correct_moves(step[1])
             pos2 = self.correct_moves(step[2])
             time = step[3]
-            if (pos1 == "truck" and pos2 == "crane"):
-                label = f"Move crane from {pos1} to original crane position (8,0) in {time} minutes."
+            if (pos2 == "(8, 0)"):
+                label = f"Move crane from position {pos1} to position (8, 0), Time estimation: {time} minutes"
             else:
-                label = f"Move container from {pos1} to {pos2} in {time} minutes."
+                label = f"Move container from position {pos1} to position {pos2}, Time estimation: {time} minutes"
             layout.addWidget(self.create_label(label, 14))
         return widget
 
@@ -170,6 +170,8 @@ class Steps(QWidget):
         self.parent.parent.db.drop_table("Lists")
         self.parent.parent.db.create_table(
             "Lists", "id INTEGER PRIMARY KEY, UnloadLoadList TEXT, Manifest TEXT, ManifestName TEXT, OutboundManifest TEXT, OutboundManifestName TEXT")
+        if not self.parent.parent.db.fetch_one("Lists", "1=1"):
+            self.parent.parent.db.insert("Lists", "UnloadLoadList", ("NAN",))
         self.parent.parent.home_page.header.resetManifest()
         self.parent.parent.setCurrentIndex(1)
 
@@ -179,9 +181,9 @@ class Steps(QWidget):
             # y = parsedLine[0][1]
             # x = parsedLine[0][2]
             # return f"({x},{y})"
-            return string
+            return string.replace(",", ", ")
         else:
             if string == "(-1,-1)":
                 return "truck"
             else:
-                return "crane"
+                return "(8, 0)"

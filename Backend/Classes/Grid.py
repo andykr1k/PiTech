@@ -432,19 +432,19 @@ class Grid:
             elif pos2.position == (8, 0):
                 return 2
             else:
-                return 2 + self.calculate_path_cost(pos2, Slot(grid_id="Main_Grid", position=(8, 0)))
+                return self.calculate_path_cost(pos2, Slot(grid_id="Main_Grid", position=(8, 0)))
         elif pos1.position == (8, 0):
             if pos2.position == (8,0):
                 return 0
             elif pos2.position == (-1,-1):
                 return 2
             else:
-                return 2 + self.calculate_path_cost(pos2, Slot(grid_id="Main_Grid", position=(8, 0)))
+                return self.calculate_path_cost(pos2, Slot(grid_id="Main_Grid", position=(8, 0)))
         else:
             if pos2.position == (8, 0):
                 return self.calculate_path_cost(pos1, pos2)
             elif pos2.position == (-1,-1):
-                return 2 + self.calculate_path_cost(pos1, Slot(grid_id="Main_Grid", position=(8, 0)))
+                return self.calculate_path_cost(pos1, Slot(grid_id="Main_Grid", position=(8, 0)))
             else:
                 return self.calculate_path_cost(pos1, pos2)
 

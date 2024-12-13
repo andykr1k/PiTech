@@ -42,8 +42,8 @@ class Pathfinder():
                     #print(f'child_state {child_state}, move {move}')
                     if child_state not in self.closed_set:
                         new_f_cost = f_cost
-                        crane_to_start_cost = state.calculate_path_cost(Slot(grid_id="Main_Grid", position=(8, 0)), move.from_slot)
-                        move_cost = state.calculate_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
+                        crane_to_start_cost = state.calculate_transfer_path_cost(Slot(grid_id="Main_Grid", position=state.crane_position), Slot(grid_id="Main_Grid", position=move.from_slot.position))
+                        move_cost = state.calculate_transfer_path_cost(Slot(grid_id="Main_Grid", position=move.from_slot.position), Slot(grid_id="Main_Grid", position=move.to_slot.position))
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
                         #new_g_cost = g_cost + move.get_cost(child_state)
                         h_cost = self.balance_heuristic(child_state)
