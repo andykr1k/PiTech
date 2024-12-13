@@ -156,10 +156,8 @@ class Steps(QWidget):
     # Enables the "Done" button if successful
     def download_outbound_clicked(self):
         list_object = self.parent.parent.db.fetch_one("Lists", "id = ?", params=(1,))
-        # manifest = list_object[5]
-        # manifest_name = list_object[6]
-        manifest = "Manifest Content"
-        manifest_name = "OutboundManifestName.txt"
+        manifest = list_object[4]
+        manifest_name = list_object[5]
 
         options = QFileDialog.Options()
         save_path, _ = QFileDialog.getSaveFileName(

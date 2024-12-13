@@ -152,9 +152,8 @@ class PiTech(QStackedWidget):
         balance_moves = self.pathfinder.balance()
         completed_grid = balance_moves[1][-1]
         outbound_manifest = self.create_outbound_manifest(completed_grid)
-
-        print(outbound_manifest)
-        outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3] + "OUTBOUND"
+        outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
+        self.db.update_by_id("Lists", "id", 1, {"OutboundManifest": outbound_manifest, "OutboundManifestName": outbound_manifest_name})
         self.update_moves_in_db(balance_moves)
         self.db.update_by_id("profile", "id", 1, {"currentTab": "Balance"})
         self.operation_page_balance = OperationPage(self, "Balance")
@@ -206,6 +205,10 @@ class PiTech(QStackedWidget):
         self.grid.setup_transferlist(transfer_data)
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
+        completed_grid = transfer_moves[1][-1]
+        outbound_manifest = self.create_outbound_manifest(completed_grid)
+        outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
+        self.db.update_by_id("Lists", "id", 1, {"OutboundManifest": outbound_manifest, "OutboundManifestName": outbound_manifest_name})
         self.update_moves_in_db(transfer_moves)
         self.db.update_by_id("profile", "id", 1, {"currentTab": "Transfer"})
         self.operation_page_transfer = OperationPage(self, "Transfer")
@@ -252,9 +255,7 @@ class PiTech(QStackedWidget):
         event.accept()
 
     def create_outbound_manifest(self, grid):
-            
             manifest = ""
-            print(f'final grid: {grid}')
             for row in range(grid.rows):
                 for col in range(grid.columns):
                     position = f"[{str(row+1).zfill(2)},{str(col+1).zfill(2)}]"
