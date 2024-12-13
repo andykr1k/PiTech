@@ -195,9 +195,11 @@ class Pathfinder():
             total_cost, path_cost, path, state, buffer_grid = heapq.heappop(self.open_set)
 
             if self.check_grid_equality(state, goal_ship_grid):
-                print(f"Goal reached with cost {total_cost}")
-                return path
-            
+                current_grid = self.start_state
+                path_with_intermediate_grids = self.reconstruct_grids_from_path(current_grid, path)
+                print(f'path w grid: {path_with_intermediate_grids}')
+                return path_with_intermediate_grids
+
             if (state, buffer_grid) not in self.closed_set:
                 self.closed_set.add((state, buffer_grid))
                 for child_state, child_buffer, move in state.getPossibleStatesMoves(buffer_grid):

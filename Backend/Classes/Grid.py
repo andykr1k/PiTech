@@ -94,7 +94,7 @@ class Grid:
         # print(f"Balance range: {lower_bound} kg - {upper_bound} kg")
         self.goal_weight = (lower_bound, upper_bound)
 
-        print(f'lower_bound {lower_bound}, left_weight {self.left_weight}, upper_bound {upper_bound}, right_weight {self.right_weight}')
+        # print(f'lower_bound {lower_bound}, left_weight {self.left_weight}, upper_bound {upper_bound}, right_weight {self.right_weight}')
         return lower_bound <= self.left_weight <= upper_bound
 
     def get_weightlist(self):
@@ -382,7 +382,7 @@ class Grid:
         self.unload_list.remove(container)
     
     def calculate_path_cost(self, pos1, pos2):
-        print(pos1, pos2)
+        # print(pos1, pos2)
         current_row = pos1.position[0]
         current_col = pos1.position[1]
         target_row = pos2.position[0]
@@ -451,10 +451,10 @@ class Grid:
     def setup_transferlist(self, transfer_list):
         # Assume valid transfer list
         for command in transfer_list:
-            print(command)
+            # print(command)
             parts = command.strip().split(',')
             operation = parts[0]
-            print(operation)
+            # print(operation)
             if operation == 'load':
                 name = parts[1]
                 weight = int(parts[2])
@@ -496,7 +496,7 @@ class Grid:
             #name, weight = self.load_list[0]  # Pick the first item to load
             valid_slots = self.get_valid_slots_position_for_loading()  # Find all valid slots
             for target_position in valid_slots:
-                print(type(target_position))
+                # print(type(target_position))
                 move = Movement(from_slot=Slot(grid_id="Main_Grid", position=(-1,-1)), to_slot=Slot(grid_id="Main_Grid", position=target_position))
                 possible_moves.append(move)
 
