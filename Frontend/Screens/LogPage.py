@@ -85,6 +85,7 @@ class LogPage(QDialog):
         self.timer.timeout.connect(self.refresh_logs)
         self.timer.start(500)  # Refresh frequently
 
+    # Center log page on users screen
     def center(self):
         screen_geometry = self.screen().geometry()
         dialog_geometry = self.geometry()
@@ -92,10 +93,15 @@ class LogPage(QDialog):
         y = (screen_geometry.height() - dialog_geometry.height()) // 2
         self.move(x, y)
 
+    # Enables user to add comment
     def addComment(self):
+        # Get current username
         username = self.getUsername()
+        # Define text for comment
         text = self.commentInput.text().strip()
+        # Push comment with username to log database
         self.parent.add_log_entry(f"{username} comments: {text}")
+        # Clear comment box after comment is pushed to log database
         self.clearCommentInput()
 
     # Refresh the log page to display updated log database
@@ -105,6 +111,7 @@ class LogPage(QDialog):
         # Display log database on log page
         self.logDisplay.setText("\n".join(logs))
 
+    # Clear comment box
     def clearCommentInput(self):
         self.commentInput.clear()
 
