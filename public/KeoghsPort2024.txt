@@ -1,7 +1,12 @@
-2024-12-13 10:57: Andy signed in
-2024-12-13 10:58: Andy uploaded ShipCase6.txt
-2024-12-13 10:58: Transfer Operation Selected
-2024-12-13 10:59: Operation Completed
-2024-12-13 10:59: Andy uploaded ShipCase6.txt
-2024-12-13 10:59: Balance Operation Selected
-2024-12-13 10:59: Operation Completed
+2024-12-13 11:55: Andy signed in
+2024-12-13 11:55: Andy uploaded ShipCase6.txt
+2024-12-13 11:55: Transfer Operation Selected
+2024-12-13 11:56: Operation Completed
+2024-12-13 11:56: Andy uploaded ShipCase6.txt
+2024-12-13 11:56: Balance Operation Selected
+2024-12-13 11:56: Application Closed by Andy
+2024-12-13 11:56: Operation Completed
+2024-12-13 11:57: Andy comments: Hello this log is cool!
+2024-12-13 11:57: Andy downloaded KeoghsPort2024.txt
+2024-12-13 11:57: Andy signed out
+2024-12-13 11:57: Omar signed in

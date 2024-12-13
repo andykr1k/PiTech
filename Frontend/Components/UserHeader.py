@@ -62,7 +62,7 @@ class UserHeader(QWidget):
         log_button.clicked.connect(self.goToLog)
         layout.addWidget(log_button)
 
-        sign_out_button = QPushButton("Sign out")
+        sign_out_button = QPushButton("Sign In")
         sign_out_button.setFont(QFont("Roboto", 14))
         sign_out_button.setStyleSheet("""
             background-color: #3F51B5;
@@ -73,6 +73,18 @@ class UserHeader(QWidget):
         """)
         sign_out_button.clicked.connect(self.signOut)
         layout.addWidget(sign_out_button)
+
+        close_year_button = QPushButton("Close Down")
+        close_year_button.setFont(QFont("Roboto", 14))
+        close_year_button.setStyleSheet("""
+            background-color: #3F51B5;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+        """)
+        close_year_button.clicked.connect(self.signOut)
+        layout.addWidget(close_year_button)
 
         self.setLayout(layout)
 
