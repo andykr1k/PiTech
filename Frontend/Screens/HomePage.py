@@ -31,6 +31,7 @@ class HomePage(QWidget):
             border-radius: 8px;
             font-weight: 600;
         """)
+        self.transfer_button.setEnabled(False)
         center_layout.addWidget(self.transfer_button)
 
         self.balance_button = QPushButton("Balance")
@@ -42,6 +43,7 @@ class HomePage(QWidget):
             border-radius: 8px;
             font-weight: 600;
         """)
+        self.balance_button.setEnabled(False)
 
         center_layout.addWidget(self.balance_button)
 
@@ -67,6 +69,8 @@ class HomePage(QWidget):
                 border-radius: 8px;
                 font-weight: 600;
             """)
+            self.transfer_button.setEnabled(True)
+            self.balance_button.setEnabled(True)
         else:
             self.transfer_button.setStyleSheet("""
                 background-color: #e8ebf7;
@@ -82,3 +86,5 @@ class HomePage(QWidget):
                 border-radius: 8px;
                 font-weight: 600;
             """)
+            self.transfer_button.setEnabled(False)
+            self.balance_button.setEnabled(False)
