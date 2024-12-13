@@ -45,7 +45,6 @@ class Pathfinder():
                         crane_to_start_cost = state.calculate_path_cost(state.crane_position, move.from_slot)
                         move_cost = state.calculate_path_cost(move.from_slot, move.to_slot)
                         new_g_cost = g_cost + crane_to_start_cost + move_cost
-                        #new_g_cost = g_cost + move.get_cost(child_state)
                         
                         h_cost = self.balance_heuristic(child_state)
                         new_f_cost += new_g_cost + h_cost
@@ -63,14 +62,19 @@ class Pathfinder():
         #return abs(left_w - right_w)
 
         best_heuristic_value = float('inf')
-        for goal_combination in self.valid_combinations:
+        combinations_to_consider = self.valid_combinations[:4]
+        for goal_combination in combinations_to_consider:
             heuristic_value = self.calculate_distance_heuristic(state, goal_combination)
             best_heuristic_value = min(best_heuristic_value, heuristic_value)
         
         return best_heuristic_value
     
     def reconstruct_grids_from_path(self, current_grid, path):
-
+        
+        if not path:
+            print("Path is empty. Cannot reconstruct grids.")
+            return 0
+        
         moves_intermediate_grids = []
         grid_copy = copy.deepcopy(current_grid)
 
@@ -93,40 +97,27 @@ class Pathfinder():
         return (moves_intermediate_grids)
     
     def calculate_distance_heuristic(self, state, goal_combination):
-       
-        side_a_weights, side_b_weights = set(goal_combination[0]), set(goal_combination[1])
+        side_a_weights = set(goal_combination[0])  
 
-        distance_1 = 0   
-        distance_2 = 0
+        total_distance = 0
         
+        # Check containers on the left side
         for container in state.left_containers:
             if container.weight not in side_a_weights:
                 row, col = container.get_position()
-                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'right')
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col, 'right')
                 if target_position:
-                    distance_1 += min_distance
-        for container in state.right_containers:
-            if container.weight not in side_b_weights:
-                row, col = container.get_position()
-                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
-                if target_position:
-                    distance_1 += min_distance
+                    total_distance += min_distance
         
-        for container in state.left_containers:
-            if container.weight not in side_b_weights:
-                row, col = container.get_position()
-                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'right')
-                if target_position:
-                    distance_2 += min_distance
+        # Check containers on the right side to move to the left
         for container in state.right_containers:
-            if container.weight not in side_a_weights:
+            if container.weight in side_a_weights:  
                 row, col = container.get_position()
-                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col , 'left')
+                target_position, min_distance = state.get_nearest_slot_on_other_side(row, col, 'left')
                 if target_position:
-                    distance_2 += min_distance
-           
+                    total_distance += min_distance
 
-        return min(distance_1, distance_2)
+        return total_distance
      
     def can_balance(self, state):
         
@@ -173,7 +164,7 @@ class Pathfinder():
                 if pair not in used_combinations:
                     self.valid_combinations.append((list(combination), list(side_b)))
                     used_combinations.add(pair)
-            #print(f"Balanceable! Combinations: {self.valid_combinations}")
+                    
             return can_balance
         
         else:
@@ -315,7 +306,6 @@ class Pathfinder():
     
     def transfer_helper(self):
         
-        i = 0
         while self.open_set:
             f_cost, g_cost, path,_, state = heapq.heappop(self.open_set)
               

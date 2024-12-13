@@ -66,7 +66,7 @@ def test_balancing_move_prints(shipcase, pathfinder, capsys):
         with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
             balance_moves = pathfinder.balance()
             for move in balance_moves:
-                print(move) 
+                print(move[0]) 
 
             output = mock_stdout.getvalue()
 

@@ -119,9 +119,9 @@ class Grid:
         from_slot = self.get_slot(pos1[0], pos1[1])
         to_slot = self.get_slot(pos2[0], pos2[1])
         container = from_slot.get_container()
-        if from_slot.get_position() == (7,11): # without this line the reconstruct_grids function will crash whenever there's a move from truck
-            self.load_container(pos2)
-            return
+        #if from_slot.get_position() == (7,11): # without this line the reconstruct_grids function will crash whenever there's a move from truck
+        #    self.load_container(pos2)
+        #    return
 
         name = container.get_name()
         weight = container.get_weight()
@@ -401,7 +401,7 @@ class Grid:
             print(command)
             parts = command.strip().split(',')
             operation = parts[0]
-            print(operation)
+            #print(operation)
             if operation == 'load':
                 name = parts[1]
                 weight = int(parts[2])

@@ -1,6 +1,7 @@
 from Backend.Classes.Grid import Grid
 from Backend.Utilities.Utils import upload_manifest, upload_transfer_list
 from Backend.Classes.Pathfinder import Pathfinder
+import time 
 
 def main():
     while True:
@@ -20,15 +21,23 @@ def main():
         manifest_data = upload_manifest(manifest_name)
         
         if job_choice == '1':  # Balancing job
+            
             new_grid = Grid()
             new_grid.setup_grid(manifest_data)
             pathfinder = Pathfinder(new_grid)
             
             print(f"Balancing job selected for {manifest_name}.")
+            start_time = time.time()
+            
             balance_moves = pathfinder.balance()
+            
+            end_time = time.time()
+            cost_time = end_time - start_time
+            
             print('Balance Moves:')
             for move in balance_moves:
                 print(move[0])
+            print(f"\nBalancing completed in {cost_time:.1f} seconds.")
             
         elif job_choice == '2':  # Transferring job
             # Load transfer list for the current case (Case1, Case2, ...)
