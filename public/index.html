@@ -24,27 +24,45 @@
         color: blue;
         text-decoration: underline;
       }
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        gap: 10px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 1.5em;
+      }
+      .header h3 {
+        margin: 0;
+        font-size: 1em;
+        color: #555;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1><strong>Team PiTech</strong></h1>
+      <div class="header">
+        <h1><strong>Team PiTech</strong></h1>
+        <h3>(This webpage was last edited on 12-13-2024)</h3>
+      </div>
       <ul class="authors">
-        <strong>Cristian Arauz</strong>, carau013@ucr.edu<br />
-        <strong>Raul Razo</strong>, rrazo004@ucr.edu<br />
-        <strong>Andrew Krikorian</strong>, akrik001@ucr.edu<br />
-        <strong>Omar Nosseir</strong>, onoss001@ucr.edu<br />
-        <strong>Isabel Chen</strong>, isabel.chen@email.ucr.edu
+        <strong>Cristian Arauz</strong
+        >, carau013@ucr.edu<br />
+        <strong>Raul Razo</strong
+        >, rrazo004@ucr.edu<br />
+        <strong>Andrew Krikorian</strong
+        >, akrik001@ucr.edu<br />
+        <strong>Omar Nosseir</strong
+        >, onoss001@ucr.edu<br />
+        <strong>Isabel Chen</strong
+        >, isabel.chen@email.ucr.edu
       </ul>
       <ol>
         <li>
           This file
-          <a
-            target="_blank"
-            href="PiTech.pdf"
-            class="blue-link"
-            >PiTech.pdf</a
-          >
+          <a target="_blank" href="PiTech.pdf" class="blue-link">PiTech.pdf</a>
           contains evidence of our efforts to plan our elicitation of
           requirements from Mr. Keogh, and any notes taken during the
           elicitation.
@@ -57,8 +75,8 @@
             class="blue-link"
             >PiTechProjectPitchORIGINAL.pdf</a
           >
-          contains our original pitch to Mr. Keogh, which was delivered on October
-          30th, 2024, at 5:00pm.
+          contains our original pitch to Mr. Keogh, which was delivered on
+          October 30th, 2024, at 5:00pm.
         </li>
         <li>
           This file
@@ -85,10 +103,7 @@
             class="blue-link"
             >FiniteStateMachine Lucid Chart</a
           >, and
-          <a
-            target="_blank"
-            href="PiTechDesign.pdf"
-            class="blue-link"
+          <a target="_blank" href="PiTechDesign.pdf" class="blue-link"
             >PiTechSearchAlgorithmDesign.pdf</a
           >
           shows evidence of our efforts to design our software.
@@ -100,13 +115,11 @@
             href="https://github.com/andykr1k/PiTech/tree/main/Tests"
             class="blue-link"
             >Github/Testing</a
-          > and
-          <a
-          target="_blank"
-          href="PiTechTesting.pdf"
-          class="blue-link"
-          >Testing Google Document</a
-        >
+          >
+          and
+          <a target="_blank" href="PiTechTesting.pdf" class="blue-link"
+            >Testing Google Document</a
+          >
           points to evidence of our efforts to test our software.
         </li>
         <li>
@@ -120,13 +133,21 @@
           points to a GitHub repository of our code.
         </li>
         <li>
-          This <a target="_blank" href="https://youtu.be/EJ_PUeKlsRY" class="blue-link">YouTube video</a>,
-          that shows our software solving one balance, and one transfer test
-          case, simulating a power shutoff, employee shift change and close down for year.
+          This
+          <a
+            target="_blank"
+            href="https://youtu.be/EJ_PUeKlsRY"
+            class="blue-link"
+            >YouTube video</a
+          >, that shows our software solving one balance, and one transfer test
+          case, simulating a power shutoff, employee shift change and close down
+          for year.
         </li>
         <li>
           This text file, is the
-          <a target="_blank" href="KeoghsPort2024.txt" class="blue-link">KeoghsPort2024.txt</a>
+          <a target="_blank" href="KeoghsPort2024.txt" class="blue-link"
+            >KeoghsPort2024.txt</a
+          >
           log that was created by our software, during the making of the YouTube
           video in the previous bullet point.
         </li>
@@ -136,33 +157,56 @@
         <strong>We would like to point out the following limitations:</strong>
       </p>
       <ul>
-        <li>Processing time increases significantly when balancing/transferring ships with >30 containers</li>
-        <li>SIFT takes a significant amount of processing times for ships with more than 8 containers</li>
-        <li>Manifest Upload is not automatically asked for but is forced in the home page</li>
+        <li>
+          Processing time increases significantly when balancing/transferring
+          ships with >30 containers
+        </li>
+        <li>
+          SIFT takes a significant amount of processing times for ships with
+          more than 8 containers
+        </li>
+        <li>
+          Manifest Upload is not automatically asked for but is forced in the
+          home page
+        </li>
         <li>Language selector was not implemened</li>
       </ul>
       <p>
         <strong>We would like to also provide additional resources:</strong>
       </p>
       <ul>
-        <li>This file <a
+        <li>
+          This file
+          <a
             target="_blank"
             href="BalanceShipCase6OUTBOUND.txt"
             class="blue-link"
             >ShipCase6OUTBOUND.txt</a
-          > points to our outbound manifest after running balance in our demo video.</li>
-          <li>This file <a
+          >
+          points to our outbound manifest after running balance in our demo
+          video.
+        </li>
+        <li>
+          This file
+          <a
             target="_blank"
             href="TransferShipCase6OUTBOUND.txt"
             class="blue-link"
             >ShipCase6OUTBOUND.txt</a
-          > points to our outbound manifest after running transefer in our demo video.</li>
-        <li>This <a
+          >
+          points to our outbound manifest after running transefer in our demo
+          video.
+        </li>
+        <li>
+          This
+          <a
             target="_blank"
             href="https://github.com/andykr1k/PiTech/blob/main/README.md"
             class="blue-link"
             >Github Link</a
-          > points to our README for instructions on how to run our platform.</li>
+          >
+          points to our README for instructions on how to run our platform.
+        </li>
       </ul>
     </div>
   </body>
