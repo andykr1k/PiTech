@@ -5,11 +5,12 @@ from PyQt5.QtGui import QFont
 from Frontend.Screens.LogPage import LogPage
 
 class UserHeader(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent, homepage=None):
         super().__init__()
         self.parent = parent
         self.username = self.getUsername()
         self.manifest, self.manifest_name = self.getManifestData()
+        self.home_page = homepage
         self.initUI()
 
     def initUI(self):
@@ -101,6 +102,7 @@ class UserHeader(QWidget):
         self.manifest = None
         self.manifest_name = None
         self.upload_button.setText("Upload Manifest")
+        self.home_page.updateButtons(0)
 
     def goToLog(self):
         log = LogPage(self.parent)
@@ -128,6 +130,8 @@ class UserHeader(QWidget):
                 print(f"Manifest file selected: {file_name}")
                 self.parent.add_log_entry(f"{username} uploaded {file_name}")
                 print(f"Manifest data saved to the database.")
+                if self.home_page is not None:
+                    self.home_page.updateButtons(1)
             except Exception as e:
                 print(f"Error reading or processing the file: {e}")
 
