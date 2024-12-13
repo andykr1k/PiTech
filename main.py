@@ -150,7 +150,7 @@ class PiTech(QStackedWidget):
         self.pathfinder = Pathfinder(self.grid)
         self.update_grid_state_in_db(self.grid.get_grid(), True)
         balance_moves = self.pathfinder.balance()
-        if not balance_moves:
+        if balance_moves[0]:
             completed_grid = balance_moves[-1][1]
             outbound_manifest = self.create_outbound_manifest(completed_grid)
             outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
@@ -212,7 +212,7 @@ class PiTech(QStackedWidget):
         self.grid.setup_transferlist(transfer_data)
         self.pathfinder = Pathfinder(self.grid)
         transfer_moves = self.pathfinder.transfer()
-        if not transfer_moves:
+        if transfer_moves[0]:
             completed_grid = transfer_moves[-1][1]
             outbound_manifest = self.create_outbound_manifest(completed_grid)
             outbound_manifest_name = self.db.fetch_one("Lists", "id = ?", params=(1,))[3].replace(".txt", "OUTBOUND.txt")
