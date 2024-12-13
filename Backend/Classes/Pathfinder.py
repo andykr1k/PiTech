@@ -379,14 +379,25 @@ class Pathfinder():
         #left_w, right_w, total_w = state.get_weights()
         #return abs(left_w - right_w)
 
-        best_heuristic_value = float('inf')
-        for goal_combination in self.valid_combinations:
-            heuristic_value = self.calculate_distance_heuristic(state, goal_combination)
-            best_heuristic_value = min(best_heuristic_value, heuristic_value)
-        
-        return best_heuristic_value
-    
-        
+        grid_copy = copy.deepcopy(state)  # Create a deep copy of the state
+
+        load_cost = 0
+        unload_cost = 0
+
+        while grid_copy.load_list:
+            pos_1 = (8, 0)
+            min_distance, to_slot = grid_copy.get_distance_to_nearest_available_slot(pos_1)
+            load_cost += min_distance
+            grid_copy.load_container(to_slot)
+
+
+        for container in grid_copy.unload_list:
+            unload_cost += (8 - container.row) + container.col
+
+        cost = 0.5*load_cost + unload_cost
+        return cost
+
+
     def get_containers(self, grid):
         #containers = grid.left_containers.union(grid.right_containers)
         containers = []
