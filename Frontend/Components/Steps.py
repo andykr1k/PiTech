@@ -115,7 +115,13 @@ class Steps(QWidget):
         layout.setAlignment(Qt.AlignTop)
 
         for step in steps:
-            label = f"Move container from {self.correct_moves(step[1])} to {self.correct_moves(step[2])} in {step[3]} minutes."
+            pos1 = self.correct_moves(step[1])
+            pos2 = self.correct_moves(step[2])
+            time = step[3]
+            if (pos1 == "truck" and pos2 == "crane"):
+                label = f"Move crane from {pos1} to original crane position (8,0) in {time} minutes."
+            else:
+                label = f"Move container from {pos1} to {pos2} in {time} minutes."
             layout.addWidget(self.create_label(label, 14))
         return widget
 
@@ -169,10 +175,11 @@ class Steps(QWidget):
 
     def correct_moves(self, string):
         if string not in ["(-1,-1)", "(8,0)", "(4,0)"]:
-            parsedLine = re.findall(r'((\d+),(\d+))', string)
-            y = parsedLine[0][1]
-            x = parsedLine[0][2]
-            return f"({x},{y})"
+            # parsedLine = re.findall(r'((\d+),(\d+))', string)
+            # y = parsedLine[0][1]
+            # x = parsedLine[0][2]
+            # return f"({x},{y})"
+            return string
         else:
             if string == "(-1,-1)":
                 return "truck"

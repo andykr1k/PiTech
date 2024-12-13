@@ -380,7 +380,7 @@ class Grid:
         self.unload_list.remove(container)
     
     def calculate_path_cost(self, pos1, pos2):
-        
+        print(pos1, pos2)
         current_row = pos1.position[0]
         current_col = pos1.position[1]
         target_row = pos2.position[0]
@@ -421,21 +421,31 @@ class Grid:
             current_row -= 1
             distance += 1
 
-        return distance                       
-    
-    def calulate_transfer_path_cost(self, pos1, pos2):
-        
+        return distance
+
+    def calculate_transfer_path_cost(self, pos1, pos2):
         if pos1.position == (-1,-1):
             if pos2.position == (-1,-1):
                 return 0
+            elif pos2.position == (8, 0):
+                return 2
             else:
-                return 2 + self.calculate_path_cost((self.rows, 0), pos2)
-        
-        if pos2.position == (-1,-1):
-            return self.calculate_path_cost(pos1, Slot(grid_id=pos1.get_grid_id(), position=self.crane_position)) + 2
+                return 2 + self.calculate_path_cost(pos2, Slot(grid_id="Main_Grid", position=(8, 0)))
+        elif pos1.position == (8, 0):
+            if pos2.position == (8,0):
+                return 0
+            elif pos2.position == (-1,-1):
+                return 2
+            else:
+                return 2 + self.calculate_path_cost(pos2, Slot(grid_id="Main_Grid", position=(8, 0)))
+        else:
+            if pos2.position == (8, 0):
+                return self.calculate_path_cost(pos1, pos2)
+            elif pos2.position == (-1,-1):
+                return 2 + self.calculate_path_cost(pos1, Slot(grid_id="Main_Grid", position=(8, 0)))
+            else:
+                return self.calculate_path_cost(pos1, pos2)
 
-        return self.calculate_path_cost(pos1, pos2)
-        
     def setup_transferlist(self, transfer_list):
         # Assume valid transfer list
         for command in transfer_list:
@@ -484,6 +494,7 @@ class Grid:
             #name, weight = self.load_list[0]  # Pick the first item to load
             valid_slots = self.get_valid_slots_position_for_loading()  # Find all valid slots
             for target_position in valid_slots:
+                print(type(target_position))
                 move = Movement(from_slot=Slot(grid_id="Main_Grid", position=(-1,-1)), to_slot=Slot(grid_id="Main_Grid", position=target_position))
                 possible_moves.append(move)
 
@@ -498,7 +509,7 @@ class Grid:
                     valid_slots = self.get_valid_slots_position(pos1)
                     for pos2 in valid_slots:
                         # Generate a single move to remove the topmost blocker
-                        move = Movement(from_slot=Slot(grid_id="Main_Grid", position=pos1),to_slot=Slot(grid_id="Main_Grid", position=pos2))
+                        move = Movement(from_slot=Slot(grid_id="Main_Grid", position=pos1),to_slot=pos2)
                         possible_moves.append(move)
 
         return possible_moves
