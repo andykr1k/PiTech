@@ -81,7 +81,7 @@ class UserHeader(QWidget):
 
     def signOut(self):
         username = self.getUsername()
-        self.parent.add_log_entry(f"{username} signs out")
+        self.parent.add_log_entry(f"{username} signed out")
         self.parent.sign_in_page.clearUsernameInput()
         self.parent.db.update_by_id("profile", "id", 1, {"username": "Default", "currentTab": "SignIn"})
         self.parent.setCurrentIndex(0)
@@ -96,6 +96,11 @@ class UserHeader(QWidget):
     def getManifestData(self):
         data, name = self.parent.fetch_manifest()
         return data, name
+
+    def resetManifest(self):
+        self.manifest = None
+        self.manifest_name = None
+        self.upload_button.setText("Upload Manifest")
 
     def goToLog(self):
         log = LogPage(self.parent)
@@ -119,8 +124,9 @@ class UserHeader(QWidget):
                 self.parent.db.update_by_id("Lists", "id", 1, {"Manifest": str(manifestData), "ManifestName": file_name})
 
                 self.upload_button.setText(f"Manifest: {file_name}")
-
+                username = self.getUsername()
                 print(f"Manifest file selected: {file_name}")
+                self.parent.add_log_entry(f"{username} uploaded {file_name}")
                 print(f"Manifest data saved to the database.")
             except Exception as e:
                 print(f"Error reading or processing the file: {e}")

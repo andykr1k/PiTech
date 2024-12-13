@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QTextEdit, QLineEdit
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QTextEdit, QLineEdit, QFileDialog
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 
@@ -20,7 +20,7 @@ class LogPage(QDialog):
         self.titleLabel.setAlignment(Qt.AlignCenter)
         self.titleLabel.setStyleSheet(
             """
-            color: black; 
+            color: black;
             """
         )
         layout.addWidget(self.titleLabel)
@@ -29,9 +29,9 @@ class LogPage(QDialog):
         self.logDisplay.setReadOnly(True)
         self.logDisplay.setStyleSheet(
             """
-            background-color: #F1F1F1; 
-            color: black; 
-            font-weight: bold; 
+            background-color: #F1F1F1;
+            color: black;
+            font-weight: bold;
             font-size: 20px;
             border: 2px solid #3F51B5;
             border-radius: 10px;
@@ -69,6 +69,19 @@ class LogPage(QDialog):
         )
         comment_layout.addWidget(self.commentButton)
 
+        self.downloadButton = QPushButton("Download")
+        self.downloadButton.setFont(QFont("Arial", 14))
+        self.downloadButton.clicked.connect(self.download_logs)
+        self.downloadButton.setStyleSheet(
+            """
+            background-color: #2F27CE;
+            color: white;
+            border-radius: 10px;
+            padding: 10px;
+            """
+        )
+        comment_layout.addWidget(self.downloadButton)
+
         layout.addLayout(comment_layout)
         main_layout.addLayout(layout)
         self.setLayout(main_layout)
@@ -79,11 +92,11 @@ class LogPage(QDialog):
         self.resize(1000, 1000)
         self.center()
 
-        self.refresh_logs()  # Populate logs initially
+        self.refresh_logs()
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.refresh_logs)
-        self.timer.start(500)  # Refresh frequently
+        self.timer.start(500)
 
     def center(self):
         screen_geometry = self.screen().geometry()
@@ -95,20 +108,37 @@ class LogPage(QDialog):
     def addComment(self):
         username = self.getUsername()
         text = self.commentInput.text().strip()
-        self.parent.add_log_entry(f"{username} comments: {text}")
+        self.parent.add_log_entry(f"{username} commented \"{text}\"")
         self.clearCommentInput()
 
-    # Refresh the log page to display updated log database
     def refresh_logs(self):
-        # Fetch all rows in log database
         logs = self.parent.fetch_logs()
-        # Display log database on log page
         self.logDisplay.setText("\n".join(logs))
+
+    def download_logs(self):
+        username = self.getUsername()
+        text = self.commentInput.text().strip()
+        log = self.parent.fetch_logs_for_download()
+        log_name = "KeoghsPort2024.txt"
+        self.parent.add_log_entry(f"{username} downloaded {log_name}")
+
+        options = QFileDialog.Options()
+        save_path, _ = QFileDialog.getSaveFileName(
+            self, "Save Log File", log_name, "All Files (*)", options=options
+        )
+
+        if save_path:
+            try:
+                with open(save_path, 'w') as file:
+                    for l in log:
+                        file.write(l)
+
+            except Exception as e:
+                print(f"Error saving file: {e}")
 
     def clearCommentInput(self):
         self.commentInput.clear()
 
-    # Get current users username
     def getUsername(self):
         return self.parent.fetch_username()
 

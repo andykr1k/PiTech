@@ -94,7 +94,7 @@ class SignInPage(QWidget):
         self.parent.db.update_by_id("profile", "id", 1, {"username": username, "currentTab": "Home"})
         self.parent.setCurrentIndex(1)
 
-        self.parent.add_log_entry(f"{username} signs in")
+        self.parent.add_log_entry(f"{username} signed in")
 
     def clearUsernameInput(self):
         self.usernameInput.clear()

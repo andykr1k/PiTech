@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QScrollArea, QWidget, QPushButton, QSpacerItem, QSizePolicy, QFrame
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QScrollArea, QWidget, QPushButton, QSpacerItem, QSizePolicy, QFrame, QFileDialog
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 import re
@@ -10,6 +10,7 @@ class Steps(QWidget):
         self.current_step = current_step
         self.total_time = total_time
         self.parent = parent
+        self.done_button = None
         self.initUI()
 
     def initUI(self):
@@ -23,6 +24,22 @@ class Steps(QWidget):
         if self.current_step == "COMPLETED":
             steps_title = self.create_label("Operation Completed", 20, bold=True)
             steps_layout.addWidget(steps_title)
+            steps_layout.addItem(self.create_spacer())
+            download_button = self.create_button(
+                "Download Outbound Manifest",
+                self.download_outbound_clicked,
+                "#6200EE",
+                "#3700B3"
+            )
+            steps_layout.addWidget(download_button)
+            self.done_button = self.create_button(
+                "Done",
+                self.done_button_clicked,
+                "#6200EE",
+                "#3700B3"
+            )
+            self.done_button.setEnabled(False)
+            steps_layout.addWidget(self.done_button)
             main_layout.addWidget(steps_container)
             return
 
@@ -119,8 +136,45 @@ class Steps(QWidget):
         self.parent.parent.update_current_step_in_db(self.current_step, "COMPLETED")
         self.parent.update_operations_page()
 
+    def download_outbound_clicked(self):
+        list_object = self.parent.parent.db.fetch_one("Lists", "id = ?", params=(1,))
+        # manifest = list_object[5]
+        # manifest_name = list_object[6]
+        manifest = "Manifest Content"
+        manifest_name = "OutboundManifestName.txt"
+
+        options = QFileDialog.Options()
+        save_path, _ = QFileDialog.getSaveFileName(
+            self, "Save Manifest", manifest_name, "All Files (*)", options=options
+        )
+
+        if save_path:
+            try:
+                with open(save_path, 'w') as file:
+                    file.write(manifest)
+                if self.done_button:
+                    self.done_button.setEnabled(True)
+            except Exception as e:
+                print(f"Error saving file: {e}")
+
+
+    def done_button_clicked(self):
+        self.parent.parent.db.update_by_id("profile", "id", 1, {"currentTab": "Home"})
+        self.parent.parent.add_log_entry(f"Operation Completed")
+        self.parent.parent.db.drop_table("Lists")
+        self.parent.parent.db.create_table(
+            "Lists", "id INTEGER PRIMARY KEY, UnloadLoadList TEXT, Manifest TEXT, ManifestName TEXT, OutboundManifest TEXT, OutboundManifestName TEXT")
+        self.parent.parent.home_page.header.resetManifest()
+        self.parent.parent.setCurrentIndex(1)
+
     def correct_moves(self, string):
-        parsedLine = re.findall(r'((\d+),(\d+))', string)
-        y = parsedLine[0][1]
-        x = parsedLine[0][2]
-        return f"({x},{y})"
+        if string not in ["(-1,-1)", "(8,0)", "(4,0)"]:
+            parsedLine = re.findall(r'((\d+),(\d+))', string)
+            y = parsedLine[0][1]
+            x = parsedLine[0][2]
+            return f"({x},{y})"
+        else:
+            if string == "(-1,-1)":
+                return "truck"
+            else:
+                return "crane"

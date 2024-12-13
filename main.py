@@ -73,7 +73,7 @@ class PiTech(QStackedWidget):
         db.create_table(
             "Log", "id INTEGER PRIMARY KEY, Time TEXT, Event TEXT"
         )
-        
+
         db.create_table(
             "Lists", "id INTEGER PRIMARY KEY, UnloadLoadList TEXT, Manifest TEXT, ManifestName TEXT, OutboundManifest TEXT, OutboundManifestName TEXT")
 
@@ -119,11 +119,11 @@ class PiTech(QStackedWidget):
         return data, name
 
     def fetch_moves_list(self):
-        moves = self.db.fetch_all("Moves", "DESC")
+        moves = self.db.fetch_all("Moves", "ASC")
         return moves
 
     def fetch_current_step(self):
-        current_step = self.db.fetch_all("Moves", "DESC")
+        current_step = self.db.fetch_all("Moves", "ASC")
         for move in current_step:
             if not move[4] == "COMPLETED":
                 return move
@@ -139,6 +139,7 @@ class PiTech(QStackedWidget):
         return
 
     def handle_balance(self):
+        self.add_log_entry(f"Balance Operation Selected")
         manifest_data, manifest_name = self.fetch_manifest()
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
@@ -158,7 +159,7 @@ class PiTech(QStackedWidget):
             "Moves", "id INTEGER PRIMARY KEY, From_Slot TEXT, To_Slot TEXT, Cost INT(4), Status TEXT, Completed_Grid_State TEXT")
         for move in moves:
             self.db.insert("Moves", "From_Slot, To_Slot, Cost, Status, Completed_Grid_State", (str(
-                move[0].get_from_slot()).replace(" ", ""), str(move[0].get_to_slot()).replace(" ", ""), move[0].get_cost(), "NOT STARTED", str(self.parse_grid_state(move[1].get_grid()))))
+                move[0].get_from_slot().position).replace(" ", ""), str(move[0].get_to_slot().position).replace(" ", ""), move[0].get_cost(), "NOT STARTED", str(self.parse_grid_state(move[1].get_grid()))))
         return
 
     def update_current_step_in_db(self, current_step, status):
@@ -185,6 +186,7 @@ class PiTech(QStackedWidget):
         return
 
     def handle_transfer(self):
+        self.add_log_entry(f"Transfer Operation Selected")
         manifest_data, manifest_name = self.fetch_manifest()
         self.grid = Grid()
         self.grid.setup_grid(manifest_data)
@@ -220,27 +222,17 @@ class PiTech(QStackedWidget):
         # Return all rows in log database
         return [f"{log[1]}: {log[2]}" for log in logs]
 
-    # Function that exports the log to a .txt file
-    def export_log(self):
-        # Define export path
-        log_dir = os.path.join(os.getcwd(), "Data", "logs")
-        # Define log .txt file name 
-        export_path = os.path.join(log_dir, "KeoghsPort2024.txt")
-        # Make a directory for log file unless it already exists
-        os.makedirs(log_dir, exist_ok=True)
+    def fetch_logs_for_download(self):
         # Define log database
         logs = self.db.fetch_all("Log", "ASC")
-        # Write all data in log database to export path
-        with open(export_path, "w") as file:
-            for log in logs:
-                file.write(f"{log[1]}: {log[2]}\n")
+        # Return all rows in log database with new line char
+        return [f"{log[1]}: {log[2]}\n" for log in logs]
+
 
 def main():
     app = QApplication(sys.argv)
     system = PiTech()
-    system.export_log()
     sys.exit(app.exec_())
-    
 
 if __name__ == "__main__":
     main()

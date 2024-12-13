@@ -63,24 +63,31 @@ class OperationPage(QWidget):
     def get_current_step(self):
         return self.parent.fetch_current_step()
 
+    def initialize_steps_widget(self):
+        return Steps(self.steps_list, self.current_step, self.steps_cost, self)
+
+    def initialize_visual_grid(self):
+        grid = Grid(self, static=True, gridState=self.grid_state, current_move=self.current_step)
+        return grid.visualizeGrid()
+
     def update_operations_page(self):
         self.grid_state = self.parse_grid_state(self.get_grid_state())
         self.steps_list = self.get_moves_list()
         self.steps_cost = self.get_total_moves_cost()
         self.current_step = self.get_current_step()
 
-        new_steps_widget = Steps(self.steps_list, self.current_step, self.steps_cost, self)
-        new_grid = Grid(self, static=True, gridState=self.grid_state, current_move=self.current_step)
-        new_visual_grid = new_grid.visualizeGrid()
+        self.grid_layout.removeWidget(self.visual_grid)
+        self.visual_grid.deleteLater()
+
+        self.grid = Grid(self, static=True, gridState=self.grid_state, current_move=self.current_step)
+        self.visual_grid = self.grid.visualizeGrid()
+        self.grid_layout.addWidget(self.visual_grid)
 
         self.middle_section.removeWidget(self.steps_widget)
         self.steps_widget.deleteLater()
 
-        self.grid_layout.removeWidget(self.visual_grid)
-        self.visual_grid.deleteLater()
+        self.steps_widget = Steps(self.steps_list, self.current_step, self.steps_cost, self)
+        self.middle_section.addWidget(self.steps_widget)
 
-        self.middle_section.addWidget(new_steps_widget)
-        self.grid_layout.addWidget(new_visual_grid)
-
-        self.steps_widget = new_steps_widget
-        self.visual_grid = new_visual_grid
+        self.update()
+        self.repaint()
